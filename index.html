@@ -1,202 +1,633 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>StockMarketBro</title>
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#1D9E75">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-title" content="StockMarketBro">
-  <link rel="apple-touch-icon" href="logo.png">
-  <style>
-    *{box-sizing:border-box;margin:0;padding:0;}
-    :root{--green:#1D9E75;--green-light:#E1F5EE;--green-dark:#0F6E56;--red:#E24B4A;--red-light:#FCEBEB;--red-dark:#A32D2D;--amber-light:#FAEEDA;--amber-dark:#854F0B;--purple-light:#EEEDFE;--purple-dark:#3C3489;--blue-light:#E6F1FB;--blue-dark:#185FA5;--bg:#fff;--bg2:#f7f7f5;--text:#1a1a1a;--text2:#6b6b6b;--border:rgba(0,0,0,0.1);--border2:rgba(0,0,0,0.2);--radius:8px;--radius-lg:12px;}
-    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
-    .auth-screen{display:none;position:fixed;inset:0;background:var(--bg);z-index:1000;align-items:center;justify-content:center;padding:20px;}
-    .auth-screen.show{display:flex;}
-    .auth-box{width:100%;max-width:400px;text-align:center;}
-    .auth-logo{width:80px;height:80px;border-radius:50%;object-fit:cover;margin-bottom:16px;}
-    .auth-title{font-size:22px;font-weight:600;margin-bottom:4px;}.auth-title span{color:var(--green);}
-    .auth-sub{font-size:13px;color:var(--text2);margin-bottom:28px;}
-    .auth-tabs{display:flex;border:0.5px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:20px;}
-    .auth-tab{flex:1;padding:9px;border:none;background:transparent;cursor:pointer;font-size:13px;color:var(--text2);}
-    .auth-tab.active{background:var(--green);color:#fff;font-weight:500;}
-    .auth-input{width:100%;padding:10px 14px;border:0.5px solid var(--border);border-radius:var(--radius);font-size:14px;color:var(--text);background:var(--bg2);margin-bottom:10px;outline:none;font-family:inherit;}
-    .auth-input:focus{border-color:var(--green);}
-    .auth-btn{width:100%;padding:11px;border-radius:var(--radius);border:none;background:var(--green);color:#fff;font-size:14px;font-weight:500;cursor:pointer;margin-bottom:12px;}
-    .auth-btn:hover{opacity:0.88;}
-    .auth-divider{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
-    .auth-divider-line{flex:1;height:0.5px;background:var(--border);}
-    .auth-divider span{font-size:12px;color:var(--text2);}
-    .auth-google-btn{width:100%;padding:10px;border-radius:var(--radius);border:0.5px solid var(--border);background:var(--bg);color:var(--text);font-size:13px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;}
-    .auth-google-btn:hover{background:var(--bg2);}
-    .auth-error{font-size:12px;color:var(--red-dark);background:var(--red-light);padding:8px 12px;border-radius:var(--radius);margin-bottom:10px;display:none;text-align:left;}
-    .app{display:none;flex-direction:column;min-height:100vh;}
-    .app.show{display:flex;}
-    .topbar{display:flex;align-items:center;justify-content:space-between;padding:10px 20px;border-bottom:0.5px solid var(--border);background:var(--bg);position:sticky;top:0;z-index:100;flex-wrap:wrap;gap:8px;}
-    .logo{display:flex;align-items:center;gap:10px;}
-    .logo img{width:40px;height:40px;border-radius:50%;object-fit:cover;}
-    .logo-name{font-size:14px;font-weight:600;}.logo-name span{color:var(--green);}
-    .logo-sub{font-size:10px;color:var(--text2);}
-    .live-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--green);margin-right:3px;animation:pulse 1.5s infinite;}
-    @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.3;}}
-    .nav{display:flex;gap:2px;flex-wrap:wrap;}
-    .nav-btn{padding:5px 11px;border-radius:var(--radius);border:none;background:transparent;cursor:pointer;font-size:12px;color:var(--text2);}
-    .nav-btn:hover{background:var(--bg2);}
-    .nav-btn.active{background:var(--bg2);color:var(--text);font-weight:500;}
-    .notif-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--red);margin-left:4px;vertical-align:middle;}
-    .user-avatar{width:32px;height:32px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500;color:#fff;cursor:pointer;overflow:hidden;position:relative;}
-    .user-avatar img{width:100%;height:100%;object-fit:cover;}
-    .user-menu{position:absolute;top:60px;right:16px;background:var(--bg);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:8px;min-width:200px;box-shadow:0 4px 16px rgba(0,0,0,0.1);z-index:200;display:none;}
-    .user-menu.show{display:block;}
-    .user-menu-name{font-size:13px;font-weight:500;padding:6px 10px;}
-    .user-menu-email{font-size:11px;color:var(--text2);padding:2px 10px 8px;border-bottom:0.5px solid var(--border);margin-bottom:6px;}
-    .user-menu-item{padding:8px 10px;font-size:13px;cursor:pointer;border-radius:var(--radius);display:flex;align-items:center;gap:8px;}
-    .user-menu-item:hover{background:var(--bg2);}
-    .section{display:none;padding:16px 20px;flex-direction:column;gap:14px;max-width:1200px;margin:0 auto;width:100%;}
-    .section.active{display:flex;}
-    .card{background:var(--bg);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:14px;overflow:hidden;}
-    .card-title{font-size:11px;font-weight:500;color:var(--text2);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.05em;}
-    .two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
-    .three-col{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
-    @media(max-width:700px){.two-col,.three-col{grid-template-columns:1fr;}}
-    .sym-btn{padding:4px 11px;border-radius:999px;border:0.5px solid var(--border);background:var(--bg2);font-size:11px;cursor:pointer;color:var(--text);white-space:nowrap;}
-    .sym-btn.active{background:var(--green);color:#fff;border-color:var(--green);}
-    .search-wrap{display:flex;gap:8px;}
-    .search-input{flex:1;font-size:13px;padding:8px 12px;border:0.5px solid var(--border);border-radius:var(--radius);background:var(--bg2);color:var(--text);outline:none;text-transform:uppercase;}
-    .search-input::placeholder{text-transform:none;color:var(--text2);}
-    .search-input:focus{border-color:var(--green);}
-    .search-btn{padding:8px 14px;border-radius:var(--radius);border:none;background:var(--green);color:#fff;font-size:12px;font-weight:500;cursor:pointer;}
-    .sug-chip{padding:3px 9px;border-radius:999px;border:0.5px solid var(--border);font-size:11px;cursor:pointer;color:var(--text2);}
-    .sug-chip:hover{background:var(--bg2);}
-    .active-symbol{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:999px;background:var(--green-light);color:var(--green-dark);font-size:11px;font-weight:500;}
-    .tv-wrap{border-radius:var(--radius-lg);overflow:hidden;border:0.5px solid var(--border);}
-    .input-group{display:flex;flex-direction:column;gap:4px;}
-    .input-group label{font-size:11px;color:var(--text2);}
-    .input-group select,.input-group input,.input-group textarea{font-size:13px;padding:8px 10px;border:0.5px solid var(--border);border-radius:var(--radius);background:var(--bg2);color:var(--text);outline:none;font-family:inherit;}
-    .input-group textarea{resize:vertical;min-height:80px;line-height:1.5;}
-    .btn-green{padding:9px 18px;border-radius:var(--radius);border:none;background:var(--green);color:#fff;font-size:13px;font-weight:500;cursor:pointer;}
-    .btn-buy{padding:9px;border-radius:var(--radius);border:none;background:var(--green);color:#fff;font-size:13px;font-weight:500;cursor:pointer;width:100%;}
-    .btn-sell{padding:9px;border-radius:var(--radius);border:none;background:var(--red);color:#fff;font-size:13px;font-weight:500;cursor:pointer;width:100%;}
-    .level-badge{display:inline-block;margin-top:6px;padding:2px 7px;border-radius:999px;font-size:10px;font-weight:500;}
-    .lvl-basic{background:var(--green-light);color:var(--green-dark);}
-    .lvl-inter{background:var(--amber-light);color:var(--amber-dark);}
-    .lvl-adv{background:var(--purple-light);color:var(--purple-dark);}
-    .lesson-card{background:var(--bg);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:14px;cursor:pointer;transition:border-color 0.15s;}
-    .lesson-card:hover{border-color:var(--border2);}
-    .lesson-title{font-size:13px;font-weight:500;margin-bottom:4px;}
-    .lesson-desc{font-size:11px;color:var(--text2);line-height:1.5;}
-    .sim-label{font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:0.04em;}
-    .portfolio-table{width:100%;font-size:12px;border-collapse:collapse;}
-    .portfolio-table th{text-align:left;padding:5px 6px;color:var(--text2);font-size:10px;font-weight:500;border-bottom:0.5px solid var(--border);text-transform:uppercase;}
-    .portfolio-table td{padding:7px 6px;border-bottom:0.5px solid var(--border);}
-    .portfolio-table tr:last-child td{border-bottom:none;}
-    .sim-price-row{display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:0.5px solid var(--border);}
-    .sim-price-row:last-child{border-bottom:none;}
-    .change-pos{color:var(--green-dark);}
-    .change-neg{color:var(--red-dark);}
-    .quiz-card{background:var(--bg);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:20px;}
-    .quiz-q{font-size:15px;font-weight:500;margin-bottom:14px;line-height:1.5;}
-    .quiz-opt{display:block;width:100%;text-align:left;padding:10px 14px;border-radius:var(--radius);border:0.5px solid var(--border);background:var(--bg2);font-size:13px;color:var(--text);cursor:pointer;margin-bottom:8px;font-family:inherit;}
-    .quiz-opt.correct{background:var(--green-light);border-color:var(--green);color:var(--green-dark);font-weight:500;}
-    .quiz-opt.wrong{background:var(--red-light);border-color:var(--red);color:var(--red-dark);}
-    .quiz-feedback{margin-top:10px;padding:10px 14px;border-radius:var(--radius);font-size:13px;line-height:1.5;display:none;}
-    .quiz-bar-wrap{flex:1;height:5px;background:var(--bg2);border-radius:999px;overflow:hidden;}
-    .quiz-bar{height:100%;background:var(--green);border-radius:999px;transition:width 0.3s;}
-    .alert-row{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:0.5px solid var(--border);}
-    .alert-row:last-child{border-bottom:none;}
-    .alert-sym{font-size:13px;font-weight:500;min-width:50px;}
-    .alert-badge{font-size:11px;padding:2px 8px;border-radius:999px;}
-    .alert-above{background:var(--green-light);color:var(--green-dark);}
-    .alert-below{background:var(--red-light);color:var(--red-dark);}
-    .alert-del{border:none;background:transparent;color:var(--text2);cursor:pointer;font-size:14px;padding:2px 6px;}
-    .rec-card{border-radius:var(--radius-lg);border:0.5px solid var(--border);padding:16px;position:relative;background:var(--bg);transition:border-color 0.2s;}
-    .rec-card:hover{border-color:var(--border2);}
-    .rec-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
-    @media(max-width:700px){.rec-grid{grid-template-columns:1fr;}}
-    .rec-type-badge{display:inline-block;padding:3px 10px;border-radius:999px;font-size:11px;font-weight:500;margin-bottom:10px;}
-    .rec-compra{background:var(--green-light);color:var(--green-dark);}
-    .rec-venta{background:var(--red-light);color:var(--red-dark);}
-    .rec-alerta{background:var(--amber-light);color:var(--amber-dark);}
-    .rec-analisis{background:var(--purple-light);color:var(--purple-dark);}
-    .rec-noticia{background:var(--blue-light);color:var(--blue-dark);}
-    .rec-title{font-size:14px;font-weight:500;margin-bottom:6px;line-height:1.4;}
-    .rec-body{font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:10px;}
-    .rec-meta{font-size:11px;color:var(--text2);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;}
-    .rec-author{display:flex;align-items:center;gap:6px;}
-    .rec-pin{position:absolute;top:12px;right:12px;font-size:10px;padding:2px 7px;border-radius:999px;background:var(--amber-light);color:var(--amber-dark);}
-    .rec-del-btn{border:none;background:transparent;color:var(--text2);cursor:pointer;font-size:12px;padding:2px 8px;border-radius:var(--radius);}
-    .news-item{padding:10px 0;border-bottom:0.5px solid var(--border);}
-    .news-item:last-child{border-bottom:none;}
-    .news-tag{display:inline-block;padding:1px 7px;border-radius:999px;font-size:10px;font-weight:500;}
-    .news-title{font-size:13px;font-weight:500;margin:4px 0 2px;line-height:1.4;}
-    .news-meta{font-size:11px;color:var(--text2);}
-    .sent-pos{background:var(--green-light);color:var(--green-dark);}
-    .sent-neg{background:var(--red-light);color:var(--red-dark);}
-    .sent-neu{background:#f1efea;color:#5f5e5a;}
-    .glosario-item{background:var(--bg2);border-radius:var(--radius);padding:10px 14px;cursor:pointer;margin-bottom:7px;}
-    .glosario-term{font-size:13px;font-weight:500;display:flex;justify-content:space-between;}
-    .glosario-def{font-size:12px;color:var(--text2);margin-top:6px;line-height:1.5;display:none;}
-    .glosario-item.open .glosario-def{display:block;}
-    .glosario-item.open .arrow{transform:rotate(180deg);}
-    .arrow{transition:transform 0.2s;}
-    .install-banner{display:none;align-items:center;justify-content:space-between;padding:10px 20px;background:var(--green);color:#fff;font-size:13px;gap:12px;}
-    .install-banner.show{display:flex;}
-    .install-btn{padding:6px 14px;border-radius:var(--radius);border:1.5px solid #fff;background:transparent;color:#fff;font-size:12px;cursor:pointer;}
-    .empty-state{text-align:center;padding:32px;color:var(--text2);font-size:13px;}
-    .loading-state{text-align:center;padding:20px;color:var(--text2);font-size:13px;}
-    .badge-count{padding:2px 7px;border-radius:999px;font-size:10px;background:var(--bg2);color:var(--text2);}
-    .toast{position:fixed;bottom:24px;right:20px;background:var(--green);color:#fff;padding:10px 18px;border-radius:var(--radius);font-size:13px;display:none;z-index:9999;max-width:300px;box-shadow:0 4px 16px rgba(0,0,0,0.15);}
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>StockMarketBro — Trading, Educación e Inversiones</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1D9E75">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="StockMarketBro">
+<link rel="apple-touch-icon" href="logo.png">
+<meta name="description" content="Plataforma educativa de trading e inversiones. Aprende, practica y analiza el mercado con herramientas profesionales.">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --g:#1D9E75;--gl:#E1F5EE;--gd:#0F6E56;
+  --r:#E24B4A;--rl:#FCEBEB;--rd:#A32D2D;
+  --al:#FAEEDA;--ad:#854F0B;
+  --pl:#EEEDFE;--pd:#3C3489;
+  --bl:#E6F1FB;--bd:#185FA5;
+  --bg:#fff;--bg2:#f7f7f5;--bg3:#f0efec;
+  --tx:#1a1a1a;--tx2:#6b6b6b;
+  --br:rgba(0,0,0,0.09);--br2:rgba(0,0,0,0.16);
+  --rad:8px;--rad-lg:14px;--rad-xl:20px;
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--tx);overflow-x:hidden;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+@keyframes ticker{0%{transform:translateX(0);}100%{transform:translateX(-50%);}}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.35;}}
+@keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-6px);}}
+@keyframes shimmer{0%,100%{opacity:0.5;}50%{opacity:1;}}
+.a1{animation:fadeUp .6s ease both;}
+.a2{animation:fadeUp .6s .12s ease both;}
+.a3{animation:fadeUp .6s .24s ease both;}
+.a4{animation:fadeUp .6s .36s ease both;}
+.a5{animation:fadeUp .6s .48s ease both;}
+.live-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--g);animation:pulse 1.5s infinite;margin-right:4px;}
+
+/* ── MODAL ── */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;padding:20px;}
+.modal-bg.open{display:flex;}
+.modal{background:var(--bg);border-radius:var(--rad-xl);padding:28px;width:100%;max-width:380px;position:relative;animation:fadeUp .22s ease both;}
+.modal-close{position:absolute;top:14px;right:14px;width:26px;height:26px;border-radius:50%;border:none;background:var(--bg2);cursor:pointer;font-size:13px;color:var(--tx2);}
+.modal img{width:54px;height:54px;border-radius:50%;object-fit:cover;display:block;margin:0 auto 12px;}
+.modal h3{font-size:18px;font-weight:700;text-align:center;margin-bottom:4px;}
+.modal h3 span{color:var(--g);}
+.modal-desc{font-size:12px;color:var(--tx2);text-align:center;margin-bottom:18px;}
+.modal-tabs{display:flex;border:0.5px solid var(--br);border-radius:var(--rad);overflow:hidden;margin-bottom:14px;}
+.mt{flex:1;padding:8px;border:none;background:transparent;font-size:12px;cursor:pointer;color:var(--tx2);font-family:inherit;}
+.mt.active{background:var(--g);color:#fff;font-weight:500;}
+.minp{width:100%;padding:9px 12px;border:0.5px solid var(--br);border-radius:var(--rad);font-size:13px;color:var(--tx);background:var(--bg2);margin-bottom:9px;outline:none;font-family:inherit;}
+.minp:focus{border-color:var(--g);}
+.mbtn{width:100%;padding:10px;border-radius:var(--rad);border:none;background:var(--g);color:#fff;font-size:13px;font-weight:500;cursor:pointer;margin-bottom:10px;font-family:inherit;}
+.mbtn:hover{opacity:0.88;}
+.mdiv{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+.mdiv-line{flex:1;height:0.5px;background:var(--br);}
+.mdiv span{font-size:11px;color:var(--tx2);}
+.mgoogle{width:100%;padding:9px;border-radius:var(--rad);border:0.5px solid var(--br);background:var(--bg);font-size:12px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;font-family:inherit;}
+.mgoogle:hover{background:var(--bg2);}
+.merr{font-size:11px;color:var(--rd);background:var(--rl);padding:7px 10px;border-radius:var(--rad);margin-bottom:8px;display:none;}
+
+/* ── LANDING ── */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:12px 28px;border-bottom:0.5px solid var(--br);background:rgba(255,255,255,0.96);position:sticky;top:0;z-index:200;flex-wrap:wrap;gap:8px;}
+.logo{display:flex;align-items:center;gap:9px;}
+.logo img{width:34px;height:34px;border-radius:50%;object-fit:cover;}
+.logo-name{font-size:14px;font-weight:700;letter-spacing:.01em;}
+.logo-name span{color:var(--g);}
+.nav-links{display:flex;align-items:center;gap:2px;}
+.nav-link{padding:6px 11px;font-size:12px;color:var(--tx2);cursor:pointer;border-radius:var(--rad);border:none;background:transparent;font-family:inherit;}
+.nav-link:hover{background:var(--bg2);color:var(--tx);}
+.btn-login{padding:7px 15px;border-radius:var(--rad);border:0.5px solid var(--br2);background:transparent;font-size:12px;font-weight:500;color:var(--tx);cursor:pointer;font-family:inherit;}
+.btn-login:hover{background:var(--bg2);}
+.btn-signup{padding:7px 15px;border-radius:var(--rad);border:none;background:var(--g);font-size:12px;font-weight:500;color:#fff;cursor:pointer;margin-left:5px;font-family:inherit;}
+.btn-signup:hover{opacity:0.88;}
+.ticker-wrap{overflow:hidden;border-bottom:0.5px solid var(--br);background:var(--bg2);padding:7px 0;}
+.ticker-inner{display:flex;width:max-content;animation:ticker 32s linear infinite;}
+.tick-item{display:flex;align-items:center;gap:5px;padding:0 16px;border-right:0.5px solid var(--br);font-size:11px;white-space:nowrap;}
+.tick-sym{font-weight:600;}
+.up{color:var(--gd);}
+.dn{color:var(--rd);}
+.hero{padding:56px 28px 44px;text-align:center;max-width:740px;margin:0 auto;}
+.hero-badge{display:inline-flex;align-items:center;gap:6px;background:var(--gl);color:var(--gd);font-size:11px;font-weight:500;padding:4px 12px;border-radius:999px;margin-bottom:18px;}
+.hero h1{font-size:42px;font-weight:700;line-height:1.1;letter-spacing:-.025em;margin-bottom:14px;}
+.hero h1 span{color:var(--g);}
+.hero p{font-size:16px;color:var(--tx2);line-height:1.65;max-width:500px;margin:0 auto 26px;}
+.hero-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
+.btn-primary{padding:12px 24px;border-radius:var(--rad-lg);border:none;background:var(--g);color:#fff;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;}
+.btn-primary:hover{opacity:0.88;}
+.btn-secondary{padding:12px 24px;border-radius:var(--rad-lg);border:0.5px solid var(--br2);background:transparent;color:var(--tx);font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;}
+.btn-secondary:hover{background:var(--bg2);}
+.hero-stats{display:flex;gap:28px;justify-content:center;margin-top:36px;flex-wrap:wrap;}
+.hstat-num{font-size:26px;font-weight:700;}
+.hstat-label{font-size:11px;color:var(--tx2);margin-top:2px;}
+.live-row{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;padding:0 28px 48px;max-width:1020px;margin:0 auto;}
+@media(max-width:700px){.live-row{grid-template-columns:repeat(2,1fr);}}
+.live-card{border:0.5px solid var(--br);border-radius:var(--rad-lg);padding:12px;background:var(--bg);}
+.lc-sym{font-size:13px;font-weight:700;margin-bottom:2px;}
+.lc-name{font-size:10px;color:var(--tx2);margin-bottom:7px;}
+.lc-price{font-size:16px;font-weight:600;margin-bottom:2px;}
+.mini-bars{height:26px;display:flex;align-items:flex-end;gap:1.5px;margin-top:5px;}
+.mini-bar{border-radius:1px 1px 0 0;flex:1;}
+
+/* ── SIMULATOR SECTION ── */
+.sim-section{background:var(--bg2);border-top:0.5px solid var(--br);border-bottom:0.5px solid var(--br);padding:52px 28px;}
+.sim-inner{max-width:1020px;margin:0 auto;}
+.sim-pill{display:inline-flex;align-items:center;gap:6px;background:var(--g);color:#fff;font-size:11px;font-weight:600;padding:4px 12px;border-radius:999px;margin-bottom:14px;}
+.sim-grid{display:grid;grid-template-columns:320px 1fr;gap:18px;margin-top:28px;}
+@media(max-width:720px){.sim-grid{grid-template-columns:1fr;}}
+.trade-card{background:var(--bg);border:0.5px solid var(--br);border-radius:var(--rad-xl);padding:18px;}
+.mode-tabs{display:flex;border:0.5px solid var(--br);border-radius:var(--rad);overflow:hidden;margin-bottom:12px;}
+.mode-tab{flex:1;padding:7px;border:none;background:transparent;font-size:12px;cursor:pointer;color:var(--tx2);font-family:inherit;}
+.mode-tab.active{background:var(--g);color:#fff;font-weight:500;}
+.inp{width:100%;padding:8px 11px;border:0.5px solid var(--br);border-radius:var(--rad);font-size:13px;color:var(--tx);background:var(--bg2);outline:none;font-family:inherit;}
+.inp:focus{border-color:var(--g);}
+.search-wrap{position:relative;margin-bottom:9px;}
+.search-results{position:absolute;top:100%;left:0;right:0;background:var(--bg);border:0.5px solid var(--br);border-radius:var(--rad);z-index:50;max-height:180px;overflow-y:auto;display:none;box-shadow:0 4px 16px rgba(0,0,0,0.1);}
+.search-results.open{display:block;}
+.sri{padding:8px 11px;cursor:pointer;font-size:12px;display:flex;justify-content:space-between;align-items:center;border-bottom:0.5px solid var(--br);}
+.sri:last-child{border-bottom:none;}
+.sri:hover{background:var(--bg2);}
+.sri-sym{font-weight:700;}
+.sri-name{font-size:10px;color:var(--tx2);}
+.price-box{background:var(--bg2);border-radius:var(--rad-lg);padding:11px;margin-bottom:12px;display:none;}
+.pop-grid{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:12px;}
+.pop-btn{padding:3px 8px;border-radius:999px;border:0.5px solid var(--br);background:var(--bg2);font-size:11px;cursor:pointer;color:var(--tx2);font-family:inherit;}
+.pop-btn:hover{background:var(--gl);color:var(--gd);border-color:var(--g);}
+.qa-wrap{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:9px;}
+.qa-btn{padding:4px 9px;border-radius:999px;border:0.5px solid var(--br);background:var(--bg);font-size:11px;cursor:pointer;color:var(--tx2);font-family:inherit;}
+.qa-btn:hover{background:var(--gl);color:var(--gd);border-color:var(--g);}
+.calc-box{background:var(--gl);border-radius:var(--rad);padding:9px 11px;margin-bottom:9px;display:none;}
+.trade-btns{display:grid;grid-template-columns:1fr 1fr;gap:7px;}
+.btn-buy{padding:9px;border-radius:var(--rad-lg);border:none;background:var(--g);color:#fff;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;}
+.btn-buy:hover{opacity:0.88;}
+.btn-sell{padding:9px;border-radius:var(--rad-lg);border:none;background:var(--r);color:#fff;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;}
+.btn-sell:hover{opacity:0.88;}
+.port-panel{display:flex;flex-direction:column;gap:12px;}
+.bal-row{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;}
+.bal-card{background:var(--bg);border:0.5px solid var(--br);border-radius:var(--rad-lg);padding:13px;}
+.bal-label{font-size:10px;color:var(--tx2);text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px;}
+.bal-val{font-size:20px;font-weight:700;}
+.card{background:var(--bg);border:0.5px solid var(--br);border-radius:var(--rad-lg);padding:14px;}
+.ptable{width:100%;border-collapse:collapse;font-size:12px;}
+.ptable th{text-align:left;padding:4px 6px;color:var(--tx2);font-size:10px;font-weight:500;border-bottom:0.5px solid var(--br);text-transform:uppercase;}
+.ptable td{padding:7px 6px;border-bottom:0.5px solid var(--br);}
+.ptable tr:last-child td{border-bottom:none;}
+.hist-item{display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:0.5px solid var(--br);}
+.hist-item:last-child{border-bottom:none;}
+.hist-badge{padding:2px 7px;border-radius:999px;font-size:10px;font-weight:500;}
+
+/* ── APP SECTION ── */
+.app-section{max-width:1020px;margin:0 auto;padding:52px 28px;}
+.sec-label{font-size:11px;font-weight:600;color:var(--g);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;text-align:center;}
+.sec-title{font-size:30px;font-weight:700;letter-spacing:-.02em;text-align:center;margin-bottom:6px;}
+.sec-sub{font-size:14px;color:var(--tx2);text-align:center;margin-bottom:36px;}
+.feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:13px;}
+@media(max-width:700px){.feat-grid{grid-template-columns:1fr;}}
+.feat-card{border:0.5px solid var(--br);border-radius:var(--rad-xl);padding:20px;background:var(--bg);}
+.feat-icon{width:36px;height:36px;border-radius:var(--rad-lg);display:flex;align-items:center;justify-content:center;font-size:17px;margin-bottom:11px;}
+.feat-title{font-size:14px;font-weight:600;margin-bottom:4px;}
+.feat-desc{font-size:12px;color:var(--tx2);line-height:1.6;}
+.mod-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+@media(max-width:700px){.mod-grid{grid-template-columns:repeat(2,1fr);}}
+.mod-card{border:0.5px solid var(--br);border-radius:var(--rad-lg);padding:15px;cursor:pointer;transition:border-color .15s,transform .2s;animation:float 4s ease-in-out infinite;}
+.mod-card:hover{border-color:var(--g);transform:translateY(-3px);}
+.mod-card:nth-child(2){animation-delay:.4s;}
+.mod-card:nth-child(3){animation-delay:.8s;}
+.mod-card:nth-child(4){animation-delay:1.2s;}
+.mod-card:nth-child(5){animation-delay:.2s;}
+.mod-card:nth-child(6){animation-delay:.6s;}
+.mod-card:nth-child(7){animation-delay:1s;}
+.mod-card:nth-child(8){animation-delay:1.4s;}
+.mod-icon{font-size:20px;margin-bottom:7px;}
+.mod-name{font-size:12px;font-weight:600;margin-bottom:2px;}
+.mod-desc{font-size:11px;color:var(--tx2);}
+
+/* ── APP DASHBOARD (logged in) ── */
+.app-ui{display:none;flex-direction:column;min-height:100vh;}
+.app-ui.show{display:flex;}
+.app-topbar{display:flex;align-items:center;justify-content:space-between;padding:10px 20px;border-bottom:0.5px solid var(--br);background:var(--bg);position:sticky;top:0;z-index:100;flex-wrap:wrap;gap:8px;}
+.app-nav{display:flex;gap:2px;flex-wrap:wrap;}
+.app-nav-btn{padding:5px 10px;border-radius:var(--rad);border:none;background:transparent;cursor:pointer;font-size:12px;color:var(--tx2);font-family:inherit;}
+.app-nav-btn:hover{background:var(--bg2);}
+.app-nav-btn.active{background:var(--bg2);color:var(--tx);font-weight:500;}
+.notif-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--r);margin-left:3px;vertical-align:middle;}
+.app-section-content{display:none;padding:14px 20px;flex-direction:column;gap:12px;max-width:1200px;margin:0 auto;width:100%;}
+.app-section-content.active{display:flex;}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.three-col{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+@media(max-width:700px){.two-col,.three-col{grid-template-columns:1fr;}}
+.user-avatar{width:30px;height:30px;border-radius:50%;background:var(--g);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:#fff;cursor:pointer;overflow:hidden;position:relative;}
+.user-avatar img{width:100%;height:100%;object-fit:cover;}
+.user-menu{position:absolute;top:52px;right:16px;background:var(--bg);border:0.5px solid var(--br);border-radius:var(--rad-lg);padding:8px;min-width:190px;box-shadow:0 4px 16px rgba(0,0,0,0.1);z-index:300;display:none;}
+.user-menu.open{display:block;}
+.um-name{font-size:13px;font-weight:500;padding:6px 10px;}
+.um-email{font-size:11px;color:var(--tx2);padding:2px 10px 8px;border-bottom:0.5px solid var(--br);margin-bottom:5px;}
+.um-item{padding:8px 10px;font-size:13px;cursor:pointer;border-radius:var(--rad);display:flex;align-items:center;gap:8px;}
+.um-item:hover{background:var(--bg2);}
+.section-card{background:var(--bg);border:0.5px solid var(--br);border-radius:var(--rad-lg);padding:13px;overflow:hidden;}
+.section-card-title{font-size:11px;font-weight:500;color:var(--tx2);margin-bottom:10px;text-transform:uppercase;letter-spacing:.05em;}
+.tv-wrap{border-radius:var(--rad-lg);overflow:hidden;border:0.5px solid var(--br);}
+
+/* ALERTS SECTION */
+.alerts-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+@media(max-width:700px){.alerts-grid{grid-template-columns:1fr;}}
+.signal-list{display:flex;flex-direction:column;gap:7px;}
+.signal-card{border-radius:var(--rad-lg);border:0.5px solid var(--br);padding:11px 13px;display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.signal-card.high{border-left:3px solid var(--ad);background:rgba(250,238,218,0.25);}
+.signal-card.very-high{border-left:3px solid var(--r);background:rgba(252,235,235,0.3);}
+.level-badge{padding:3px 9px;border-radius:999px;font-size:11px;font-weight:600;white-space:nowrap;}
+.level-high{background:var(--al);color:var(--ad);}
+.level-very-high{background:var(--rl);color:var(--rd);}
+.level-none{background:var(--bg2);color:var(--tx2);}
+.skel{background:var(--bg2);border-radius:4px;animation:shimmer 1.5s infinite;}
+.filter-tabs{display:flex;gap:4px;margin-bottom:12px;flex-wrap:wrap;}
+.ftab{padding:4px 10px;border-radius:999px;border:0.5px solid var(--br);background:var(--bg2);font-size:11px;cursor:pointer;color:var(--tx2);font-family:inherit;}
+.ftab.active{background:var(--g);color:#fff;border-color:var(--g);}
+.progress-bar{height:3px;background:var(--gl);border-radius:999px;margin-bottom:12px;overflow:hidden;display:none;}
+.progress-fill{height:100%;background:var(--g);border-radius:999px;transition:width .3s;}
+
+/* MANUAL ALERTS */
+.alert-row{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:0.5px solid var(--br);}
+.alert-row:last-child{border-bottom:none;}
+.alert-sym{font-size:13px;font-weight:600;min-width:50px;}
+.alert-badge{font-size:11px;padding:2px 8px;border-radius:999px;}
+.alert-above{background:var(--gl);color:var(--gd);}
+.alert-below{background:var(--rl);color:var(--rd);}
+.alert-del{border:none;background:transparent;color:var(--tx2);cursor:pointer;font-size:14px;padding:2px 5px;}
+
+/* SIGNALS */
+.rec-card{border-radius:var(--rad-lg);border:0.5px solid var(--br);padding:13px;position:relative;background:var(--bg);transition:border-color .2s;margin-bottom:9px;}
+.rec-card:last-child{margin-bottom:0;}
+.rec-card:hover{border-color:var(--br2);}
+.rec-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+@media(max-width:700px){.rec-grid{grid-template-columns:1fr;}}
+.rec-type-badge{display:inline-block;padding:3px 10px;border-radius:999px;font-size:11px;font-weight:500;margin-bottom:8px;}
+.rec-compra{background:var(--gl);color:var(--gd);}
+.rec-venta{background:var(--rl);color:var(--rd);}
+.rec-alerta{background:var(--al);color:var(--ad);}
+.rec-analisis{background:var(--pl);color:var(--pd);}
+.rec-noticia{background:var(--bl);color:var(--bd);}
+.rec-title{font-size:13px;font-weight:600;margin-bottom:5px;line-height:1.4;}
+.rec-body{font-size:12px;color:var(--tx2);line-height:1.6;margin-bottom:8px;}
+.rec-meta{font-size:11px;color:var(--tx2);display:flex;align-items:center;gap:6px;}
+.rec-pin{position:absolute;top:10px;right:10px;font-size:10px;padding:2px 6px;border-radius:999px;background:var(--al);color:var(--ad);}
+.rec-del-btn{border:none;background:transparent;color:var(--tx2);cursor:pointer;font-size:11px;padding:2px 6px;border-radius:var(--rad);}
+.rec-del-btn:hover{background:var(--bg2);}
+
+/* QUIZ */
+.quiz-card{background:var(--bg);border:0.5px solid var(--br);border-radius:var(--rad-lg);padding:18px;}
+.quiz-q{font-size:15px;font-weight:500;margin-bottom:13px;line-height:1.5;}
+.quiz-opt{display:block;width:100%;text-align:left;padding:10px 13px;border-radius:var(--rad);border:0.5px solid var(--br);background:var(--bg2);font-size:13px;color:var(--tx);cursor:pointer;margin-bottom:7px;font-family:inherit;}
+.quiz-opt.correct{background:var(--gl);border-color:var(--g);color:var(--gd);font-weight:500;}
+.quiz-opt.wrong{background:var(--rl);border-color:var(--r);color:var(--rd);}
+.quiz-feedback{margin-top:9px;padding:9px 13px;border-radius:var(--rad);font-size:13px;line-height:1.5;display:none;}
+.quiz-bar-wrap{flex:1;height:4px;background:var(--bg2);border-radius:999px;overflow:hidden;}
+.quiz-bar{height:100%;background:var(--g);border-radius:999px;transition:width .3s;}
+
+/* GLOSARIO */
+.glos-item{background:var(--bg2);border-radius:var(--rad);padding:9px 12px;cursor:pointer;margin-bottom:6px;}
+.glos-term{font-size:13px;font-weight:500;display:flex;justify-content:space-between;}
+.glos-def{font-size:12px;color:var(--tx2);margin-top:5px;line-height:1.5;display:none;}
+.glos-item.open .glos-def{display:block;}
+.glos-item.open .arr{transform:rotate(180deg);}
+.arr{transition:transform .2s;}
+
+/* AUTHOR PANEL */
+.author-wrap{background:var(--bg2);border-radius:var(--rad-lg);padding:16px;border:0.5px solid var(--br);}
+.pin-input{font-size:20px;letter-spacing:8px;text-align:center;padding:10px;border:0.5px solid var(--br);border-radius:var(--rad);background:var(--bg);color:var(--tx);width:140px;font-family:inherit;outline:none;}
+
+/* SIMULATOR IN APP */
+.sim-label-sm{font-size:10px;color:var(--tx2);text-transform:uppercase;letter-spacing:.04em;margin-bottom:2px;}
+
+/* NEWS */
+.news-item{padding:9px 0;border-bottom:0.5px solid var(--br);}
+.news-item:last-child{border-bottom:none;}
+.news-tag{display:inline-block;padding:1px 6px;border-radius:999px;font-size:10px;font-weight:500;}
+.news-title{font-size:13px;font-weight:500;margin:3px 0 2px;line-height:1.4;}
+.news-meta{font-size:11px;color:var(--tx2);}
+.sent-pos{background:var(--gl);color:var(--gd);}
+.sent-neg{background:var(--rl);color:var(--rd);}
+.sent-neu{background:#f1efea;color:#5f5e5a;}
+
+/* INSTALL BANNER */
+.install-banner{display:none;align-items:center;justify-content:space-between;padding:9px 20px;background:var(--g);color:#fff;font-size:13px;gap:10px;}
+.install-banner.show{display:flex;}
+.install-btn{padding:5px 13px;border-radius:var(--rad);border:1.5px solid #fff;background:transparent;color:#fff;font-size:12px;cursor:pointer;font-family:inherit;}
+
+/* FOOTER */
+.footer{background:#111;color:#fff;padding:36px 28px 22px;}
+.footer-inner{max-width:1020px;margin:0 auto;}
+.footer-top{display:grid;grid-template-columns:1fr 1fr 1fr;gap:28px;margin-bottom:28px;}
+@media(max-width:640px){.footer-top{grid-template-columns:1fr;}}
+.footer-brand{display:flex;align-items:center;gap:9px;margin-bottom:10px;}
+.footer-brand img{width:32px;height:32px;border-radius:50%;object-fit:cover;}
+.footer-brand-name{font-size:13px;font-weight:700;}
+.footer-brand-name span{color:var(--g);}
+.footer-desc{font-size:11px;color:rgba(255,255,255,0.45);line-height:1.6;}
+.footer-col-title{font-size:10px;font-weight:600;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;}
+.footer-links{display:flex;flex-direction:column;gap:7px;}
+.footer-link{font-size:11px;color:rgba(255,255,255,0.5);cursor:pointer;}
+.footer-link:hover{color:#fff;}
+.footer-divider{border:none;border-top:0.5px solid rgba(255,255,255,0.07);margin-bottom:20px;}
+.disclaimer-box{background:rgba(255,255,255,0.04);border:0.5px solid rgba(255,255,255,0.09);border-radius:var(--rad-lg);padding:18px 20px;margin-bottom:20px;}
+.disclaimer-header{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+.disclaimer-title{font-size:11px;font-weight:600;color:rgba(250,238,218,0.85);text-transform:uppercase;letter-spacing:.06em;}
+.disclaimer-text{font-size:11px;color:rgba(255,255,255,0.4);line-height:1.7;}
+.disclaimer-text strong{color:rgba(255,255,255,0.6);font-weight:500;}
+.mini-disclaimer{background:rgba(239,159,39,0.07);border-top:0.5px solid rgba(239,159,39,0.18);padding:7px 28px;display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;}
+.mini-disclaimer-text{font-size:11px;color:rgba(255,255,255,0.4);text-align:center;line-height:1.5;}
+.mini-disclaimer-text strong{color:rgba(255,255,255,0.6);}
+.footer-bottom{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+.footer-copy{font-size:10px;color:rgba(255,255,255,0.22);}
+.footer-badges{display:flex;gap:6px;flex-wrap:wrap;}
+.footer-badge{padding:2px 9px;border-radius:999px;border:0.5px solid rgba(255,255,255,0.09);font-size:10px;color:rgba(255,255,255,0.3);}
+
+/* MISC */
+.empty{text-align:center;padding:24px;color:var(--tx2);font-size:12px;}
+.loading-state{text-align:center;padding:18px;color:var(--tx2);font-size:12px;}
+.badge-count{padding:2px 6px;border-radius:999px;font-size:10px;background:var(--bg2);color:var(--tx2);}
+.toast{position:fixed;bottom:20px;right:20px;background:var(--g);color:#fff;padding:10px 16px;border-radius:var(--rad);font-size:13px;display:none;z-index:9999;max-width:280px;box-shadow:0 4px 14px rgba(0,0,0,0.15);}
+</style>
 </head>
 <body>
 
-<!-- AUTH -->
-<div class="auth-screen show" id="auth-screen">
-  <div class="auth-box">
-    <img src="logo.png" alt="StockMarketBro" class="auth-logo" onerror="this.style.display='none'">
-    <div class="auth-title">STOCKMARKET<span>BRO</span></div>
-    <div class="auth-sub">Trading · Educación · Inversiones en tiempo real</div>
-    <div class="auth-tabs">
-      <button class="auth-tab active" id="tab-login-btn" onclick="switchAuthTab('login')">Iniciar sesión</button>
-      <button class="auth-tab" id="tab-register-btn" onclick="switchAuthTab('register')">Registrarse</button>
+<!-- ═══ MODAL LOGIN ═══ -->
+<div class="modal-bg" id="modal-bg" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <img src="logo.png" onerror="this.style.display='none'" alt="SMB">
+    <h3>STOCKMARKET<span>BRO</span></h3>
+    <div class="modal-desc">Trading · Educación · Inversiones en tiempo real</div>
+    <div class="modal-tabs">
+      <button class="mt active" id="mt-login" onclick="switchM('login')">Iniciar sesión</button>
+      <button class="mt" id="mt-reg" onclick="switchM('register')">Registrarse</button>
     </div>
-    <div id="auth-error" class="auth-error"></div>
-    <div id="login-form">
-      <input class="auth-input" type="email" id="login-email" placeholder="Correo electrónico">
-      <input class="auth-input" type="password" id="login-password" placeholder="Contraseña">
-      <button class="auth-btn" onclick="loginWithEmail()">Iniciar sesión</button>
-      <div class="auth-divider"><div class="auth-divider-line"></div><span>o</span><div class="auth-divider-line"></div></div>
-      <button class="auth-google-btn" onclick="loginWithGoogle()">
-        <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M16.51 8H8.98v3h4.3c-.18 1-.74 1.48-1.6 2.04v2.01h2.6a7.8 7.8 0 0 0 2.38-5.88c0-.57-.05-.66-.15-1.18z"/><path fill="#34A853" d="M8.98 17c2.16 0 3.97-.72 5.3-1.94l-2.6-2a4.8 4.8 0 0 1-7.18-2.54H1.83v2.07A8 8 0 0 0 8.98 17z"/><path fill="#FBBC05" d="M4.5 10.52a4.8 4.8 0 0 1 0-3.04V5.41H1.83a8 8 0 0 0 0 7.18l2.67-2.07z"/><path fill="#EA4335" d="M8.98 4.18c1.17 0 2.23.4 3.06 1.2l2.3-2.3A8 8 0 0 0 1.83 5.4L4.5 7.49a4.77 4.77 0 0 1 4.48-3.3z"/></svg>
-        Continuar con Google
-      </button>
-      <div style="font-size:12px;color:var(--text2);margin-top:14px;cursor:pointer;" onclick="showResetPassword()">¿Olvidaste tu contraseña?</div>
+    <div id="merr" class="merr"></div>
+    <div id="mf-login">
+      <input class="minp" type="email" id="m-email" placeholder="Correo electrónico">
+      <input class="minp" type="password" id="m-pass" placeholder="Contraseña" onkeydown="if(event.key==='Enter')doLogin()">
+      <button class="mbtn" onclick="doLogin()">Entrar a StockMarketBro</button>
+      <div class="mdiv"><div class="mdiv-line"></div><span>o</span><div class="mdiv-line"></div></div>
+      <button class="mgoogle" onclick="doGoogle()"><svg width="15" height="15" viewBox="0 0 18 18"><path fill="#4285F4" d="M16.51 8H8.98v3h4.3c-.18 1-.74 1.48-1.6 2.04v2.01h2.6a7.8 7.8 0 0 0 2.38-5.88c0-.57-.05-.66-.15-1.18z"/><path fill="#34A853" d="M8.98 17c2.16 0 3.97-.72 5.3-1.94l-2.6-2a4.8 4.8 0 0 1-7.18-2.54H1.83v2.07A8 8 0 0 0 8.98 17z"/><path fill="#FBBC05" d="M4.5 10.52a4.8 4.8 0 0 1 0-3.04V5.41H1.83a8 8 0 0 0 0 7.18l2.67-2.07z"/><path fill="#EA4335" d="M8.98 4.18c1.17 0 2.23.4 3.06 1.2l2.3-2.3A8 8 0 0 0 1.83 5.4L4.5 7.49a4.77 4.77 0 0 1 4.48-3.3z"/></svg>Continuar con Google</button>
+      <div style="font-size:11px;color:var(--tx2);text-align:center;margin-top:12px;cursor:pointer;" onclick="switchM('reset')">¿Olvidaste tu contraseña?</div>
     </div>
-    <div id="register-form" style="display:none;">
-      <input class="auth-input" type="text" id="reg-name" placeholder="Nombre completo">
-      <input class="auth-input" type="email" id="reg-email" placeholder="Correo electrónico">
-      <input class="auth-input" type="password" id="reg-password" placeholder="Contraseña (mínimo 6 caracteres)">
-      <button class="auth-btn" onclick="registerWithEmail()">Crear cuenta</button>
-      <div class="auth-divider"><div class="auth-divider-line"></div><span>o</span><div class="auth-divider-line"></div></div>
-      <button class="auth-google-btn" onclick="loginWithGoogle()">
-        <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M16.51 8H8.98v3h4.3c-.18 1-.74 1.48-1.6 2.04v2.01h2.6a7.8 7.8 0 0 0 2.38-5.88c0-.57-.05-.66-.15-1.18z"/><path fill="#34A853" d="M8.98 17c2.16 0 3.97-.72 5.3-1.94l-2.6-2a4.8 4.8 0 0 1-7.18-2.54H1.83v2.07A8 8 0 0 0 8.98 17z"/><path fill="#FBBC05" d="M4.5 10.52a4.8 4.8 0 0 1 0-3.04V5.41H1.83a8 8 0 0 0 0 7.18l2.67-2.07z"/><path fill="#EA4335" d="M8.98 4.18c1.17 0 2.23.4 3.06 1.2l2.3-2.3A8 8 0 0 0 1.83 5.4L4.5 7.49a4.77 4.77 0 0 1 4.48-3.3z"/></svg>
-        Registrarse con Google
-      </button>
+    <div id="mf-register" style="display:none;">
+      <input class="minp" type="text" id="m-name" placeholder="Nombre completo">
+      <input class="minp" type="email" id="m-remail" placeholder="Correo electrónico">
+      <input class="minp" type="password" id="m-rpass" placeholder="Contraseña (mínimo 6 caracteres)">
+      <button class="mbtn" onclick="doRegister()">Crear cuenta gratis</button>
+      <div class="mdiv"><div class="mdiv-line"></div><span>o</span><div class="mdiv-line"></div></div>
+      <button class="mgoogle" onclick="doGoogle()"><svg width="15" height="15" viewBox="0 0 18 18"><path fill="#4285F4" d="M16.51 8H8.98v3h4.3c-.18 1-.74 1.48-1.6 2.04v2.01h2.6a7.8 7.8 0 0 0 2.38-5.88c0-.57-.05-.66-.15-1.18z"/><path fill="#34A853" d="M8.98 17c2.16 0 3.97-.72 5.3-1.94l-2.6-2a4.8 4.8 0 0 1-7.18-2.54H1.83v2.07A8 8 0 0 0 8.98 17z"/><path fill="#FBBC05" d="M4.5 10.52a4.8 4.8 0 0 1 0-3.04V5.41H1.83a8 8 0 0 0 0 7.18l2.67-2.07z"/><path fill="#EA4335" d="M8.98 4.18c1.17 0 2.23.4 3.06 1.2l2.3-2.3A8 8 0 0 0 1.83 5.4L4.5 7.49a4.77 4.77 0 0 1 4.48-3.3z"/></svg>Registrarse con Google</button>
     </div>
-    <div id="reset-form" style="display:none;">
-      <div style="font-size:14px;font-weight:500;margin-bottom:8px;">Recuperar contraseña</div>
-      <div style="font-size:13px;color:var(--text2);margin-bottom:14px;">Te enviaremos un correo para restablecer tu contraseña.</div>
-      <input class="auth-input" type="email" id="reset-email" placeholder="Correo electrónico">
-      <button class="auth-btn" onclick="sendPasswordReset()">Enviar correo</button>
-      <div style="font-size:12px;color:var(--text2);margin-top:10px;cursor:pointer;" onclick="switchAuthTab('login')">← Volver al login</div>
+    <div id="mf-reset" style="display:none;">
+      <div style="font-size:13px;font-weight:500;margin-bottom:6px;">Recuperar contraseña</div>
+      <div style="font-size:12px;color:var(--tx2);margin-bottom:12px;">Te enviaremos un correo para restablecer tu contraseña.</div>
+      <input class="minp" type="email" id="m-resetmail" placeholder="Correo electrónico">
+      <button class="mbtn" onclick="doReset()">Enviar correo</button>
+      <div style="font-size:11px;color:var(--tx2);text-align:center;margin-top:10px;cursor:pointer;" onclick="switchM('login')">← Volver</div>
     </div>
   </div>
 </div>
 
-<!-- APP -->
-<div class="app" id="main-app">
+<!-- ═══ LANDING PAGE ═══ -->
+<div id="landing">
+
+  <!-- TOPBAR -->
+  <div class="topbar a1">
+    <div class="logo">
+      <img src="logo.png" onerror="this.style.display='none'" alt="SMB">
+      <div class="logo-name">STOCKMARKET<span>BRO</span></div>
+    </div>
+    <div class="nav-links">
+      <button class="nav-link" onclick="goTo('#sim-section')">Simulador</button>
+      <button class="nav-link" onclick="goTo('#features-section')">Funciones</button>
+      <button class="nav-link" onclick="goTo('#modules-section')">Módulos</button>
+      <button class="btn-login" onclick="openModal('login')">Iniciar sesión</button>
+      <button class="btn-signup" onclick="openModal('register')">Comenzar gratis</button>
+    </div>
+  </div>
+
+  <!-- TICKER -->
+  <div class="ticker-wrap">
+    <div class="ticker-inner" id="ticker-inner"></div>
+  </div>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-badge a1"><span class="live-dot"></span>Precios reales · Finnhub + TradingView</div>
+    <h1 class="a2">Aprende a invertir.<br><span>Practica en vivo.</span></h1>
+    <p class="a3">El simulador de trading más completo en español. Opera con precios reales, aprende con lecciones y sigue las señales del equipo.</p>
+    <div class="hero-btns a4">
+      <button class="btn-primary" onclick="goTo('#sim-section')">Probar el simulador</button>
+      <button class="btn-secondary" onclick="openModal('register')">Crear cuenta gratis</button>
+    </div>
+    <div class="hero-stats a5">
+      <div><div class="hstat-num" id="hs1">0</div><div class="hstat-label">Activos disponibles</div></div>
+      <div><div class="hstat-num" id="hs2">0</div><div class="hstat-label">Lecciones interactivas</div></div>
+      <div><div class="hstat-num" id="hs3">0</div><div class="hstat-label">Módulos integrados</div></div>
+      <div><div class="hstat-num" id="hs4">$0</div><div class="hstat-label">Costo de uso</div></div>
+    </div>
+  </div>
+
+  <!-- LIVE PRICES -->
+  <div class="live-row a3" id="live-row"></div>
+
+  <!-- SIMULATOR SECTION -->
+  <div class="sim-section" id="sim-section">
+    <div class="sim-inner">
+      <div class="a2">
+        <div class="sim-pill"><span class="live-dot" style="background:#fff;"></span>Simulador en vivo</div>
+        <h2 style="font-size:30px;font-weight:700;letter-spacing:-.02em;margin-bottom:7px;">Opera con precios reales.<br>Sin arriesgar dinero.</h2>
+        <p style="font-size:14px;color:var(--tx2);max-width:500px;">Compra y vende cualquier acción con $10,000 ficticios y precios reales de Finnhub. Incluye compra por acciones o por monto en USD.</p>
+      </div>
+      <div class="sim-grid a3">
+        <!-- TRADE PANEL -->
+        <div class="trade-card">
+          <div style="font-size:13px;font-weight:600;margin-bottom:12px;">Nueva operación</div>
+          <div style="font-size:11px;color:var(--tx2);margin-bottom:4px;">Buscar acción</div>
+          <div class="search-wrap">
+            <input class="inp" id="l-search" type="text" placeholder="ej. Apple, TSLA, NVDA..." autocomplete="off" oninput="lOnSearch(this.value)" onkeydown="if(event.key==='Enter')lSearchEnter()" style="margin-bottom:0;">
+            <div class="search-results" id="l-results"></div>
+          </div>
+          <div style="font-size:10px;color:var(--tx2);margin:4px 0 8px;">Presiona Enter para buscar cualquier ticker</div>
+          <div class="pop-grid">
+            <button class="pop-btn" onclick="lPick('AAPL','Apple')">AAPL</button>
+            <button class="pop-btn" onclick="lPick('MSFT','Microsoft')">MSFT</button>
+            <button class="pop-btn" onclick="lPick('TSLA','Tesla')">TSLA</button>
+            <button class="pop-btn" onclick="lPick('NVDA','NVIDIA')">NVDA</button>
+            <button class="pop-btn" onclick="lPick('GOOGL','Alphabet')">GOOGL</button>
+            <button class="pop-btn" onclick="lPick('AMZN','Amazon')">AMZN</button>
+            <button class="pop-btn" onclick="lPick('META','Meta')">META</button>
+            <button class="pop-btn" onclick="lPick('NFLX','Netflix')">NFLX</button>
+            <button class="pop-btn" onclick="lPick('AMD','AMD')">AMD</button>
+            <button class="pop-btn" onclick="lPick('COIN','Coinbase')">COIN</button>
+            <button class="pop-btn" onclick="lPick('PYPL','PayPal')">PYPL</button>
+            <button class="pop-btn" onclick="lPick('UBER','Uber')">UBER</button>
+          </div>
+          <div class="price-box" id="l-pricebox">
+            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;">
+              <div>
+                <div style="font-size:10px;color:var(--tx2);margin-bottom:2px;"><span class="live-dot"></span>Precio real · Finnhub</div>
+                <div style="font-size:24px;font-weight:700;" id="l-price">—</div>
+                <div style="font-size:12px;" id="l-change">—</div>
+              </div>
+              <div style="text-align:right;">
+                <div style="font-size:12px;font-weight:600;" id="l-sym-label">—</div>
+                <div style="font-size:10px;color:var(--tx2);" id="l-name-label">—</div>
+              </div>
+            </div>
+          </div>
+          <div class="mode-tabs">
+            <button class="mode-tab active" id="l-mt-s" onclick="lSetMode('shares')">Por acciones</button>
+            <button class="mode-tab" id="l-mt-u" onclick="lSetMode('usd')">Por monto USD</button>
+          </div>
+          <div id="l-panel-s">
+            <div style="font-size:11px;color:var(--tx2);margin-bottom:4px;">Cantidad de acciones</div>
+            <input class="inp" type="number" id="l-qty-s" value="1" min="0.000001" step="1" oninput="lCalcS()" style="margin-bottom:8px;">
+            <div style="display:flex;justify-content:space-between;padding:6px 0;border-top:0.5px solid var(--br);border-bottom:0.5px solid var(--br);margin-bottom:11px;">
+              <div style="font-size:12px;color:var(--tx2);">Total operación</div>
+              <div style="font-size:13px;font-weight:600;" id="l-tot-s">—</div>
+            </div>
+          </div>
+          <div id="l-panel-u" style="display:none;">
+            <div style="font-size:11px;color:var(--tx2);margin-bottom:4px;">Monto en USD</div>
+            <input class="inp" type="number" id="l-qty-u" value="100" min="1" oninput="lCalcU()" style="margin-bottom:7px;">
+            <div class="qa-wrap">
+              <button class="qa-btn" onclick="lSetU(50)">$50</button>
+              <button class="qa-btn" onclick="lSetU(100)">$100</button>
+              <button class="qa-btn" onclick="lSetU(250)">$250</button>
+              <button class="qa-btn" onclick="lSetU(500)">$500</button>
+              <button class="qa-btn" onclick="lSetU(1000)">$1K</button>
+              <button class="qa-btn" onclick="lSetU(Math.floor(lBalance))">Máx</button>
+            </div>
+            <div class="calc-box" id="l-calc-box">
+              <div style="display:flex;justify-content:space-between;">
+                <div style="font-size:11px;color:var(--gd);">Recibirás aprox.</div>
+                <div style="font-size:13px;font-weight:600;color:var(--gd);" id="l-frac">— acciones</div>
+              </div>
+            </div>
+            <div style="display:flex;justify-content:space-between;padding:6px 0;border-top:0.5px solid var(--br);border-bottom:0.5px solid var(--br);margin-bottom:11px;">
+              <div style="font-size:12px;color:var(--tx2);">Total a pagar</div>
+              <div style="font-size:13px;font-weight:600;" id="l-tot-u">—</div>
+            </div>
+          </div>
+          <div class="trade-btns">
+            <button class="btn-buy" onclick="lTrade('buy')">Comprar</button>
+            <button class="btn-sell" onclick="lTrade('sell')">Vender</button>
+          </div>
+          <div style="margin-top:9px;padding:7px 9px;background:var(--bg2);border-radius:var(--rad);font-size:10px;color:var(--tx2);">Precios reales vía Finnhub · Simulación sin dinero real · Se actualiza cada 30s</div>
+        </div>
+        <!-- PORTFOLIO PANEL -->
+        <div class="port-panel">
+          <div class="bal-row">
+            <div class="bal-card"><div class="bal-label">Saldo</div><div class="bal-val" id="l-bal">$10,000</div></div>
+            <div class="bal-card"><div class="bal-label">Portafolio</div><div class="bal-val" id="l-portval">$0</div></div>
+            <div class="bal-card"><div class="bal-label">Ganancia/Pérdida</div><div class="bal-val" id="l-pnl" style="color:var(--g);">+$0</div></div>
+          </div>
+          <div class="card">
+            <div style="font-size:12px;font-weight:600;margin-bottom:11px;">Mis posiciones</div>
+            <table class="ptable">
+              <thead><tr><th>Activo</th><th>Acciones</th><th>Precio</th><th>Valor</th><th>P&L</th></tr></thead>
+              <tbody id="l-ptbody"><tr><td colspan="5" class="empty">Aún sin posiciones.</td></tr></tbody>
+            </table>
+            <div style="margin-top:9px;padding-top:9px;border-top:0.5px solid var(--br);display:flex;justify-content:space-between;">
+              <div style="font-size:11px;color:var(--tx2);">Total portafolio</div>
+              <div style="font-size:14px;font-weight:600;" id="l-total-port">$0.00</div>
+            </div>
+          </div>
+          <div class="card">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:9px;">
+              <div style="font-size:12px;font-weight:600;">Historial de operaciones</div>
+              <button class="pop-btn" onclick="lReset()" style="color:var(--rd);border-color:var(--rl);">↺ Reiniciar</button>
+            </div>
+            <div id="l-history"><div class="empty">Aún sin operaciones.</div></div>
+          </div>
+        </div>
+      </div>
+      <div style="text-align:center;margin-top:26px;" class="a4">
+        <div style="font-size:13px;color:var(--tx2);margin-bottom:12px;">¿Te gusta? Crea una cuenta para guardar tu progreso y acceder a todos los módulos</div>
+        <button class="btn-primary" onclick="openModal('register')" style="font-size:14px;padding:12px 28px;">Guardar mi portafolio — es gratis</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FEATURES -->
+  <div class="app-section" id="features-section">
+    <div class="sec-label a1">Por qué StockMarketBro</div>
+    <div class="sec-title a2">Todo en una sola plataforma</div>
+    <div class="sec-sub a3">Diseñada para todos los niveles</div>
+    <div class="feat-grid a4">
+      <div class="feat-card"><div class="feat-icon" style="background:var(--gl);">📈</div><div class="feat-title">Mercado en tiempo real</div><div class="feat-desc">Gráficos TradingView, ticker tape y cotizaciones en vivo de acciones, cripto, forex y materias primas.</div></div>
+      <div class="feat-card"><div class="feat-icon" style="background:var(--al);">🎓</div><div class="feat-title">Educación por niveles</div><div class="feat-desc">9 lecciones desde básico hasta avanzado. Análisis técnico, fundamental, gestión del riesgo y más.</div></div>
+      <div class="feat-card"><div class="feat-icon" style="background:var(--pl);">📡</div><div class="feat-title">Señales del autor</div><div class="feat-desc">Recomendaciones de compra, venta y análisis directamente del equipo de StockMarketBro.</div></div>
+      <div class="feat-card"><div class="feat-icon" style="background:var(--rl);">🔔</div><div class="feat-title">Alertas de precio</div><div class="feat-desc">Configura alertas cuando una acción suba o baje a tu precio objetivo con precios reales.</div></div>
+      <div class="feat-card"><div class="feat-icon" style="background:var(--bl);">🧠</div><div class="feat-title">Quiz interactivo</div><div class="feat-desc">Pon a prueba tus conocimientos con quizzes de 3 niveles y mide tu progreso.</div></div>
+      <div class="feat-card"><div class="feat-icon" style="background:var(--gl);">📖</div><div class="feat-title">Glosario financiero</div><div class="feat-desc">12 términos esenciales explicados en español. Siempre disponibles en la app.</div></div>
+    </div>
+  </div>
+
+  <!-- MODULES -->
+  <div class="app-section" id="modules-section" style="padding-top:0;">
+    <div class="sec-label a1">Módulos</div>
+    <div class="sec-title a2">8 módulos en una sola app</div>
+    <div class="sec-sub a3">Accede a todo desde la navegación principal</div>
+    <div class="mod-grid a4">
+      <div class="mod-card" onclick="openModal('register')"><div class="mod-icon">📊</div><div class="mod-name">Mercado</div><div class="mod-desc">Gráficos en vivo</div></div>
+      <div class="mod-card" onclick="openModal('register')"><div class="mod-icon">📡</div><div class="mod-name">Señales</div><div class="mod-desc">Del autor + automáticas</div></div>
+      <div class="mod-card" onclick="openModal('register')"><div class="mod-icon">🎓</div><div class="mod-name">Educación</div><div class="mod-desc">9 lecciones por nivel</div></div>
+      <div class="mod-card" onclick="openModal('register')"><div class="mod-icon">💹</div><div class="mod-name">Simulador</div><div class="mod-desc">Con precios reales</div></div>
+      <div class="mod-card" onclick="openModal('register')"><div class="mod-icon">📰</div><div class="mod-name">Noticias</div><div class="mod-desc">Noticias filtradas</div></div>
+      <div class="mod-card" onclick="openModal('register')"><div class="mod-icon">🧠</div><div class="mod-name">Quiz</div><div class="mod-desc">3 niveles de dificultad</div></div>
+      <div class="mod-card" onclick="openModal('register')"><div class="mod-icon">🔔</div><div class="mod-name">Alertas</div><div class="mod-desc">Precio objetivo en vivo</div></div>
+      <div class="mod-card" onclick="openModal('register')"><div class="mod-icon">📖</div><div class="mod-name">Glosario</div><div class="mod-desc">12 términos clave</div></div>
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div style="background:var(--bg2);border-top:0.5px solid var(--br);padding:56px 28px;text-align:center;">
+    <h2 class="a1" style="font-size:30px;font-weight:700;letter-spacing:-.02em;margin-bottom:9px;">Empieza a invertir<br><span style="color:var(--g);">inteligentemente hoy</span></h2>
+    <p class="a2" style="font-size:15px;color:var(--tx2);margin-bottom:24px;">Crea tu cuenta gratis y accede a todos los módulos en segundos</p>
+    <div class="hero-btns a3">
+      <button class="btn-primary" onclick="openModal('register')" style="font-size:14px;padding:12px 26px;">Crear cuenta gratis</button>
+      <button class="btn-secondary" onclick="goTo('#sim-section')" style="font-size:14px;padding:12px 26px;">Probar el simulador</button>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div style="background:#111;">
+    <div class="mini-disclaimer">
+      <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="rgba(239,159,39,0.6)" stroke-width="1.2"/><path d="M8 5v4M8 10.5v.5" stroke="rgba(239,159,39,0.8)" stroke-width="1.4" stroke-linecap="round"/></svg>
+      <div class="mini-disclaimer-text"><strong>Aviso importante:</strong> El contenido de StockMarketBro es exclusivamente con fines educativos e informativos. No constituye asesoramiento financiero, ni recomendación de compra o venta de ningún instrumento financiero.</div>
+    </div>
+    <div class="footer">
+      <div class="footer-inner">
+        <div class="footer-top">
+          <div>
+            <div class="footer-brand"><img src="logo.png" onerror="this.style.display='none'" alt="SMB"><div class="footer-brand-name">STOCKMARKET<span>BRO</span></div></div>
+            <div class="footer-desc">Plataforma educativa de trading e inversiones. Aprende, practica y analiza el mercado con herramientas profesionales — sin arriesgar dinero real.</div>
+          </div>
+          <div>
+            <div class="footer-col-title">Módulos</div>
+            <div class="footer-links">
+              <span class="footer-link">Mercado en tiempo real</span>
+              <span class="footer-link">Simulador de trading</span>
+              <span class="footer-link">Señales del autor</span>
+              <span class="footer-link">Educación por niveles</span>
+              <span class="footer-link">Quiz interactivo</span>
+              <span class="footer-link">Alertas de precio</span>
+              <span class="footer-link">Glosario financiero</span>
+            </div>
+          </div>
+          <div>
+            <div class="footer-col-title">Legal</div>
+            <div class="footer-links">
+              <span class="footer-link">Aviso de riesgo</span>
+              <span class="footer-link">Política de privacidad</span>
+              <span class="footer-link">Términos de uso</span>
+              <span class="footer-link">Contacto</span>
+            </div>
+          </div>
+        </div>
+        <hr class="footer-divider">
+        <div class="disclaimer-box">
+          <div class="disclaimer-header">
+            <svg width="18" height="18" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="rgba(239,159,39,0.7)" stroke-width="1.2"/><path d="M8 5v4M8 10.5v.5" stroke="rgba(239,159,39,0.9)" stroke-width="1.4" stroke-linecap="round"/></svg>
+            <div class="disclaimer-title">Aviso legal y de riesgo — leer antes de operar</div>
+          </div>
+          <div class="disclaimer-text">
+            <strong>Fines exclusivamente educativos.</strong> Todo el contenido publicado en StockMarketBro — incluyendo análisis técnicos, análisis fundamentales, análisis macroeconómicos, señales, alertas, gráficos, simulaciones y cualquier otra información — tiene carácter <strong>estrictamente educativo e informativo</strong>. No constituye, bajo ninguna circunstancia, asesoramiento financiero, recomendación de inversión, ni sugerencia de compra o venta de ningún instrumento financiero, valor, acción, criptomoneda, divisa, materia prima u otro activo.<br><br>
+            <strong>No somos asesores financieros.</strong> Las opiniones expresadas en esta plataforma representan análisis técnicos, fundamentales y macroeconómicos de carácter personal y educativo. <strong>No estamos registrados como asesores de inversión</strong> ante ninguna autoridad regulatoria. Toda decisión de inversión que el usuario tome es de su exclusiva responsabilidad.<br><br>
+            <strong>Riesgo de pérdida.</strong> Invertir en mercados financieros implica un riesgo significativo de pérdida, incluyendo la pérdida total del capital invertido. El rendimiento pasado no garantiza resultados futuros. Antes de tomar cualquier decisión de inversión, le recomendamos consultar con un asesor financiero certificado y regulado en su jurisdicción.<br><br>
+            <strong>Simulación.</strong> El simulador de trading utiliza dinero ficticio con fines de práctica educativa. Los resultados obtenidos en la simulación no reflejan ni garantizan resultados reales en mercados financieros reales.<br><br>
+            Al acceder y utilizar StockMarketBro, el usuario reconoce haber leído, comprendido y aceptado este aviso legal en su totalidad.
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <div class="footer-copy">© 2026 StockMarketBro. Todos los derechos reservados. Hecho con fines educativos.</div>
+          <div class="footer-badges">
+            <span class="footer-badge">Solo educativo</span>
+            <span class="footer-badge">No asesoramiento financiero</span>
+            <span class="footer-badge">Simulación ficticia</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div><!-- end landing -->
+
+<!-- ═══ APP DASHBOARD ═══ -->
+<div class="app-ui" id="app-ui">
   <div class="install-banner" id="install-banner">
     <span>📲 Instala StockMarketBro en tu dispositivo</span>
     <div style="display:flex;gap:8px;align-items:center;">
@@ -204,85 +635,72 @@
       <button style="background:transparent;border:none;color:#fff;font-size:18px;cursor:pointer;" onclick="document.getElementById('install-banner').classList.remove('show')">✕</button>
     </div>
   </div>
-  <div class="topbar">
+  <div class="app-topbar">
     <div class="logo">
-      <img src="logo.png" alt="SMB" onerror="this.style.display='none'">
-      <div><div class="logo-name">STOCKMARKET<span>BRO</span></div><div class="logo-sub"><span class="live-dot"></span>Precios reales · Finnhub + TradingView</div></div>
+      <img src="logo.png" onerror="this.style.display='none'" alt="SMB">
+      <div class="logo-name">STOCKMARKET<span>BRO</span></div>
     </div>
-    <div class="nav">
-      <button class="nav-btn active" onclick="showTab('mercado')">Mercado</button>
-      <button class="nav-btn" onclick="showTab('senales')">Señales <span class="notif-dot" id="rec-dot" style="display:none;"></span></button>
-      <button class="nav-btn" onclick="showTab('educacion')">Educación</button>
-      <button class="nav-btn" onclick="showTab('simulador')">Simulador</button>
-      <button class="nav-btn" onclick="showTab('noticias')">Noticias</button>
-      <button class="nav-btn" onclick="showTab('quiz')">Quiz</button>
-      <button class="nav-btn" onclick="showTab('alertas')">Alertas <span class="notif-dot" id="alert-dot" style="display:none;"></span></button>
-      <button class="nav-btn" onclick="showTab('glosario')">Glosario</button>
-      <button class="nav-btn" id="autor-nav-btn" onclick="showTab('autor')" style="border:0.5px solid var(--border);display:none;">Panel autor</button>
+    <div class="app-nav">
+      <button class="app-nav-btn active" onclick="showAppTab('mercado')">Mercado</button>
+      <button class="app-nav-btn" onclick="showAppTab('senales')">Señales <span class="notif-dot" id="rec-dot" style="display:none;"></span></button>
+      <button class="app-nav-btn" onclick="showAppTab('educacion')">Educación</button>
+      <button class="app-nav-btn" onclick="showAppTab('simulador')">Simulador</button>
+      <button class="app-nav-btn" onclick="showAppTab('noticias')">Noticias</button>
+      <button class="app-nav-btn" onclick="showAppTab('quiz')">Quiz</button>
+      <button class="app-nav-btn" onclick="showAppTab('alertas')">Alertas <span class="notif-dot" id="alert-dot" style="display:none;"></span></button>
+      <button class="app-nav-btn" onclick="showAppTab('glosario')">Glosario</button>
+      <button class="app-nav-btn" id="autor-btn" onclick="showAppTab('autor')" style="border:0.5px solid var(--br);display:none;">Panel autor</button>
     </div>
     <div style="position:relative;">
-      <div class="user-avatar" id="user-avatar" onclick="toggleUserMenu()">?</div>
+      <div class="user-avatar" id="user-avatar" onclick="toggleUM()">?</div>
       <div class="user-menu" id="user-menu">
-        <div class="user-menu-name" id="user-menu-name">—</div>
-        <div class="user-menu-email" id="user-menu-email">—</div>
-        <div class="user-menu-item" onclick="doSignOut()">🚪 Cerrar sesión</div>
+        <div class="um-name" id="um-name">—</div>
+        <div class="um-email" id="um-email">—</div>
+        <div class="um-item" onclick="doSignOut()">🚪 Cerrar sesión</div>
       </div>
     </div>
   </div>
 
   <!-- MERCADO -->
-  <div id="tab-mercado" class="section active">
+  <div id="tab-mercado" class="app-section-content active">
     <div class="tv-wrap">
       <div class="tradingview-widget-container"><div class="tradingview-widget-container__widget"></div>
         <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
-        {"symbols":[{"proName":"FOREXCOM:SPXUSD","title":"S&P 500"},{"proName":"NASDAQ:AAPL","title":"Apple"},{"proName":"NASDAQ:MSFT","title":"Microsoft"},{"proName":"NASDAQ:TSLA","title":"Tesla"},{"proName":"NASDAQ:GOOGL","title":"Alphabet"},{"proName":"NASDAQ:AMZN","title":"Amazon"},{"proName":"NASDAQ:NVDA","title":"NVIDIA"},{"proName":"BITSTAMP:BTCUSD","title":"Bitcoin"}],"showSymbolLogo":true,"isTransparent":true,"displayMode":"adaptive","colorTheme":"light","locale":"es"}
+        {"symbols":[{"proName":"FOREXCOM:SPXUSD","title":"S&P 500"},{"proName":"NASDAQ:AAPL","title":"Apple"},{"proName":"NASDAQ:MSFT","title":"Microsoft"},{"proName":"NASDAQ:TSLA","title":"Tesla"},{"proName":"NASDAQ:GOOGL","title":"Alphabet"},{"proName":"NASDAQ:NVDA","title":"NVIDIA"},{"proName":"BITSTAMP:BTCUSD","title":"Bitcoin"},{"proName":"FOREXCOM:NSXUSD","title":"NASDAQ 100"}],"showSymbolLogo":true,"isTransparent":true,"displayMode":"adaptive","colorTheme":"light","locale":"es"}
         </script>
       </div>
     </div>
-    <div class="card" style="padding:0;">
-      <div style="padding:12px 16px 10px;border-bottom:0.5px solid var(--border);">
-        <div style="margin-bottom:10px;">
-          <div class="search-wrap">
-            <input class="search-input" id="sym-input" type="text" placeholder="Busca símbolo: NFLX, EUR/USD, GOLD..." maxlength="30" onkeydown="if(event.key==='Enter')searchSymbol()" oninput="this.value=this.value.toUpperCase()">
-            <button class="search-btn" onclick="searchSymbol()">Ver gráfico</button>
-          </div>
-          <div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:8px;">
-            <span class="sug-chip" onclick="quickLoad('NASDAQ:META','META')">META</span>
-            <span class="sug-chip" onclick="quickLoad('NASDAQ:NFLX','NFLX')">NFLX</span>
-            <span class="sug-chip" onclick="quickLoad('NYSE:JPM','JPM')">JPM</span>
-            <span class="sug-chip" onclick="quickLoad('NASDAQ:AMD','AMD')">AMD</span>
-            <span class="sug-chip" onclick="quickLoad('BITSTAMP:ETHUSD','ETH/USD')">ETH/USD</span>
-            <span class="sug-chip" onclick="quickLoad('FX:EURUSD','EUR/USD')">EUR/USD</span>
-            <span class="sug-chip" onclick="quickLoad('TVC:GOLD','ORO')">ORO</span>
-            <span class="sug-chip" onclick="quickLoad('BMV:AMXL','AMXL')">AMXL</span>
-          </div>
+    <div class="section-card" style="padding:0;">
+      <div style="padding:11px 14px 9px;border-bottom:0.5px solid var(--br);">
+        <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px;">
+          <input id="app-sym-input" type="text" placeholder="Busca símbolo..." style="flex:1;min-width:160px;padding:7px 11px;border:0.5px solid var(--br);border-radius:var(--rad);font-size:13px;background:var(--bg2);color:var(--tx);outline:none;font-family:inherit;" onkeydown="if(event.key==='Enter')appSearchSym()" oninput="this.value=this.value.toUpperCase()">
+          <button onclick="appSearchSym()" style="padding:7px 13px;border-radius:var(--rad);border:none;background:var(--g);color:#fff;font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;">Ver gráfico</button>
         </div>
-        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
-          <div style="display:flex;gap:5px;flex-wrap:wrap;">
-            <button class="sym-btn active" onclick="quickLoad('NASDAQ:AAPL','AAPL')">AAPL</button>
-            <button class="sym-btn" onclick="quickLoad('NASDAQ:MSFT','MSFT')">MSFT</button>
-            <button class="sym-btn" onclick="quickLoad('NASDAQ:TSLA','TSLA')">TSLA</button>
-            <button class="sym-btn" onclick="quickLoad('NASDAQ:GOOGL','GOOGL')">GOOGL</button>
-            <button class="sym-btn" onclick="quickLoad('NASDAQ:NVDA','NVDA')">NVDA</button>
-            <button class="sym-btn" onclick="quickLoad('FOREXCOM:SPXUSD','S&P500')">S&P500</button>
-          </div>
-          <div class="active-symbol"><span style="width:6px;height:6px;border-radius:50%;background:var(--green);display:inline-block;"></span><span id="active-sym-text">AAPL</span></div>
+        <div style="display:flex;gap:4px;flex-wrap:wrap;">
+          <button class="app-nav-btn active" onclick="appQuickLoad('NASDAQ:AAPL','AAPL',this)">AAPL</button>
+          <button class="app-nav-btn" onclick="appQuickLoad('NASDAQ:MSFT','MSFT',this)">MSFT</button>
+          <button class="app-nav-btn" onclick="appQuickLoad('NASDAQ:TSLA','TSLA',this)">TSLA</button>
+          <button class="app-nav-btn" onclick="appQuickLoad('NASDAQ:NVDA','NVDA',this)">NVDA</button>
+          <button class="app-nav-btn" onclick="appQuickLoad('NASDAQ:GOOGL','GOOGL',this)">GOOGL</button>
+          <button class="app-nav-btn" onclick="appQuickLoad('FOREXCOM:SPXUSD','S&P500',this)">S&P500</button>
+          <button class="app-nav-btn" onclick="appQuickLoad('BITSTAMP:BTCUSD','BTC',this)">BTC</button>
+          <button class="app-nav-btn" onclick="appQuickLoad('TVC:GOLD','ORO',this)">ORO</button>
         </div>
       </div>
-      <div id="tv-chart-widget" style="height:400px;"></div>
+      <div id="app-chart" style="height:380px;"></div>
     </div>
     <div class="two-col">
-      <div class="card"><div class="card-title">Acciones</div>
+      <div class="section-card"><div class="section-card-title">Acciones</div>
         <div class="tradingview-widget-container"><div class="tradingview-widget-container__widget"></div>
           <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-market-quotes.js" async>
-          {"symbols":[["Apple","NASDAQ:AAPL|1D"],["Microsoft","NASDAQ:MSFT|1D"],["Tesla","NASDAQ:TSLA|1D"],["Amazon","NASDAQ:AMZN|1D"],["NVIDIA","NASDAQ:NVDA|1D"],["S&P 500","FOREXCOM:SPXUSD|1D"]],"showSymbolLogo":false,"isTransparent":true,"colorTheme":"light","locale":"es","width":"100%","height":260}
+          {"symbols":[["Apple","NASDAQ:AAPL|1D"],["Microsoft","NASDAQ:MSFT|1D"],["Tesla","NASDAQ:TSLA|1D"],["NVIDIA","NASDAQ:NVDA|1D"],["Amazon","NASDAQ:AMZN|1D"],["S&P 500","FOREXCOM:SPXUSD|1D"]],"showSymbolLogo":false,"isTransparent":true,"colorTheme":"light","locale":"es","width":"100%","height":250}
           </script>
         </div>
       </div>
-      <div class="card"><div class="card-title">Criptomonedas</div>
+      <div class="section-card"><div class="section-card-title">Criptomonedas</div>
         <div class="tradingview-widget-container"><div class="tradingview-widget-container__widget"></div>
           <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-market-quotes.js" async>
-          {"symbols":[["Bitcoin","BITSTAMP:BTCUSD|1D"],["Ethereum","BITSTAMP:ETHUSD|1D"],["Solana","COINBASE:SOLUSD|1D"],["BNB","BINANCE:BNBUSD|1D"],["XRP","BITSTAMP:XRPUSD|1D"],["Cardano","COINBASE:ADAUSD|1D"]],"showSymbolLogo":false,"isTransparent":true,"colorTheme":"light","locale":"es","width":"100%","height":260}
+          {"symbols":[["Bitcoin","BITSTAMP:BTCUSD|1D"],["Ethereum","BITSTAMP:ETHUSD|1D"],["Solana","COINBASE:SOLUSD|1D"],["BNB","BINANCE:BNBUSD|1D"],["XRP","BITSTAMP:XRPUSD|1D"],["Cardano","COINBASE:ADAUSD|1D"]],"showSymbolLogo":false,"isTransparent":true,"colorTheme":"light","locale":"es","width":"100%","height":250}
           </script>
         </div>
       </div>
@@ -290,345 +708,499 @@
   </div>
 
   <!-- SEÑALES -->
-  <div id="tab-senales" class="section">
+  <div id="tab-senales" class="app-section-content">
     <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
-      <div><div style="font-size:15px;font-weight:500;">Señales de StockMarketBro</div><div style="font-size:12px;color:var(--text2);">Publicadas por el equipo</div></div>
-      <div style="display:flex;gap:6px;flex-wrap:wrap;" id="rec-filters">
-        <button class="sym-btn active" onclick="filterRecs('all',this)">Todas</button>
-        <button class="sym-btn" onclick="filterRecs('compra',this)">Compra</button>
-        <button class="sym-btn" onclick="filterRecs('venta',this)">Venta</button>
-        <button class="sym-btn" onclick="filterRecs('alerta',this)">Alerta</button>
-        <button class="sym-btn" onclick="filterRecs('analisis',this)">Análisis</button>
-        <button class="sym-btn" onclick="filterRecs('noticia',this)">Noticia</button>
+      <div><div style="font-size:15px;font-weight:600;">Centro de Alertas · StockMarketBro</div><div style="font-size:12px;color:var(--tx2);margin-top:2px;">Señales del autor + análisis técnico automático</div></div>
+      <button onclick="runScan()" id="scan-btn" style="padding:7px 14px;border-radius:var(--rad);border:0.5px solid var(--br);background:var(--bg);font-size:12px;cursor:pointer;font-family:inherit;">↻ Actualizar señales</button>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:9px;">
+      <div style="background:var(--bg2);border-radius:var(--rad);padding:11px;text-align:center;"><div style="font-size:20px;font-weight:700;" id="stat-total">—</div><div style="font-size:10px;color:var(--tx2);margin-top:2px;text-transform:uppercase;letter-spacing:.04em;">Analizadas</div></div>
+      <div style="background:var(--bg2);border-radius:var(--rad);padding:11px;text-align:center;"><div style="font-size:20px;font-weight:700;color:var(--rd);" id="stat-vh">—</div><div style="font-size:10px;color:var(--tx2);margin-top:2px;text-transform:uppercase;letter-spacing:.04em;">Nivel muy alta</div></div>
+      <div style="background:var(--bg2);border-radius:var(--rad);padding:11px;text-align:center;"><div style="font-size:20px;font-weight:700;color:var(--ad);" id="stat-h">—</div><div style="font-size:10px;color:var(--tx2);margin-top:2px;text-transform:uppercase;letter-spacing:.04em;">Nivel alta</div></div>
+      <div style="background:var(--bg2);border-radius:var(--rad);padding:11px;text-align:center;"><div style="font-size:14px;font-weight:600;" id="stat-upd">—</div><div style="font-size:10px;color:var(--tx2);margin-top:2px;text-transform:uppercase;letter-spacing:.04em;">Actualización</div></div>
+    </div>
+    <div class="progress-bar" id="scan-pb"><div class="progress-fill" id="scan-pf" style="width:0%"></div></div>
+    <div class="alerts-grid">
+      <div class="section-card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:6px;">
+          <div class="section-card-title" style="margin:0;"><span class="live-dot"></span>Señales automáticas</div>
+          <div class="filter-tabs" id="auto-ftabs">
+            <button class="ftab active" onclick="filterAuto('all',this)">Todas</button>
+            <button class="ftab" onclick="filterAuto('very-high',this)" style="background:var(--rl);color:var(--rd);border-color:var(--rl);">Muy alta</button>
+            <button class="ftab" onclick="filterAuto('high',this)" style="background:var(--al);color:var(--ad);border-color:var(--al);">Alta</button>
+          </div>
+        </div>
+        <div id="auto-list"><div class="loading-state">Cargando análisis técnico...</div></div>
+        <div style="font-size:10px;color:var(--tx2);margin-top:8px;" id="auto-update"></div>
+      </div>
+      <div class="section-card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:6px;">
+          <div class="section-card-title" style="margin:0;">Señales del autor</div>
+          <div class="filter-tabs" id="auth-ftabs">
+            <button class="ftab active" onclick="filterAuthor('all',this)">Todas</button>
+            <button class="ftab" onclick="filterAuthor('compra',this)">Compra</button>
+            <button class="ftab" onclick="filterAuthor('venta',this)">Venta</button>
+            <button class="ftab" onclick="filterAuthor('alerta',this)">Alerta</button>
+          </div>
+        </div>
+        <div id="author-list"><div class="loading-state">Cargando señales...</div></div>
       </div>
     </div>
-    <div id="rec-list-user"><div class="loading-state">Cargando señales...</div></div>
-  </div>
-
-  <!-- PANEL AUTOR -->
-  <div id="tab-autor" class="section">
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
-      <img src="logo.png" alt="SMB" style="width:36px;height:36px;border-radius:50%;object-fit:cover;" onerror="this.style.display='none'">
-      <div><div style="font-size:15px;font-weight:500;">Panel de StockMarketBro</div><div style="font-size:12px;color:var(--text2);">Publica señales para todos tus usuarios</div></div>
-    </div>
-    <div class="card">
-      <div class="card-title">Nueva señal</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
-        <div class="input-group"><label>Tipo</label><select id="rec-type"><option value="compra">Compra</option><option value="venta">Venta</option><option value="alerta">Alerta</option><option value="analisis">Análisis</option><option value="noticia">Noticia</option></select></div>
-        <div class="input-group"><label>Símbolo (opcional)</label><input type="text" id="rec-symbol" placeholder="ej. AAPL, BTC" style="text-transform:uppercase;"></div>
+    <!-- MANUAL PRICE ALERTS -->
+    <div class="section-card">
+      <div class="section-card-title">Alertas de precio personalizadas</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:9px;align-items:end;margin-bottom:12px;">
+        <div><div style="font-size:11px;color:var(--tx2);margin-bottom:3px;">Símbolo</div><select id="al-sym" style="width:100%;padding:7px 9px;border:0.5px solid var(--br);border-radius:var(--rad);font-size:13px;background:var(--bg2);color:var(--tx);font-family:inherit;"><option value="AAPL">AAPL</option><option value="MSFT">MSFT</option><option value="TSLA">TSLA</option><option value="GOOGL">GOOGL</option><option value="NVDA">NVDA</option><option value="AMZN">AMZN</option><option value="META">META</option><option value="NFLX">NFLX</option></select></div>
+        <div><div style="font-size:11px;color:var(--tx2);margin-bottom:3px;">Condición</div><select id="al-type" style="width:100%;padding:7px 9px;border:0.5px solid var(--br);border-radius:var(--rad);font-size:13px;background:var(--bg2);color:var(--tx);font-family:inherit;"><option value="above">Sube encima de</option><option value="below">Cae debajo de</option></select></div>
+        <div><div style="font-size:11px;color:var(--tx2);margin-bottom:3px;">Precio ($)</div><input type="number" id="al-price" placeholder="ej. 200" style="width:100%;padding:7px 9px;border:0.5px solid var(--br);border-radius:var(--rad);font-size:13px;background:var(--bg2);color:var(--tx);outline:none;font-family:inherit;"></div>
+        <button onclick="addAlert()" style="padding:8px 14px;border-radius:var(--rad);border:none;background:var(--g);color:#fff;font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;white-space:nowrap;">+ Agregar</button>
       </div>
-      <div class="input-group" style="margin-bottom:10px;"><label>Título</label><input type="text" id="rec-title" placeholder="ej. Oportunidad de entrada en AAPL"></div>
-      <div class="input-group" style="margin-bottom:10px;"><label>Mensaje / Análisis</label><textarea id="rec-body" placeholder="Escribe tu análisis o recomendación..."></textarea></div>
-      <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:10px;align-items:end;">
-        <div class="input-group"><label>Precio objetivo</label><input type="text" id="rec-target" placeholder="ej. $210"></div>
-        <div class="input-group"><label>Stop loss</label><input type="text" id="rec-stop" placeholder="ej. $175"></div>
-        <div style="display:flex;align-items:center;gap:6px;padding-bottom:2px;"><input type="checkbox" id="rec-pinned" style="width:14px;height:14px;"><label for="rec-pinned" style="font-size:12px;color:var(--text2);cursor:pointer;">Fijar</label></div>
-      </div>
-      <div style="margin-top:14px;display:flex;gap:8px;">
-        <button class="btn-green" style="flex:1;" onclick="publishRec()">Publicar señal</button>
-        <button class="sym-btn" onclick="clearForm()">Limpiar</button>
-      </div>
-    </div>
-    <div class="card">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-        <div class="card-title" style="margin:0;">Señales publicadas</div>
-        <button class="sym-btn" onclick="loadRecs()">Actualizar</button>
-      </div>
-      <div id="rec-list-author"><div class="loading-state">Cargando...</div></div>
+      <div id="alerts-list"><div class="empty">Sin alertas configuradas.</div></div>
     </div>
   </div>
 
   <!-- EDUCACIÓN -->
-  <div id="tab-educacion" class="section">
-    <div style="font-size:13px;color:var(--text2);">Haz clic en una lección para explorarla</div>
+  <div id="tab-educacion" class="app-section-content">
+    <div style="font-size:13px;color:var(--tx2);">Haz clic en una lección para explorarla</div>
     <div class="three-col">
-      <div class="lesson-card" onclick="openLesson('bolsa')"><div style="font-size:22px;margin-bottom:8px;">📈</div><div class="lesson-title">¿Qué es la bolsa?</div><div class="lesson-desc">Conceptos básicos del mercado.</div><span class="level-badge lvl-basic">Básico</span></div>
-      <div class="lesson-card" onclick="openLesson('acciones')"><div style="font-size:22px;margin-bottom:8px;">💹</div><div class="lesson-title">Acciones y dividendos</div><div class="lesson-desc">Cómo funcionan y cómo ganar.</div><span class="level-badge lvl-basic">Básico</span></div>
-      <div class="lesson-card" onclick="openLesson('etfs')"><div style="font-size:22px;margin-bottom:8px;">🗂️</div><div class="lesson-title">ETFs e índices</div><div class="lesson-desc">Fondos cotizados y diversificación.</div><span class="level-badge lvl-basic">Básico</span></div>
-      <div class="lesson-card" onclick="openLesson('tecnico')"><div style="font-size:22px;margin-bottom:8px;">📊</div><div class="lesson-title">Análisis técnico</div><div class="lesson-desc">Gráficos, soportes y resistencias.</div><span class="level-badge lvl-inter">Intermedio</span></div>
-      <div class="lesson-card" onclick="openLesson('fundamental')"><div style="font-size:22px;margin-bottom:8px;">🔍</div><div class="lesson-title">Análisis fundamental</div><div class="lesson-desc">P/E, ROE, deuda y balances.</div><span class="level-badge lvl-inter">Intermedio</span></div>
-      <div class="lesson-card" onclick="openLesson('riesgo')"><div style="font-size:22px;margin-bottom:8px;">🛡️</div><div class="lesson-title">Gestión del riesgo</div><div class="lesson-desc">Stop-loss y reglas de capital.</div><span class="level-badge lvl-inter">Intermedio</span></div>
-      <div class="lesson-card" onclick="openLesson('opciones')"><div style="font-size:22px;margin-bottom:8px;">⚙️</div><div class="lesson-title">Opciones financieras</div><div class="lesson-desc">Calls, puts y derivados.</div><span class="level-badge lvl-adv">Avanzado</span></div>
-      <div class="lesson-card" onclick="openLesson('algo')"><div style="font-size:22px;margin-bottom:8px;">🤖</div><div class="lesson-title">Trading algorítmico</div><div class="lesson-desc">Automatización y backtesting.</div><span class="level-badge lvl-adv">Avanzado</span></div>
-      <div class="lesson-card" onclick="openLesson('forex')"><div style="font-size:22px;margin-bottom:8px;">💱</div><div class="lesson-title">Forex y divisas</div><div class="lesson-desc">Pares de divisas y apalancamiento.</div><span class="level-badge lvl-adv">Avanzado</span></div>
+      <div class="feat-card" style="cursor:pointer;" onclick="openLesson('bolsa')"><div class="feat-icon" style="background:var(--gl);">📈</div><div class="feat-title">¿Qué es la bolsa?</div><div class="feat-desc">Conceptos básicos del mercado.</div><span style="display:inline-block;margin-top:6px;padding:2px 7px;border-radius:999px;font-size:10px;font-weight:500;background:var(--gl);color:var(--gd);">Básico</span></div>
+      <div class="feat-card" style="cursor:pointer;" onclick="openLesson('acciones')"><div class="feat-icon" style="background:var(--gl);">💹</div><div class="feat-title">Acciones y dividendos</div><div class="feat-desc">Cómo funcionan y cómo ganar.</div><span style="display:inline-block;margin-top:6px;padding:2px 7px;border-radius:999px;font-size:10px;font-weight:500;background:var(--gl);color:var(--gd);">Básico</span></div>
+      <div class="feat-card" style="cursor:pointer;" onclick="openLesson('etfs')"><div class="feat-icon" style="background:var(--gl);">🗂️</div><div class="feat-title">ETFs e índices</div><div class="feat-desc">Fondos cotizados y diversificación.</div><span style="display:inline-block;margin-top:6px;padding:2px 7px;border-radius:999px;font-size:10px;font-weight:500;background:var(--gl);color:var(--gd);">Básico</span></div>
+      <div class="feat-card" style="cursor:pointer;" onclick="openLesson('tecnico')"><div class="feat-icon" style="background:var(--al);">📊</div><div class="feat-title">Análisis técnico</div><div class="feat-desc">Gráficos, soportes y resistencias.</div><span style="display:inline-block;margin-top:6px;padding:2px 7px;border-radius:999px;font-size:10px;font-weight:500;background:var(--al);color:var(--ad);">Intermedio</span></div>
+      <div class="feat-card" style="cursor:pointer;" onclick="openLesson('fundamental')"><div class="feat-icon" style="background:var(--al);">🔍</div><div class="feat-title">Análisis fundamental</div><div class="feat-desc">P/E, ROE, deuda y balances.</div><span style="display:inline-block;margin-top:6px;padding:2px 7px;border-radius:999px;font-size:10px;font-weight:500;background:var(--al);color:var(--ad);">Intermedio</span></div>
+      <div class="feat-card" style="cursor:pointer;" onclick="openLesson('riesgo')"><div class="feat-icon" style="background:var(--al);">🛡️</div><div class="feat-title">Gestión del riesgo</div><div class="feat-desc">Stop-loss y reglas de capital.</div><span style="display:inline-block;margin-top:6px;padding:2px 7px;border-radius:999px;font-size:10px;font-weight:500;background:var(--al);color:var(--ad);">Intermedio</span></div>
+      <div class="feat-card" style="cursor:pointer;" onclick="openLesson('opciones')"><div class="feat-icon" style="background:var(--pl);">⚙️</div><div class="feat-title">Opciones financieras</div><div class="feat-desc">Calls, puts y derivados.</div><span style="display:inline-block;margin-top:6px;padding:2px 7px;border-radius:999px;font-size:10px;font-weight:500;background:var(--pl);color:var(--pd);">Avanzado</span></div>
+      <div class="feat-card" style="cursor:pointer;" onclick="openLesson('algo')"><div class="feat-icon" style="background:var(--pl);">🤖</div><div class="feat-title">Trading algorítmico</div><div class="feat-desc">Automatización y backtesting.</div><span style="display:inline-block;margin-top:6px;padding:2px 7px;border-radius:999px;font-size:10px;font-weight:500;background:var(--pl);color:var(--pd);">Avanzado</span></div>
+      <div class="feat-card" style="cursor:pointer;" onclick="openLesson('forex')"><div class="feat-icon" style="background:var(--pl);">💱</div><div class="feat-title">Forex y divisas</div><div class="feat-desc">Pares de divisas y apalancamiento.</div><span style="display:inline-block;margin-top:6px;padding:2px 7px;border-radius:999px;font-size:10px;font-weight:500;background:var(--pl);color:var(--pd);">Avanzado</span></div>
     </div>
-    <div id="lesson-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;align-items:center;justify-content:center;padding:20px;">
-      <div style="background:var(--bg);border-radius:var(--radius-lg);max-width:600px;width:100%;max-height:80vh;overflow-y:auto;padding:24px;position:relative;">
-        <button onclick="closeLesson()" style="position:absolute;top:14px;right:14px;border:none;background:var(--bg2);border-radius:50%;width:28px;height:28px;cursor:pointer;font-size:14px;color:var(--text2);">✕</button>
+    <div id="lesson-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:500;align-items:center;justify-content:center;padding:20px;">
+      <div style="background:var(--bg);border-radius:var(--rad-xl);max-width:580px;width:100%;max-height:80vh;overflow-y:auto;padding:22px;position:relative;">
+        <button onclick="closeLesson()" style="position:absolute;top:12px;right:12px;border:none;background:var(--bg2);border-radius:50%;width:26px;height:26px;cursor:pointer;font-size:13px;color:var(--tx2);">✕</button>
         <div id="lesson-content" style="font-size:14px;line-height:1.7;"></div>
       </div>
     </div>
   </div>
 
   <!-- SIMULADOR -->
-  <div id="tab-simulador" class="section">
+  <div id="tab-simulador" class="app-section-content">
     <div class="two-col">
-      <div class="card">
-        <div style="display:flex;justify-content:space-between;margin-bottom:16px;">
-          <div><div class="sim-label">Saldo disponible</div><div style="font-size:24px;font-weight:500;" id="balance">$10,000.00</div></div>
-          <div style="text-align:right;"><div class="sim-label">Ganancia / pérdida</div><div id="pnl" style="font-size:20px;font-weight:500;color:var(--green);">+$0.00</div></div>
+      <div class="section-card">
+        <div style="display:flex;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
+          <div><div class="sim-label-sm">Saldo disponible</div><div style="font-size:22px;font-weight:700;" id="a-bal">$10,000.00</div></div>
+          <div style="text-align:right;"><div class="sim-label-sm">Ganancia / pérdida</div><div id="a-pnl" style="font-size:18px;font-weight:700;color:var(--g);">+$0.00</div></div>
         </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
-          <div class="input-group"><label>Acción</label>
-            <select id="sim-ticker" onchange="onTickerChange()">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:10px;">
+          <div>
+            <div style="font-size:11px;color:var(--tx2);margin-bottom:3px;">Acción</div>
+            <select id="a-ticker" onchange="aOnTickerChange()" style="width:100%;padding:7px 9px;border:0.5px solid var(--br);border-radius:var(--rad);font-size:13px;background:var(--bg2);color:var(--tx);font-family:inherit;">
               <option value="AAPL">AAPL · Apple</option><option value="MSFT">MSFT · Microsoft</option>
               <option value="TSLA">TSLA · Tesla</option><option value="GOOGL">GOOGL · Alphabet</option>
               <option value="AMZN">AMZN · Amazon</option><option value="NVDA">NVDA · NVIDIA</option>
               <option value="META">META · Meta</option><option value="NFLX">NFLX · Netflix</option>
             </select>
           </div>
-          <div class="input-group"><label>Cantidad</label><input type="number" id="sim-qty" value="1" min="1" max="1000" oninput="updateOpTotal()"></div>
+          <div>
+            <div style="font-size:11px;color:var(--tx2);margin-bottom:3px;">Cantidad</div>
+            <input type="number" id="a-qty" value="1" min="0.000001" step="1" oninput="aUpdateTotal()" style="width:100%;padding:7px 9px;border:0.5px solid var(--br);border-radius:var(--rad);font-size:13px;background:var(--bg2);color:var(--tx);outline:none;font-family:inherit;">
+          </div>
         </div>
-        <div style="background:var(--bg2);border-radius:var(--radius);padding:12px;margin-bottom:12px;">
-          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
-            <div><div style="font-size:10px;color:var(--text2);text-transform:uppercase;margin-bottom:3px;"><span class="live-dot"></span>Precio real · Finnhub</div><div style="font-size:22px;font-weight:500;" id="live-price">Cargando...</div></div>
-            <div style="text-align:right;"><div style="font-size:10px;color:var(--text2);margin-bottom:3px;">Cambio hoy</div><div style="font-size:14px;font-weight:500;" id="live-change">—</div></div>
-            <div style="text-align:right;"><div style="font-size:10px;color:var(--text2);margin-bottom:3px;">Total operación</div><div style="font-size:14px;font-weight:500;" id="op-total">—</div></div>
+        <div style="background:var(--bg2);border-radius:var(--rad-lg);padding:11px;margin-bottom:11px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;">
+            <div><div style="font-size:10px;color:var(--tx2);margin-bottom:2px;"><span class="live-dot"></span>Precio real · Finnhub</div><div style="font-size:22px;font-weight:700;" id="a-price">Cargando...</div></div>
+            <div style="text-align:right;"><div style="font-size:10px;color:var(--tx2);margin-bottom:2px;">Cambio hoy</div><div style="font-size:13px;font-weight:600;" id="a-change">—</div></div>
+            <div style="text-align:right;"><div style="font-size:10px;color:var(--tx2);margin-bottom:2px;">Total operación</div><div style="font-size:13px;font-weight:600;" id="a-total">—</div></div>
           </div>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-          <button class="btn-buy" onclick="trade('buy')">Comprar</button>
-          <button class="btn-sell" onclick="trade('sell')">Vender</button>
+          <button class="btn-buy" onclick="aTrade('buy')">Comprar</button>
+          <button class="btn-sell" onclick="aTrade('sell')">Vender</button>
         </div>
-        <div style="margin-top:10px;padding:8px;background:var(--bg2);border-radius:var(--radius);font-size:11px;color:var(--text2);">Precios reales vía Finnhub. Simulación sin dinero real. Actualiza cada 30s.</div>
+        <div style="margin-top:9px;padding:7px 9px;background:var(--bg2);border-radius:var(--rad);font-size:10px;color:var(--tx2);">Precios reales vía Finnhub · Simulación sin dinero real · Actualiza cada 30s</div>
       </div>
-      <div class="card">
-        <div class="card-title">Mi portafolio</div>
-        <table class="portfolio-table"><thead><tr><th>Ticker</th><th>Acc.</th><th>Precio</th><th>Valor</th><th>P&L</th></tr></thead><tbody id="portfolio-body"><tr><td colspan="5" style="text-align:center;padding:24px;color:var(--text2);font-size:12px;">Aún sin posiciones.</td></tr></tbody></table>
-        <div style="margin-top:10px;padding-top:10px;border-top:0.5px solid var(--border);display:flex;justify-content:space-between;"><div style="font-size:11px;color:var(--text2);">Valor total portafolio</div><div style="font-size:15px;font-weight:500;" id="portfolio-total">$0.00</div></div>
+      <div class="section-card">
+        <div class="section-card-title">Mi portafolio</div>
+        <table class="ptable"><thead><tr><th>Ticker</th><th>Acc.</th><th>Precio</th><th>Valor</th><th>P&L</th></tr></thead><tbody id="a-ptbody"><tr><td colspan="5" class="empty">Aún sin posiciones.</td></tr></tbody></table>
+        <div style="margin-top:9px;padding-top:9px;border-top:0.5px solid var(--br);display:flex;justify-content:space-between;"><div style="font-size:11px;color:var(--tx2);">Valor total</div><div style="font-size:14px;font-weight:600;" id="a-total-port">$0.00</div></div>
       </div>
-    </div>
-    <div class="card">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-        <div class="card-title" style="margin:0;">Precios en tiempo real · Finnhub</div>
-        <button class="sym-btn" onclick="refreshAllPrices()">Actualizar</button>
-      </div>
-      <div id="live-prices-table"></div>
-      <div style="font-size:10px;color:var(--text2);margin-top:8px;" id="last-update">Cargando...</div>
     </div>
   </div>
 
   <!-- NOTICIAS -->
-  <div id="tab-noticias" class="section">
+  <div id="tab-noticias" class="app-section-content">
     <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
-      <div style="font-size:13px;color:var(--text2);">Noticias financieras · StockMarketBro</div>
-      <div style="display:flex;gap:6px;flex-wrap:wrap;" id="news-filters">
-        <button class="sym-btn active" onclick="filterNews('all',this)">Todas</button>
-        <button class="sym-btn" onclick="filterNews('acciones',this)">Acciones</button>
-        <button class="sym-btn" onclick="filterNews('crypto',this)">Cripto</button>
-        <button class="sym-btn" onclick="filterNews('macro',this)">Macro</button>
-        <button class="sym-btn" onclick="filterNews('latam',this)">Latam</button>
+      <div style="font-size:13px;color:var(--tx2);">Noticias financieras · StockMarketBro</div>
+      <div style="display:flex;gap:5px;flex-wrap:wrap;" id="news-filters">
+        <button class="ftab active" onclick="filterNews('all',this)">Todas</button>
+        <button class="ftab" onclick="filterNews('acciones',this)">Acciones</button>
+        <button class="ftab" onclick="filterNews('crypto',this)">Cripto</button>
+        <button class="ftab" onclick="filterNews('macro',this)">Macro</button>
+        <button class="ftab" onclick="filterNews('latam',this)">Latam</button>
       </div>
     </div>
     <div class="two-col">
-      <div class="card" style="padding:10px 14px;"><div id="news-col1"></div></div>
-      <div class="card" style="padding:10px 14px;"><div id="news-col2"></div></div>
+      <div class="section-card" style="padding:10px 13px;"><div id="news-col1"></div></div>
+      <div class="section-card" style="padding:10px 13px;"><div id="news-col2"></div></div>
     </div>
   </div>
 
   <!-- QUIZ -->
-  <div id="tab-quiz" class="section">
+  <div id="tab-quiz" class="app-section-content">
     <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
-      <div><div style="font-size:15px;font-weight:500;">Quiz · StockMarketBro</div><div style="font-size:12px;color:var(--text2);">Pon a prueba tus conocimientos</div></div>
-      <div style="display:flex;gap:6px;">
-        <button class="sym-btn" id="qcat-basic" onclick="startQuiz('basic',this)">Básico</button>
-        <button class="sym-btn active" id="qcat-mixed" onclick="startQuiz('mixed',this)">Mixto</button>
-        <button class="sym-btn" id="qcat-adv" onclick="startQuiz('adv',this)">Avanzado</button>
+      <div><div style="font-size:15px;font-weight:600;">Quiz · StockMarketBro</div><div style="font-size:12px;color:var(--tx2);">Pon a prueba tus conocimientos</div></div>
+      <div style="display:flex;gap:5px;">
+        <button class="ftab" id="qcat-basic" onclick="startQuiz('basic',this)">Básico</button>
+        <button class="ftab active" id="qcat-mixed" onclick="startQuiz('mixed',this)">Mixto</button>
+        <button class="ftab" id="qcat-adv" onclick="startQuiz('adv',this)">Avanzado</button>
       </div>
     </div>
     <div class="quiz-card">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;"><div class="quiz-bar-wrap"><div class="quiz-bar" id="quiz-bar" style="width:0%"></div></div><div style="font-size:12px;color:var(--text2);white-space:nowrap;" id="quiz-score-label">0 / 0</div></div>
-      <div class="quiz-q" id="quiz-question">Selecciona nivel y presiona Iniciar</div>
-      <div id="quiz-options"></div>
-      <div class="quiz-feedback" id="quiz-feedback"></div>
-      <div style="margin-top:14px;"><button class="btn-buy" id="quiz-next-btn" onclick="nextQuestion()" disabled>Iniciar quiz</button></div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:13px;"><div class="quiz-bar-wrap"><div class="quiz-bar" id="quiz-bar" style="width:0%"></div></div><div style="font-size:12px;color:var(--tx2);white-space:nowrap;" id="quiz-score-label">0/0</div></div>
+      <div class="quiz-q" id="quiz-q">Selecciona nivel y presiona Iniciar</div>
+      <div id="quiz-opts"></div>
+      <div class="quiz-feedback" id="quiz-fb"></div>
+      <div style="margin-top:13px;"><button class="btn-buy" id="quiz-next" onclick="nextQ()" disabled>Iniciar quiz</button></div>
     </div>
-    <div style="display:flex;gap:10px;">
-      <div class="card" style="flex:1;text-align:center;padding:16px;"><div style="font-size:24px;font-weight:500;" id="stat-correct">0</div><div style="font-size:11px;color:var(--text2);margin-top:3px;">Correctas</div></div>
-      <div class="card" style="flex:1;text-align:center;padding:16px;"><div style="font-size:24px;font-weight:500;" id="stat-wrong">0</div><div style="font-size:11px;color:var(--text2);margin-top:3px;">Incorrectas</div></div>
-      <div class="card" style="flex:1;text-align:center;padding:16px;"><div style="font-size:24px;font-weight:500;" id="stat-pct">0%</div><div style="font-size:11px;color:var(--text2);margin-top:3px;">Precisión</div></div>
+    <div style="display:flex;gap:9px;">
+      <div class="section-card" style="flex:1;text-align:center;padding:13px;"><div style="font-size:22px;font-weight:700;" id="stat-correct">0</div><div style="font-size:10px;color:var(--tx2);margin-top:2px;">Correctas</div></div>
+      <div class="section-card" style="flex:1;text-align:center;padding:13px;"><div style="font-size:22px;font-weight:700;" id="stat-wrong">0</div><div style="font-size:10px;color:var(--tx2);margin-top:2px;">Incorrectas</div></div>
+      <div class="section-card" style="flex:1;text-align:center;padding:13px;"><div style="font-size:22px;font-weight:700;" id="stat-pct">0%</div><div style="font-size:10px;color:var(--tx2);margin-top:2px;">Precisión</div></div>
     </div>
-  </div>
-
-  <!-- ALERTAS -->
-  <div id="tab-alertas" class="section">
-    <div style="font-size:13px;color:var(--text2);">Alertas de precio real · Finnhub</div>
-    <div class="card">
-      <div class="card-title">Nueva alerta</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:10px;align-items:end;">
-        <div class="input-group"><label>Símbolo</label><select id="alert-sym"><option value="AAPL">AAPL</option><option value="MSFT">MSFT</option><option value="TSLA">TSLA</option><option value="GOOGL">GOOGL</option><option value="AMZN">AMZN</option><option value="NVDA">NVDA</option><option value="META">META</option><option value="NFLX">NFLX</option></select></div>
-        <div class="input-group"><label>Condición</label><select id="alert-type"><option value="above">Sube encima de</option><option value="below">Cae debajo de</option></select></div>
-        <div class="input-group"><label>Precio ($)</label><input type="number" id="alert-price" placeholder="ej. 200" min="0" step="0.01"></div>
-        <button class="btn-green" onclick="addAlert()">+ Agregar</button>
-      </div>
-    </div>
-    <div class="card"><div class="card-title">Alertas activas <span class="badge-count" id="alert-count-badge">0</span></div><div id="alerts-list"><div class="empty-state">Sin alertas configuradas.</div></div></div>
-    <div class="card"><div class="card-title">Historial</div><div id="alert-history"><div class="empty-state">Ninguna alerta disparada aún.</div></div></div>
   </div>
 
   <!-- GLOSARIO -->
-  <div id="tab-glosario" class="section">
-    <div style="font-size:13px;color:var(--text2);">Glosario financiero · StockMarketBro</div>
-    <div id="glosario-list"></div>
+  <div id="tab-glosario" class="app-section-content">
+    <div style="font-size:13px;color:var(--tx2);">Glosario financiero · StockMarketBro</div>
+    <div id="glos-list"></div>
   </div>
-</div>
+
+  <!-- PANEL AUTOR -->
+  <div id="tab-autor" class="app-section-content">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
+      <img src="logo.png" onerror="this.style.display='none'" alt="SMB" style="width:34px;height:34px;border-radius:50%;object-fit:cover;">
+      <div><div style="font-size:15px;font-weight:600;">Panel de StockMarketBro</div><div style="font-size:12px;color:var(--tx2);">Publica señales para todos tus usuarios</div></div>
+    </div>
+    <div class="section-card">
+      <div class="section-card-title">Nueva señal</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:9px;">
+        <div><div style="font-size:11px;color:var(--tx2);margin-bottom:3px;">Tipo</div><select id="rec-type" style="width:100%;padding:7px 9px;border:0.5px solid var(--br);border-radius:var(--rad);font-size:13px;background:var(--bg2);color:var(--tx);font-family:inherit;"><option value="compra">Compra</option><option value="venta">Venta</option><option value="alerta">Alerta</option><option value="analisis">Análisis</option><option value="noticia">Noticia</option></select></div>
+        <div><div style="font-size:11px;color:var(--tx2);margin-bottom:3px;">Símbolo (opcional)</div><input type="text" id="rec-symbol" placeholder="ej. AAPL, BTC" style="width:100%;padding:7px 9px;border:0.5px solid var(--br);border-radius:var(--rad);font-size:13px;background:var(--bg2);color:var(--tx);outline:none;font-family:inherit;text-transform:uppercase;"></div>
+      </div>
+      <div style="margin-bottom:9px;"><div style="font-size:11px;color:var(--tx2);margin-bottom:3px;">Título</div><input type="text" id="rec-title" placeholder="ej. Oportunidad de entrada en AAPL" style="width:100%;padding:8px 10px;border:0.5px solid var(--br);border-radius:var(--rad);font-size:13px;background:var(--bg2);color:var(--tx);outline:none;font-family:inherit;"></div>
+      <div style="margin-bottom:9px;"><div style="font-size:11px;color:var(--tx2);margin-bottom:3px;">Mensaje / Análisis</div><textarea id="rec-body" placeholder="Escribe tu análisis..." style="width:100%;padding:8px 10px;border:0.5px solid var(--br);border-radius:var(--rad);font-size:13px;background:var(--bg2);color:var(--tx);outline:none;font-family:inherit;resize:vertical;min-height:80px;line-height:1.5;"></textarea></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:9px;align-items:end;margin-bottom:12px;">
+        <div><div style="font-size:11px;color:var(--tx2);margin-bottom:3px;">Precio objetivo</div><input type="text" id="rec-target" placeholder="ej. $210" style="width:100%;padding:7px 9px;border:0.5px solid var(--br);border-radius:var(--rad);font-size:13px;background:var(--bg2);color:var(--tx);outline:none;font-family:inherit;"></div>
+        <div><div style="font-size:11px;color:var(--tx2);margin-bottom:3px;">Stop loss</div><input type="text" id="rec-stop" placeholder="ej. $175" style="width:100%;padding:7px 9px;border:0.5px solid var(--br);border-radius:var(--rad);font-size:13px;background:var(--bg2);color:var(--tx);outline:none;font-family:inherit;"></div>
+        <div style="display:flex;align-items:center;gap:5px;padding-bottom:1px;"><input type="checkbox" id="rec-pinned" style="width:13px;height:13px;"><label for="rec-pinned" style="font-size:12px;color:var(--tx2);cursor:pointer;">Fijar</label></div>
+      </div>
+      <div style="display:flex;gap:7px;">
+        <button onclick="publishRec()" style="flex:1;padding:9px;border-radius:var(--rad);border:none;background:var(--g);color:#fff;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;">Publicar señal</button>
+        <button onclick="clearRecForm()" style="padding:9px 14px;border-radius:var(--rad);border:0.5px solid var(--br);background:transparent;font-size:13px;cursor:pointer;font-family:inherit;">Limpiar</button>
+      </div>
+    </div>
+    <div class="section-card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+        <div class="section-card-title" style="margin:0;">Señales publicadas</div>
+        <button onclick="loadAuthorRecs()" style="padding:5px 11px;border-radius:var(--rad);border:0.5px solid var(--br);background:var(--bg);font-size:11px;cursor:pointer;font-family:inherit;">Actualizar</button>
+      </div>
+      <div id="rec-list-author"><div class="loading-state">Cargando...</div></div>
+    </div>
+  </div>
+
+  <!-- APP FOOTER -->
+  <div style="background:#111;margin-top:auto;">
+    <div class="mini-disclaimer">
+      <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="rgba(239,159,39,0.6)" stroke-width="1.2"/><path d="M8 5v4M8 10.5v.5" stroke="rgba(239,159,39,0.8)" stroke-width="1.4" stroke-linecap="round"/></svg>
+      <div class="mini-disclaimer-text"><strong>Aviso:</strong> Contenido exclusivamente educativo. No constituye asesoramiento financiero ni recomendación de compra o venta de activos.</div>
+    </div>
+    <div style="padding:14px 20px;text-align:center;"><div style="font-size:10px;color:rgba(255,255,255,0.22);">© 2026 StockMarketBro · Solo educativo · No asesoramiento financiero · Simulación ficticia</div></div>
+  </div>
+</div><!-- end app-ui -->
 
 <div class="toast" id="toast"></div>
 
-<!-- FIREBASE MODULE -->
+<!-- ═══ FIREBASE ═══ -->
 <script type="module">
 import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import{getAuth,signInWithEmailAndPassword,createUserWithEmailAndPassword,signInWithPopup,GoogleAuthProvider,signOut,onAuthStateChanged,sendPasswordResetEmail,updateProfile}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import{getFirestore,collection,addDoc,getDocs,deleteDoc,doc,query,orderBy,serverTimestamp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-const app=initializeApp({apiKey:"AIzaSyDSCJU2IuuCZfjtfiXjxrq_fo1ODsJiJ7I",authDomain:"stockmarketbro.firebaseapp.com",projectId:"stockmarketbro",storageBucket:"stockmarketbro.firebasestorage.app",messagingSenderId:"1071822179137",appId:"1:1071822179137:web:0ab5250b2bf8fed3016fc0"});
-const auth=getAuth(app);
-const db=getFirestore(app);
+const fbApp=initializeApp({apiKey:"AIzaSyDSCJU2IuuCZfjtfiXjxrq_fo1ODsJiJ7I",authDomain:"stockmarketbro.firebaseapp.com",projectId:"stockmarketbro",storageBucket:"stockmarketbro.firebasestorage.app",messagingSenderId:"1071822179137",appId:"1:1071822179137:web:0ab5250b2bf8fed3016fc0"});
+const auth=getAuth(fbApp);
+const db=getFirestore(fbApp);
 const gp=new GoogleAuthProvider();
 
-// ← IMPORTANTE: pon aquí tu email de autor
+// ← CAMBIA ESTO POR TU EMAIL DE AUTOR
 const AUTHOR_EMAIL='cryptoguitar1@gmail.com';
 
 onAuthStateChanged(auth,user=>{
   if(user){
-    document.getElementById('auth-screen').classList.remove('show');
-    document.getElementById('main-app').classList.add('show');
+    document.getElementById('landing').style.display='none';
+    document.getElementById('app-ui').classList.add('show');
     const name=user.displayName||user.email.split('@')[0];
-    document.getElementById('user-menu-name').textContent=name;
-    document.getElementById('user-menu-email').textContent=user.email;
+    document.getElementById('um-name').textContent=name;
+    document.getElementById('um-email').textContent=user.email;
     const av=document.getElementById('user-avatar');
     av.innerHTML=user.photoURL?`<img src="${user.photoURL}" alt="${name}">`:`${name.charAt(0).toUpperCase()}`;
-    document.getElementById('autor-nav-btn').style.display=user.email===AUTHOR_EMAIL?'block':'none';
-    window.fbLoadRecs();
-    refreshAllPrices();
+    const isAuthor=user.email===AUTHOR_EMAIL;
+    document.getElementById('autor-btn').style.display=isAuthor?'block':'none';
+    window.fbLoadRecs&&window.fbLoadRecs();
+    initAppChart();
+    aRefreshPrices();
+    runScan();
   }else{
-    document.getElementById('auth-screen').classList.add('show');
-    document.getElementById('main-app').classList.remove('show');
+    document.getElementById('landing').style.display='block';
+    document.getElementById('app-ui').classList.remove('show');
   }
 });
 
-window.loginWithEmail=async()=>{
-  const e=document.getElementById('login-email').value.trim(),p=document.getElementById('login-password').value;
-  if(!e||!p){showAuthErr('Completa todos los campos');return;}
-  try{await signInWithEmailAndPassword(auth,e,p);}catch(err){showAuthErr(authMsg(err.code));}
+window.doLogin=async()=>{
+  const e=document.getElementById('m-email').value.trim(),p=document.getElementById('m-pass').value;
+  if(!e||!p){showMErr('Completa todos los campos');return;}
+  try{await signInWithEmailAndPassword(auth,e,p);closeModal();}catch(err){showMErr(authMsg(err.code));}
 };
-window.registerWithEmail=async()=>{
-  const n=document.getElementById('reg-name').value.trim(),e=document.getElementById('reg-email').value.trim(),p=document.getElementById('reg-password').value;
-  if(!n||!e||!p){showAuthErr('Completa todos los campos');return;}
-  if(p.length<6){showAuthErr('La contraseña debe tener al menos 6 caracteres');return;}
-  try{const c=await createUserWithEmailAndPassword(auth,e,p);await updateProfile(c.user,{displayName:n});}catch(err){showAuthErr(authMsg(err.code));}
+window.doRegister=async()=>{
+  const n=document.getElementById('m-name').value.trim(),e=document.getElementById('m-remail').value.trim(),p=document.getElementById('m-rpass').value;
+  if(!n||!e||!p){showMErr('Completa todos los campos');return;}
+  if(p.length<6){showMErr('La contraseña debe tener al menos 6 caracteres');return;}
+  try{const c=await createUserWithEmailAndPassword(auth,e,p);await updateProfile(c.user,{displayName:n});closeModal();}catch(err){showMErr(authMsg(err.code));}
 };
-window.loginWithGoogle=async()=>{try{await signInWithPopup(auth,gp);}catch(err){showAuthErr(authMsg(err.code));}};
-window.sendPasswordReset=async()=>{
-  const e=document.getElementById('reset-email').value.trim();
-  if(!e){showAuthErr('Ingresa tu correo');return;}
-  try{await sendPasswordResetEmail(auth,e);document.getElementById('reset-form').innerHTML='<div style="text-align:center;padding:20px;color:var(--green-dark);font-size:14px;">✓ Correo enviado. Revisa tu bandeja de entrada.</div>';}catch(err){showAuthErr(authMsg(err.code));}
+window.doGoogle=async()=>{try{await signInWithPopup(auth,gp);closeModal();}catch(err){showMErr(authMsg(err.code));}};
+window.doReset=async()=>{
+  const e=document.getElementById('m-resetmail').value.trim();
+  if(!e){showMErr('Ingresa tu correo');return;}
+  try{await sendPasswordResetEmail(auth,e);document.getElementById('mf-reset').innerHTML='<div style="text-align:center;padding:18px;color:var(--gd);font-size:14px;">✓ Correo enviado. Revisa tu bandeja.</div>';}catch(err){showMErr(authMsg(err.code));}
 };
-window.doSignOut=async()=>{await signOut(auth);document.getElementById('user-menu').classList.remove('show');};
+window.doSignOut=async()=>{await signOut(auth);document.getElementById('user-menu').classList.remove('open');};
 
+// FIRESTORE SIGNALS
+window.allRecs=[];
 window.fbLoadRecs=async()=>{
   try{
     const q=query(collection(db,'signals'),orderBy('tsNum','desc'));
     const snap=await getDocs(q);
     window.allRecs=snap.docs.map(d=>({id:d.id,...d.data()}));
   }catch(e){window.allRecs=[];}
-  renderUserRecs();renderAuthorList();
+  renderAuthorSignals();
+  renderAuthorList();
 };
-window.loadRecs=window.fbLoadRecs;
+window.loadAuthorRecs=window.fbLoadRecs;
 
 window.publishRec=async()=>{
   const title=document.getElementById('rec-title').value.trim();
   const body=document.getElementById('rec-body').value.trim();
   if(!title||!body){showToast('Completa título y mensaje');return;}
   const rec={type:document.getElementById('rec-type').value,title,body,symbol:document.getElementById('rec-symbol').value.trim().toUpperCase(),target:document.getElementById('rec-target').value.trim(),stop:document.getElementById('rec-stop').value.trim(),pinned:document.getElementById('rec-pinned').checked,ts:serverTimestamp(),tsNum:Date.now()};
-  try{await addDoc(collection(db,'signals'),rec);clearForm();await window.fbLoadRecs();showToast('✓ Señal publicada');document.getElementById('rec-dot').style.display='inline-block';}
-  catch(e){showToast('Error al publicar. Verifica tu conexión.');}
+  try{await addDoc(collection(db,'signals'),rec);clearRecForm();await window.fbLoadRecs();showToast('✓ Señal publicada');document.getElementById('rec-dot').style.display='inline-block';}
+  catch(e){showToast('Error al publicar. Verifica conexión.');}
 };
-
 window.deleteRec=async(id)=>{
   try{await deleteDoc(doc(db,'signals',id));await window.fbLoadRecs();showToast('Señal eliminada');}
   catch(e){showToast('Error al eliminar');}
 };
 
-function showAuthErr(msg){const el=document.getElementById('auth-error');el.textContent=msg;el.style.display=msg?'block':'none';}
-function authMsg(code){return({'auth/user-not-found':'No existe cuenta con ese correo.','auth/wrong-password':'Contraseña incorrecta.','auth/email-already-in-use':'Ya existe cuenta con ese correo.','auth/invalid-email':'Correo no válido.','auth/weak-password':'Contraseña muy débil.','auth/popup-closed-by-user':'Se canceló el inicio de sesión.','auth/invalid-credential':'Correo o contraseña incorrectos.'}[code]||'Error de autenticación. Intenta de nuevo.');}
+function showMErr(m){const e=document.getElementById('merr');e.textContent=m;e.style.display='block';}
+function authMsg(code){return({'auth/user-not-found':'No existe cuenta con ese correo.','auth/wrong-password':'Contraseña incorrecta.','auth/email-already-in-use':'Ya existe cuenta con ese correo.','auth/invalid-email':'Correo no válido.','auth/weak-password':'Contraseña muy débil.','auth/popup-closed-by-user':'Se canceló el inicio de sesión.','auth/invalid-credential':'Correo o contraseña incorrectos.'}[code]||'Error de autenticación.');}
 </script>
 
 <script>
-window.allRecs=[];
-const TABS=['mercado','senales','autor','educacion','simulador','noticias','quiz','alertas','glosario'];
-function showTab(t){TABS.forEach(id=>document.getElementById('tab-'+id).classList.toggle('active',id===t));document.querySelectorAll('.nav-btn').forEach((b,i)=>b.classList.toggle('active',TABS[i]===t));if(t==='mercado')initChart();if(t==='simulador')refreshAllPrices();if(t==='senales'){if(window.fbLoadRecs)window.fbLoadRecs();document.getElementById('rec-dot').style.display='none';}if(t==='alertas')document.getElementById('alert-dot').style.display='none';}
-function switchAuthTab(tab){document.getElementById('login-form').style.display=tab==='login'?'block':'none';document.getElementById('register-form').style.display=tab==='register'?'block':'none';document.getElementById('reset-form').style.display='none';document.getElementById('tab-login-btn').classList.toggle('active',tab==='login');document.getElementById('tab-register-btn').classList.toggle('active',tab==='register');document.getElementById('auth-error').style.display='none';}
-function showResetPassword(){document.getElementById('login-form').style.display='none';document.getElementById('reset-form').style.display='block';document.getElementById('auth-error').style.display='none';}
-function toggleUserMenu(){document.getElementById('user-menu').classList.toggle('show');}
-document.addEventListener('click',e=>{if(!e.target.closest('#user-avatar')&&!e.target.closest('#user-menu'))document.getElementById('user-menu').classList.remove('show');});
+// ═══ MODAL ═══
+function openModal(tab){document.getElementById('modal-bg').classList.add('open');switchM(tab);}
+function closeModal(){document.getElementById('modal-bg').classList.remove('open');}
+function switchM(tab){['login','register','reset'].forEach(t=>{document.getElementById('mf-'+t).style.display=t===tab?'block':'none';});document.getElementById('mt-login').classList.toggle('active',tab==='login');document.getElementById('mt-reg').classList.toggle('active',tab==='register');document.getElementById('merr').style.display='none';}
+function goTo(sel){document.querySelector(sel)?.scrollIntoView({behavior:'smooth'});}
 
-let currentRecFilter='all';
-function typeConfig(t){return({compra:{label:'Compra',cls:'rec-compra'},venta:{label:'Venta',cls:'rec-venta'},alerta:{label:'Alerta',cls:'rec-alerta'},analisis:{label:'Análisis',cls:'rec-analisis'},noticia:{label:'Noticia',cls:'rec-noticia'}})[t]||{label:t,cls:'rec-analisis'};}
-function renderRecCard(r,isAuthor){const tc=typeConfig(r.type);const date=new Date(r.tsNum||Date.now()).toLocaleDateString('es',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});const extras=[];if(r.target)extras.push(`<span style="font-size:11px;background:var(--green-light);color:var(--green-dark);padding:2px 8px;border-radius:999px;">Objetivo: ${r.target}</span>`);if(r.stop)extras.push(`<span style="font-size:11px;background:var(--red-light);color:var(--red-dark);padding:2px 8px;border-radius:999px;">Stop: ${r.stop}</span>`);const delBtn=isAuthor?`<button class="rec-del-btn" onclick="window.deleteRec('${r.id}')">✕ Eliminar</button>`:'';const pinLabel=r.pinned?'<span class="rec-pin">Fijado</span>':'';return`<div class="rec-card">${pinLabel}<span class="rec-type-badge ${tc.cls}">${tc.label}${r.symbol?' · '+r.symbol:''}</span><div class="rec-title">${r.title}</div><div class="rec-body">${r.body}</div>${extras.length?'<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;">'+extras.join('')+'</div>':''}<div class="rec-meta"><div class="rec-author"><img src="logo.png" alt="SMB" style="width:22px;height:22px;border-radius:50%;object-fit:cover;" onerror="this.style.display='none'"><span>StockMarketBro · ${date}</span></div><div>${delBtn}</div></div></div>`;}
-function renderUserRecs(){const c=document.getElementById('rec-list-user');const recs=window.allRecs||[];const f=currentRecFilter==='all'?recs:recs.filter(r=>r.type===currentRecFilter);const ordered=[...f.filter(r=>r.pinned),...f.filter(r=>!r.pinned)];if(!ordered.length){c.innerHTML='<div class="empty-state">StockMarketBro aún no ha publicado señales.<br>Vuelve pronto.</div>';return;}c.innerHTML='<div class="rec-grid">'+ordered.map(r=>renderRecCard(r,false)).join('')+'</div>';}
-function renderAuthorList(){const c=document.getElementById('rec-list-author');const recs=window.allRecs||[];if(!recs.length){c.innerHTML='<div class="empty-state">No has publicado señales aún.</div>';return;}c.innerHTML='<div style="display:flex;flex-direction:column;gap:10px;">'+recs.map(r=>renderRecCard(r,true)).join('')+'</div>';}
-function filterRecs(cat,btn){currentRecFilter=cat;document.querySelectorAll('#rec-filters .sym-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderUserRecs();}
-function clearForm(){['rec-title','rec-body','rec-symbol','rec-target','rec-stop'].forEach(id=>document.getElementById(id).value='');document.getElementById('rec-pinned').checked=false;document.getElementById('rec-type').value='compra';}
+// ═══ TICKER ═══
+const ticks=[{s:'S&P 500',p:'5,284',d:'+1.23%',u:true},{s:'NASDAQ',p:'16,421',d:'+0.87%',u:true},{s:'AAPL',p:'$189.30',d:'+2.10%',u:true},{s:'MSFT',p:'$412.70',d:'+1.40%',u:true},{s:'TSLA',p:'$172.40',d:'-3.20%',u:false},{s:'NVDA',p:'$880',d:'+4.50%',u:true},{s:'BTC',p:'$70,421',d:'+2.87%',u:true},{s:'ETH',p:'$3,210',d:'+1.54%',u:true},{s:'META',p:'$524.60',d:'+1.20%',u:true},{s:'EUR/USD',p:'1.0842',d:'+0.12%',u:true},{s:'ORO',p:'$2,345',d:'+0.55%',u:true},{s:'DJI',p:'38,912',d:'-0.31%',u:false}];
+const doubled=[...ticks,...ticks];
+document.getElementById('ticker-inner').innerHTML=doubled.map(t=>`<div class="tick-item"><span class="tick-sym">${t.s}</span><span>${t.p}</span><span class="${t.u?'up':'dn'}">${t.d}</span></div>`).join('');
 
+// ═══ LIVE PRICES (landing) ═══
+const liveRows=[{sym:'AAPL',name:'Apple',p:'$189.30',d:'+2.10%',u:true,b:[4,5,6,5,7,8,9]},{sym:'MSFT',name:'Microsoft',p:'$412.70',d:'+1.40%',u:true,b:[5,4,6,7,6,8,9]},{sym:'TSLA',name:'Tesla',p:'$172.40',d:'-3.20%',u:false,b:[9,8,6,7,5,4,3]},{sym:'NVDA',name:'NVIDIA',p:'$880.00',d:'+4.50%',u:true,b:[3,5,6,5,7,9,10]},{sym:'BTC',name:'Bitcoin',p:'$70,421',d:'+2.87%',u:true,b:[4,6,5,8,7,9,10]}];
+document.getElementById('live-row').innerHTML=liveRows.map(r=>{const c=r.u?'var(--g)':'var(--r)';const bc=r.u?'var(--gl)':'var(--rl)';return`<div class="live-card"><div class="lc-sym">${r.sym}</div><div class="lc-name">${r.name}</div><div class="lc-price">${r.p}</div><div style="font-size:12px;font-weight:600;color:${c};">${r.d}</div><div class="mini-bars">${r.b.map(v=>`<div class="mini-bar" style="height:${v*10}%;background:${bc};"></div>`).join('')}</div></div>`;}).join('');
+
+// ═══ HERO COUNTERS ═══
+function count(el,target,pre,suf,ms){let v=0,s=target/50;const iv=setInterval(()=>{v=Math.min(v+s,target);el.textContent=pre+Math.floor(v)+suf;if(v>=target)clearInterval(iv);},ms/50);}
+setTimeout(()=>{count(document.getElementById('hs1'),50,'+','',900);count(document.getElementById('hs2'),9,'','',700);count(document.getElementById('hs3'),8,'','',600);document.getElementById('hs4').textContent='$0';},400);
+
+// ═══ APP TABS ═══
+const APP_TABS=['mercado','senales','educacion','simulador','noticias','quiz','alertas','glosario','autor'];
+function showAppTab(t){
+  APP_TABS.forEach(id=>{document.getElementById('tab-'+id).classList.toggle('active',id===t);});
+  document.querySelectorAll('.app-nav-btn').forEach((b,i)=>b.classList.toggle('active',APP_TABS[i]===t));
+  if(t==='mercado')initAppChart();
+  if(t==='simulador')aRefreshPrices();
+  if(t==='senales'){if(window.fbLoadRecs)window.fbLoadRecs();document.getElementById('rec-dot').style.display='none';runScan();}
+  if(t==='alertas')document.getElementById('alert-dot').style.display='none';
+  if(t==='autor'&&window.fbLoadRecs)window.fbLoadRecs();
+}
+function toggleUM(){document.getElementById('user-menu').classList.toggle('open');}
+document.addEventListener('click',e=>{if(!e.target.closest('#user-avatar')&&!e.target.closest('#user-menu'))document.getElementById('user-menu').classList.remove('open');});
+
+// ═══ APP CHART ═══
 let chartInited=false;
-function initChart(){if(chartInited)return;chartInited=true;if(typeof TradingView!=='undefined')buildChart('NASDAQ:AAPL');else{const s=document.createElement('script');s.src='https://s3.tradingview.com/tv.js';s.onload=()=>buildChart('NASDAQ:AAPL');document.head.appendChild(s);}}
-function buildChart(sym){document.getElementById('tv-chart-widget').innerHTML='';new TradingView.widget({symbol:sym,interval:'D',container_id:'tv-chart-widget',width:'100%',height:400,theme:'light',style:'1',locale:'es',toolbar_bg:'transparent',enable_publishing:false,save_image:false,allow_symbol_change:true,backgroundColor:'rgba(0,0,0,0)',gridColor:'rgba(0,0,0,0.04)'});}
-function quickLoad(fs,label){document.querySelectorAll('.sym-btn').forEach(b=>b.classList.remove('active'));document.getElementById('active-sym-text').textContent=label;document.getElementById('sym-input').value='';if(chartInited)buildChart(fs);else{initChart();setTimeout(()=>buildChart(fs),800);}}
-function searchSymbol(){const raw=document.getElementById('sym-input').value.trim().toUpperCase();if(!raw){showToast('Escribe un símbolo');return;}document.querySelectorAll('.sym-btn').forEach(b=>b.classList.remove('active'));document.getElementById('active-sym-text').textContent=raw;const ex={AAPL:'NASDAQ',MSFT:'NASDAQ',TSLA:'NASDAQ',GOOGL:'NASDAQ',AMZN:'NASDAQ',NVDA:'NASDAQ',META:'NASDAQ',NFLX:'NASDAQ',DIS:'NYSE',JPM:'NYSE',BTCUSD:'BITSTAMP',ETHUSD:'BITSTAMP',EURUSD:'FX',GOLD:'TVC',USOIL:'TVC'};const fs=raw.includes(':')?raw:(ex[raw]?ex[raw]+':'+raw:'NASDAQ:'+raw);showToast('Cargando: '+raw);if(chartInited)buildChart(fs);else{initChart();setTimeout(()=>buildChart(fs),800);}}
+function initAppChart(){if(chartInited)return;chartInited=true;if(typeof TradingView!=='undefined')buildChart('NASDAQ:AAPL');else{const s=document.createElement('script');s.src='https://s3.tradingview.com/tv.js';s.onload=()=>buildChart('NASDAQ:AAPL');document.head.appendChild(s);}}
+function buildChart(sym){document.getElementById('app-chart').innerHTML='';new TradingView.widget({symbol:sym,interval:'D',container_id:'app-chart',width:'100%',height:380,theme:'light',style:'1',locale:'es',toolbar_bg:'transparent',enable_publishing:false,save_image:false,allow_symbol_change:true,backgroundColor:'rgba(0,0,0,0)',gridColor:'rgba(0,0,0,0.04)'});}
+function appQuickLoad(fs,label,btn){document.querySelectorAll('.app-nav-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');document.getElementById('app-sym-input').value='';if(chartInited)buildChart(fs);else{initAppChart();setTimeout(()=>buildChart(fs),800);}}
+function appSearchSym(){const raw=document.getElementById('app-sym-input').value.trim().toUpperCase();if(!raw){showToast('Escribe un símbolo');return;}const ex={AAPL:'NASDAQ',MSFT:'NASDAQ',TSLA:'NASDAQ',GOOGL:'NASDAQ',AMZN:'NASDAQ',NVDA:'NASDAQ',META:'NASDAQ',NFLX:'NASDAQ',DIS:'NYSE',JPM:'NYSE',BTCUSD:'BITSTAMP',ETHUSD:'BITSTAMP',EURUSD:'FX',GOLD:'TVC',USOIL:'TVC'};const fs=raw.includes(':')?raw:(ex[raw]?ex[raw]+':'+raw:'NASDAQ:'+raw);showToast('Cargando: '+raw);if(chartInited)buildChart(fs);else{initAppChart();setTimeout(()=>buildChart(fs),800);}}
 
-const FINNHUB_KEY='d7hq9bpr01qirk40k170d7hq9bpr01qirk40k17g';
-const TICKERS=['AAPL','MSFT','TSLA','GOOGL','AMZN','NVDA','META','NFLX'];
-let livePrices={};
-async function fetchPrice(sym){try{const r=await fetch(`https://finnhub.io/api/v1/quote?symbol=${sym}&token=${FINNHUB_KEY}`);const d=await r.json();if(d&&d.c>0){livePrices[sym]={c:d.c,d:d.d,dp:d.dp};return d.c;}}catch(e){}return livePrices[sym]?.c||null;}
-async function refreshAllPrices(){document.getElementById('last-update').textContent='Actualizando...';for(const s of TICKERS)await fetchPrice(s);renderLivePricesTable();updateSimPriceDisplay();updatePortfolioPnl();checkAlertsLive();document.getElementById('last-update').textContent='Actualizado: '+new Date().toLocaleTimeString('es',{hour:'2-digit',minute:'2-digit',second:'2-digit'})+' · Finnhub';}
-function renderLivePricesTable(){const el=document.getElementById('live-prices-table');if(!el)return;el.innerHTML=TICKERS.map(sym=>{const p=livePrices[sym];if(!p)return`<div class="sim-price-row"><div style="font-weight:500">${sym}</div><div style="color:var(--text2);font-size:12px;">Cargando...</div></div>`;const sign=p.dp>=0?'+':'';return`<div class="sim-price-row"><div style="font-weight:500;font-size:13px;">${sym}</div><div style="font-size:13px;font-weight:500;">$${p.c.toFixed(2)}</div><div class="${p.dp>=0?'change-pos':'change-neg'}" style="font-size:11px;">${sign}${p.d?.toFixed(2)} (${sign}${p.dp?.toFixed(2)}%)</div></div>`;}).join('');}
-function updateSimPriceDisplay(){const sym=document.getElementById('sim-ticker').value;const qty=parseInt(document.getElementById('sim-qty').value)||1;const p=livePrices[sym];if(!p){document.getElementById('live-price').textContent='Cargando...';return;}document.getElementById('live-price').textContent='$'+p.c.toFixed(2);const sign=p.dp>=0?'+':'';const chEl=document.getElementById('live-change');chEl.textContent=sign+p.d?.toFixed(2)+' ('+sign+p.dp?.toFixed(2)+'%)';chEl.style.color=p.dp>=0?'var(--green-dark)':'var(--red-dark)';document.getElementById('op-total').textContent='$'+(p.c*qty).toFixed(2);}
-function onTickerChange(){updateSimPriceDisplay();}
-function updateOpTotal(){const sym=document.getElementById('sim-ticker').value;const qty=parseInt(document.getElementById('sim-qty').value)||1;const p=livePrices[sym];if(p)document.getElementById('op-total').textContent='$'+(p.c*qty).toFixed(2);}
-setInterval(refreshAllPrices,30000);
+// ═══ FINNHUB ═══
+const FK='d7hq9bpr01qirk40k170d7hq9bpr01qirk40k17g';
+const TD_KEY='30230ec6e79d4866b5ce3609ef6a9e49';
+let lp={};
+async function fetchP(sym){try{const r=await fetch(`https://finnhub.io/api/v1/quote?symbol=${sym}&token=${FK}`);const d=await r.json();if(d&&d.c>0){lp[sym]={c:d.c,d:d.d,dp:d.dp,h:d.h,l:d.l};return d.c;}}catch(e){}return null;}
 
-let balance=10000,portfolio={};
-async function trade(type){const sym=document.getElementById('sim-ticker').value;const qty=parseInt(document.getElementById('sim-qty').value)||1;let price=livePrices[sym]?.c;if(!price){await fetchPrice(sym);price=livePrices[sym]?.c;}if(!price){showToast('No se pudo obtener precio');return;}const cost=+(price*qty).toFixed(2);if(type==='buy'){if(balance<cost){showToast('Saldo insuficiente');return;}balance=+(balance-cost).toFixed(2);if(!portfolio[sym])portfolio[sym]={qty:0,avgCost:0};const prev=portfolio[sym],tq=prev.qty+qty;prev.avgCost=+((prev.avgCost*prev.qty+price*qty)/tq).toFixed(4);prev.qty=tq;showToast('Compraste '+qty+' × '+sym+' a $'+price.toFixed(2));}else{if(!portfolio[sym]||portfolio[sym].qty<qty){showToast('Sin acciones suficientes');return;}balance=+(balance+cost).toFixed(2);portfolio[sym].qty-=qty;if(!portfolio[sym].qty)delete portfolio[sym];showToast('Vendiste '+qty+' × '+sym+' a $'+price.toFixed(2));}updateSimUI();}
-function updateSimUI(){document.getElementById('balance').textContent='$'+balance.toLocaleString('es',{minimumFractionDigits:2,maximumFractionDigits:2});updatePortfolioPnl();}
-function updatePortfolioPnl(){const tbody=document.getElementById('portfolio-body');const entries=Object.entries(portfolio).filter(([,v])=>v.qty>0);if(!entries.length){tbody.innerHTML='<tr><td colspan="5" style="text-align:center;padding:24px;color:var(--text2);font-size:12px;">Aún sin posiciones.</td></tr>';document.getElementById('portfolio-total').textContent='$0.00';const pnlEl=document.getElementById('pnl');const tp=+(balance-10000).toFixed(2);pnlEl.textContent=(tp>=0?'+$':'-$')+Math.abs(tp).toFixed(2);pnlEl.style.color=tp>=0?'var(--green)':'var(--red)';return;}let tv=0;tbody.innerHTML=entries.map(([sym,pos])=>{const lp=livePrices[sym]?.c||pos.avgCost;const val=lp*pos.qty,pl=(lp-pos.avgCost)*pos.qty,pp=(lp-pos.avgCost)/pos.avgCost*100;tv+=val;const c=pl>=0?'var(--green-dark)':'var(--red-dark)';const s=pl>=0?'+':'';return`<tr><td style="font-weight:500">${sym}</td><td>${pos.qty}</td><td>$${lp.toFixed(2)}</td><td>$${val.toFixed(2)}</td><td style="color:${c};font-size:11px;">${s}$${pl.toFixed(2)}<br><span style="font-size:10px;">${s}${pp.toFixed(2)}%</span></td></tr>`;}).join('');document.getElementById('portfolio-total').textContent='$'+tv.toFixed(2);const tp=+(balance+tv-10000).toFixed(2);const pnlEl=document.getElementById('pnl');pnlEl.textContent=(tp>=0?'+$':'-$')+Math.abs(tp).toFixed(2);pnlEl.style.color=tp>=0?'var(--green)':'var(--red)';}
+// ═══ LANDING SIMULATOR ═══
+const CATALOG=[{sym:'AAPL',name:'Apple Inc.'},{sym:'MSFT',name:'Microsoft'},{sym:'GOOGL',name:'Alphabet'},{sym:'AMZN',name:'Amazon'},{sym:'TSLA',name:'Tesla'},{sym:'NVDA',name:'NVIDIA'},{sym:'META',name:'Meta'},{sym:'NFLX',name:'Netflix'},{sym:'AMD',name:'AMD'},{sym:'INTC',name:'Intel'},{sym:'DIS',name:'Disney'},{sym:'JPM',name:'JPMorgan'},{sym:'BAC',name:'Bank of America'},{sym:'PYPL',name:'PayPal'},{sym:'UBER',name:'Uber'},{sym:'SPOT',name:'Spotify'},{sym:'COIN',name:'Coinbase'},{sym:'PLTR',name:'Palantir'},{sym:'SNAP',name:'Snap'},{sym:'NKE',name:'Nike'},{sym:'SBUX',name:'Starbucks'},{sym:'WMT',name:'Walmart'},{sym:'KO',name:'Coca-Cola'},{sym:'V',name:'Visa'},{sym:'MA',name:'Mastercard'},{sym:'PFE',name:'Pfizer'},{sym:'XOM',name:'ExxonMobil'},{sym:'BA',name:'Boeing'},{sym:'GE',name:'General Electric'},{sym:'HOOD',name:'Robinhood'}];
+let lBalance=10000,lPortfolio={},lHistory=[],lSym=null,lName=null,lMode='shares';
+function lOnSearch(v){if(!v){document.getElementById('l-results').classList.remove('open');return;}const q=v.toUpperCase();const m=CATALOG.filter(s=>s.sym.includes(q)||s.name.toUpperCase().includes(q)).slice(0,7);if(!m.length){document.getElementById('l-results').classList.remove('open');return;}const el=document.getElementById('l-results');el.innerHTML=m.map(s=>{const p=lp[s.sym];return`<div class="sri" onclick="lPick('${s.sym}','${s.name.replace(/'/g,"\\'")}')"><div><div class="sri-sym">${s.sym}</div><div class="sri-name">${s.name}</div></div>${p?`<span style="font-size:12px;font-weight:600;">$${p.c.toFixed(2)}</span>`:''}</div>`;}).join('');el.classList.add('open');}
+async function lSearchEnter(){const v=document.getElementById('l-search').value.trim().toUpperCase();if(!v)return;const found=CATALOG.find(s=>s.sym===v);if(found){lPick(found.sym,found.name);}else{const pr=await fetchP(v);if(pr)lPick(v,v);else showToast('No encontrado: '+v);}document.getElementById('l-results').classList.remove('open');}
+document.addEventListener('click',e=>{if(!e.target.closest('.search-wrap'))document.querySelectorAll('.search-results').forEach(el=>el.classList.remove('open'));});
+async function lPick(sym,name){lSym=sym;lName=name;document.getElementById('l-search').value=sym+' — '+name;document.getElementById('l-results').classList.remove('open');document.getElementById('l-pricebox').style.display='block';document.getElementById('l-sym-label').textContent=sym;document.getElementById('l-name-label').textContent=name;document.getElementById('l-price').textContent='Cargando...';await fetchP(sym);const p=lp[sym];if(!p){document.getElementById('l-price').textContent='No disponible';return;}document.getElementById('l-price').textContent='$'+p.c.toFixed(2);const sign=p.dp>=0?'+':'';const ch=document.getElementById('l-change');ch.textContent=sign+p.d.toFixed(2)+' ('+sign+p.dp.toFixed(2)+'%)';ch.style.color=p.dp>=0?'var(--gd)':'var(--rd)';lCalcS();lCalcU();}
+function lSetMode(m){lMode=m;document.getElementById('l-mt-s').classList.toggle('active',m==='shares');document.getElementById('l-mt-u').classList.toggle('active',m==='usd');document.getElementById('l-panel-s').style.display=m==='shares'?'block':'none';document.getElementById('l-panel-u').style.display=m==='usd'?'block':'none';}
+function lCalcS(){const q=parseFloat(document.getElementById('l-qty-s').value)||0;const p=lSym?lp[lSym]?.c:null;document.getElementById('l-tot-s').textContent=p&&q?'$'+(p*q).toFixed(2):'—';}
+function lCalcU(){const u=parseFloat(document.getElementById('l-qty-u').value)||0;const p=lSym?lp[lSym]?.c:null;if(!p||!u){document.getElementById('l-tot-u').textContent='—';document.getElementById('l-frac').textContent='— acciones';document.getElementById('l-calc-box').style.display='none';return;}document.getElementById('l-frac').textContent=(u/p).toFixed(6)+' acciones';document.getElementById('l-tot-u').textContent='$'+u.toFixed(2);document.getElementById('l-calc-box').style.display='block';}
+function lSetU(v){document.getElementById('l-qty-u').value=v;lCalcU();}
+function fmtQ(q){return q<1?q.toFixed(6):q.toFixed(4);}
+async function lTrade(type){if(!lSym){showToast('Selecciona una acción primero');return;}let price=lp[lSym]?.c;if(!price){await fetchP(lSym);price=lp[lSym]?.c;}if(!price){showToast('No se pudo obtener precio');return;}let qty,cost;if(lMode==='shares'){qty=parseFloat(document.getElementById('l-qty-s').value)||0;if(qty<=0){showToast('Ingresa una cantidad válida');return;}cost=+(price*qty).toFixed(6);}else{const u=parseFloat(document.getElementById('l-qty-u').value)||0;if(u<=0){showToast('Ingresa un monto válido');return;}qty=+(u/price).toFixed(6);cost=u;}if(type==='buy'){if(lBalance<cost){showToast('Saldo insuficiente');return;}lBalance=+(lBalance-cost).toFixed(6);if(!lPortfolio[lSym])lPortfolio[lSym]={qty:0,avgCost:0,name:lName};const prev=lPortfolio[lSym],tq=+(prev.qty+qty).toFixed(6);prev.avgCost=+((prev.avgCost*prev.qty+price*qty)/tq).toFixed(6);prev.qty=tq;lHistory.unshift({type:'compra',sym:lSym,qty,price,cost,ts:Date.now()});showToast('✓ Compraste '+fmtQ(qty)+' × '+lSym+' a $'+price.toFixed(2));}else{if(!lPortfolio[lSym]||lPortfolio[lSym].qty<qty-0.000001){showToast('Sin acciones suficientes de '+lSym);return;}lBalance=+(lBalance+cost).toFixed(6);lPortfolio[lSym].qty=+(lPortfolio[lSym].qty-qty).toFixed(6);if(lPortfolio[lSym].qty<0.000001)delete lPortfolio[lSym];lHistory.unshift({type:'venta',sym:lSym,qty,price,cost,ts:Date.now()});showToast('✓ Vendiste '+fmtQ(qty)+' × '+lSym+' a $'+price.toFixed(2));}lUpdateUI();}
+function lUpdateUI(){document.getElementById('l-bal').textContent='$'+lBalance.toLocaleString('es',{minimumFractionDigits:2,maximumFractionDigits:2});const entries=Object.entries(lPortfolio).filter(([,v])=>v.qty>0.000001);let tv=0;if(!entries.length){document.getElementById('l-ptbody').innerHTML='<tr><td colspan="5" class="empty">Aún sin posiciones.</td></tr>';document.getElementById('l-total-port').textContent='$0.00';document.getElementById('l-portval').textContent='$0';const tp=+(lBalance-10000).toFixed(2);const pel=document.getElementById('l-pnl');pel.textContent=(tp>=0?'+$':'-$')+Math.abs(tp).toFixed(2);pel.style.color=tp>=0?'var(--g)':'var(--r)';}else{document.getElementById('l-ptbody').innerHTML=entries.map(([sym,pos])=>{const liveP=lp[sym]?.c||pos.avgCost;const val=+(liveP*pos.qty).toFixed(2);const pl=+((liveP-pos.avgCost)*pos.qty).toFixed(2);const plp=+((liveP-pos.avgCost)/pos.avgCost*100).toFixed(2);tv+=val;const c=pl>=0?'var(--gd)':'var(--rd)';const s=pl>=0?'+':'';return`<tr><td><div style="font-weight:600;font-size:12px;">${sym}</div><div style="font-size:10px;color:var(--tx2);">${pos.name||''}</div></td><td style="font-size:11px;">${fmtQ(pos.qty)}</td><td style="font-size:12px;">$${liveP.toFixed(2)}</td><td style="font-size:12px;">$${val.toFixed(2)}</td><td style="color:${c};font-size:11px;">${s}$${pl.toFixed(2)}<br><span style="font-size:10px;">${s}${plp}%</span></td></tr>`;}).join('');document.getElementById('l-total-port').textContent='$'+tv.toFixed(2);document.getElementById('l-portval').textContent='$'+tv.toFixed(0);const tp=+(lBalance+tv-10000).toFixed(2);const pel=document.getElementById('l-pnl');pel.textContent=(tp>=0?'+$':'-$')+Math.abs(tp).toFixed(2);pel.style.color=tp>=0?'var(--g)':'var(--r)';}const hist=document.getElementById('l-history');if(!lHistory.length){hist.innerHTML='<div class="empty">Aún sin operaciones.</div>';return;}hist.innerHTML=lHistory.slice(0,10).map(h=>{const dt=new Date(h.ts).toLocaleString('es',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});const isC=h.type==='compra';return`<div class="hist-item"><div style="display:flex;align-items:center;gap:7px;"><span class="hist-badge" style="background:${isC?'var(--gl)':'var(--rl)'};color:${isC?'var(--gd)':'var(--rd)'};">${isC?'Compra':'Venta'}</span><div><div style="font-size:12px;font-weight:600;">${h.sym}</div><div style="font-size:10px;color:var(--tx2);">${fmtQ(h.qty)} × $${h.price.toFixed(2)}</div></div></div><div style="text-align:right;"><div style="font-size:12px;font-weight:600;">$${h.cost.toFixed(2)}</div><div style="font-size:10px;color:var(--tx2);">${dt}</div></div></div>`;}).join('');}
+function lReset(){if(!confirm('¿Reiniciar simulación?'))return;lBalance=10000;lPortfolio={};lHistory=[];lUpdateUI();showToast('Simulación reiniciada · $10,000');}
+setInterval(()=>{if(lSym)fetchP(lSym).then(()=>{const p=lp[lSym];if(p){document.getElementById('l-price').textContent='$'+p.c.toFixed(2);lCalcS();lCalcU();}});},30000);
 
-let alerts=[],alertHistory=[],alertIdCounter=0;
-function addAlert(){const sym=document.getElementById('alert-sym').value,type=document.getElementById('alert-type').value,price=parseFloat(document.getElementById('alert-price').value);if(!price||price<=0){showToast('Ingresa un precio válido');return;}alerts.push({id:++alertIdCounter,sym,type,price});document.getElementById('alert-price').value='';renderAlerts();showToast('Alerta: '+sym+' '+(type==='above'?'↑ sobre':'↓ bajo')+' $'+price.toFixed(2));}
-function removeAlert(id){alerts=alerts.filter(a=>a.id!==id);renderAlerts();}
-function renderAlerts(){document.getElementById('alert-count-badge').textContent=alerts.length;if(!alerts.length){document.getElementById('alerts-list').innerHTML='<div class="empty-state">Sin alertas.</div>';return;}document.getElementById('alerts-list').innerHTML=alerts.map(a=>{const cur=livePrices[a.sym]?.c;return`<div class="alert-row"><div class="alert-sym">${a.sym}</div><span class="alert-badge ${a.type==='above'?'alert-above':'alert-below'}">${a.type==='above'?'↑ sobre':'↓ bajo'} $${a.price.toFixed(2)}</span><div style="font-size:12px;color:var(--text2);flex:1;">Live: ${cur?'$'+cur.toFixed(2):'—'}</div><button class="alert-del" onclick="removeAlert(${a.id})">✕</button></div>`;}).join('');}
-async function checkAlertsLive(){if(!alerts.length)return;const triggered=[];alerts=alerts.filter(a=>{const cur=livePrices[a.sym]?.c;if(!cur)return true;if((a.type==='above'&&cur>=a.price)||(a.type==='below'&&cur<=a.price)){triggered.push({...a,triggeredAt:cur});return false;}return true;});if(triggered.length){triggered.forEach(a=>alertHistory.unshift({sym:a.sym,type:a.type,price:a.price,at:a.triggeredAt,time:new Date().toLocaleTimeString('es',{hour:'2-digit',minute:'2-digit'})}));renderAlerts();renderAlertHistory();document.getElementById('alert-dot').style.display='inline-block';triggered.forEach(a=>showToast('SMB Alert: '+a.sym+' '+(a.type==='above'?'superó':'cayó bajo')+' $'+a.price.toFixed(2)));}else renderAlerts();}
-function renderAlertHistory(){if(!alertHistory.length){document.getElementById('alert-history').innerHTML='<div class="empty-state">Ninguna alerta disparada.</div>';return;}document.getElementById('alert-history').innerHTML=alertHistory.slice(0,5).map(a=>`<div class="alert-row"><div class="alert-sym">${a.sym}</div><span class="alert-badge ${a.type==='above'?'alert-above':'alert-below'}">${a.type==='above'?'↑':' ↓'} $${a.price.toFixed(2)}</span><div style="font-size:12px;color:var(--text2);">$${a.at.toFixed(2)} · ${a.time}</div></div>`).join('');}
+// ═══ APP SIMULATOR ═══
+let aBalance=10000,aPortfolio={};
+const aFK=FK;
+async function aRefreshPrices(){const sym=document.getElementById('a-ticker')?.value;if(!sym)return;await fetchP(sym);aUpdatePriceDisplay();aUpdatePortfolioPnl();}
+function aUpdatePriceDisplay(){const sym=document.getElementById('a-ticker').value;const qty=parseInt(document.getElementById('a-qty').value)||1;const p=lp[sym];if(!p){document.getElementById('a-price').textContent='Cargando...';return;}document.getElementById('a-price').textContent='$'+p.c.toFixed(2);const sign=p.dp>=0?'+':'';const ch=document.getElementById('a-change');ch.textContent=sign+p.d.toFixed(2)+' ('+sign+p.dp.toFixed(2)+'%)';ch.style.color=p.dp>=0?'var(--gd)':'var(--rd)';document.getElementById('a-total').textContent='$'+(p.c*qty).toFixed(2);}
+function aUpdateTotal(){aUpdatePriceDisplay();}
+function aOnTickerChange(){aRefreshPrices();}
+async function aTrade(type){const sym=document.getElementById('a-ticker').value;const qty=parseInt(document.getElementById('a-qty').value)||1;let price=lp[sym]?.c;if(!price){await fetchP(sym);price=lp[sym]?.c;}if(!price){showToast('No se pudo obtener precio');return;}const cost=+(price*qty).toFixed(2);if(type==='buy'){if(aBalance<cost){showToast('Saldo insuficiente');return;}aBalance=+(aBalance-cost).toFixed(2);if(!aPortfolio[sym])aPortfolio[sym]={qty:0,avgCost:0};const prev=aPortfolio[sym],tq=prev.qty+qty;prev.avgCost=+((prev.avgCost*prev.qty+price*qty)/tq).toFixed(4);prev.qty=tq;showToast('Compraste '+qty+' × '+sym+' a $'+price.toFixed(2));}else{if(!aPortfolio[sym]||aPortfolio[sym].qty<qty){showToast('Sin acciones suficientes');return;}aBalance=+(aBalance+cost).toFixed(2);aPortfolio[sym].qty-=qty;if(!aPortfolio[sym].qty)delete aPortfolio[sym];showToast('Vendiste '+qty+' × '+sym+' a $'+price.toFixed(2));}aUpdateSimUI();}
+function aUpdateSimUI(){document.getElementById('a-bal').textContent='$'+aBalance.toLocaleString('es',{minimumFractionDigits:2,maximumFractionDigits:2});aUpdatePortfolioPnl();}
+function aUpdatePortfolioPnl(){const tbody=document.getElementById('a-ptbody');const entries=Object.entries(aPortfolio).filter(([,v])=>v.qty>0);if(!entries.length){tbody.innerHTML='<tr><td colspan="5" class="empty">Aún sin posiciones.</td></tr>';document.getElementById('a-total-port').textContent='$0.00';const tp=+(aBalance-10000).toFixed(2);const pel=document.getElementById('a-pnl');pel.textContent=(tp>=0?'+$':'-$')+Math.abs(tp).toFixed(2);pel.style.color=tp>=0?'var(--g)':'var(--r)';return;}let tv=0;tbody.innerHTML=entries.map(([sym,pos])=>{const liveP=lp[sym]?.c||pos.avgCost;const val=+(liveP*pos.qty).toFixed(2);const pl=+((liveP-pos.avgCost)*pos.qty).toFixed(2);const plp=+((liveP-pos.avgCost)/pos.avgCost*100).toFixed(2);tv+=val;const c=pl>=0?'var(--gd)':'var(--rd)';const s=pl>=0?'+':'';return`<tr><td style="font-weight:600;font-size:12px;">${sym}</td><td>${pos.qty}</td><td>$${liveP.toFixed(2)}</td><td>$${val.toFixed(2)}</td><td style="color:${c};font-size:11px;">${s}$${pl.toFixed(2)}<br><span style="font-size:10px;">${s}${plp}%</span></td></tr>`;}).join('');document.getElementById('a-total-port').textContent='$'+tv.toFixed(2);const tp=+(aBalance+tv-10000).toFixed(2);const pel=document.getElementById('a-pnl');pel.textContent=(tp>=0?'+$':'-$')+Math.abs(tp).toFixed(2);pel.style.color=tp>=0?'var(--g)':'var(--r)';}
+setInterval(aRefreshPrices,30000);
 
-const allNews=[{cat:'acciones',tag:'AAPL',tc:'#E1F5EE',tt:'#0F6E56',title:'Apple supera expectativas de ingresos en su reporte trimestral',meta:'Reuters · hace 2h',sent:'pos',sentLabel:'Positivo'},{cat:'macro',tag:'FED',tc:'#EEEDFE',tt:'#3C3489',title:'La Reserva Federal mantiene tasas sin cambios',meta:'Bloomberg · hace 3h',sent:'neu',sentLabel:'Neutral'},{cat:'crypto',tag:'BTC',tc:'#FAEEDA',tt:'#854F0B',title:'Bitcoin supera los $70,000 en medio de mayor demanda institucional',meta:'CoinDesk · hace 4h',sent:'pos',sentLabel:'Positivo'},{cat:'acciones',tag:'TSLA',tc:'#FCEBEB',tt:'#A32D2D',title:'Tesla reporta caída en entregas del primer trimestre',meta:'WSJ · hace 5h',sent:'neg',sentLabel:'Negativo'},{cat:'latam',tag:'LATAM',tc:'#E6F1FB',tt:'#185FA5',title:'Bolsas latinoamericanas registran alza impulsadas por commodities',meta:'El Financiero · hace 6h',sent:'pos',sentLabel:'Positivo'},{cat:'macro',tag:'MACRO',tc:'#EEEDFE',tt:'#3C3489',title:'Inflación en EE.UU. cede levemente, abre puerta a recortes',meta:'FT · hace 7h',sent:'pos',sentLabel:'Positivo'},{cat:'acciones',tag:'NVDA',tc:'#E1F5EE',tt:'#0F6E56',title:'NVIDIA alcanza nuevo máximo histórico tras boom de IA',meta:'CNBC · hace 8h',sent:'pos',sentLabel:'Positivo'},{cat:'crypto',tag:'ETH',tc:'#EEEDFE',tt:'#3C3489',title:'Ethereum consolida soporte en $3,200',meta:'The Block · hace 9h',sent:'neu',sentLabel:'Neutral'},{cat:'latam',tag:'MXN',tc:'#E6F1FB',tt:'#185FA5',title:'Peso mexicano se fortalece frente al dólar',meta:'El Economista · hace 10h',sent:'pos',sentLabel:'Positivo'},{cat:'acciones',tag:'META',tc:'#E1F5EE',tt:'#0F6E56',title:'Meta Platforms anuncia dividendo por primera vez en su historia',meta:'MarketWatch · hace 11h',sent:'pos',sentLabel:'Positivo'}];
+// ═══ AUTO SIGNALS (Twelve Data) ═══
+const WATCHLIST=[{sym:'AAPL',name:'Apple'},{sym:'MSFT',name:'Microsoft'},{sym:'NVDA',name:'NVIDIA'},{sym:'TSLA',name:'Tesla'},{sym:'GOOGL',name:'Alphabet'},{sym:'AMZN',name:'Amazon'},{sym:'META',name:'Meta'},{sym:'NFLX',name:'Netflix'},{sym:'AMD',name:'AMD'},{sym:'INTC',name:'Intel'},{sym:'JPM',name:'JPMorgan'},{sym:'BAC',name:'Bank of America'},{sym:'V',name:'Visa'},{sym:'MA',name:'Mastercard'},{sym:'DIS',name:'Disney'},{sym:'PYPL',name:'PayPal'},{sym:'UBER',name:'Uber'},{sym:'COIN',name:'Coinbase'},{sym:'PLTR',name:'Palantir'},{sym:'SNAP',name:'Snap'},{sym:'NKE',name:'Nike'},{sym:'SBUX',name:'Starbucks'},{sym:'WMT',name:'Walmart'},{sym:'KO',name:'Coca-Cola'}];
+let autoResults=[],autoFilter='all';
+async function fetchTD(ep){try{const r=await fetch(`https://api.twelvedata.com/${ep}&apikey=${TD_KEY}`);const d=await r.json();if(d.status==='error')return null;return d;}catch(e){return null;}}
+function isRSIUp(d){if(!d?.values||d.values.length<2)return false;return parseFloat(d.values[0].value)>parseFloat(d.values[1].value);}
+function isMACDUp(d){if(!d?.values||d.values.length<2)return false;return parseFloat(d.values[0].macd)>parseFloat(d.values[1].macd);}
+function isStochUp(d){if(!d?.values||d.values.length<2)return false;return parseFloat(d.values[0].k)>parseFloat(d.values[1].k);}
+async function analyzeStock(sym){
+  const[rsi1m,macd1m,stoch1m,rsi2m,macd2m,stoch2m]=await Promise.all([
+    fetchTD(`rsi?symbol=${sym}&interval=1month&time_period=14&outputsize=3`),
+    fetchTD(`macd?symbol=${sym}&interval=1month&fast_period=12&slow_period=26&signal_period=9&outputsize=3`),
+    fetchTD(`stochrsi?symbol=${sym}&interval=1month&time_period=14&fast_k_period=3&fast_d_period=3&outputsize=3`),
+    fetchTD(`rsi?symbol=${sym}&interval=2month&time_period=14&outputsize=3`),
+    fetchTD(`macd?symbol=${sym}&interval=2month&fast_period=12&slow_period=26&signal_period=9&outputsize=3`),
+    fetchTD(`stochrsi?symbol=${sym}&interval=2month&time_period=14&fast_k_period=3&fast_d_period=3&outputsize=3`),
+  ]);
+  const monthly=isRSIUp(rsi1m)&&isMACDUp(macd1m)&&isStochUp(stoch1m);
+  const bimonthly=isRSIUp(rsi2m)&&isMACDUp(macd2m)&&isStochUp(stoch2m);
+  return{sym,level:bimonthly?'very-high':monthly?'high':'none'};
+}
+function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+async function runScan(){
+  const btn=document.getElementById('scan-btn');
+  if(btn)btn.disabled=true;
+  const pb=document.getElementById('scan-pb');const pf=document.getElementById('scan-pf');
+  if(pb){pb.style.display='block';pf.style.width='0%';}
+  document.getElementById('auto-list').innerHTML='<div class="loading-state">Analizando indicadores técnicos...</div>';
+  await Promise.all(WATCHLIST.map(s=>fetchP(s.sym)));
+  autoResults=[];
+  const BATCH=4;
+  for(let i=0;i<WATCHLIST.length;i+=BATCH){
+    const batch=WATCHLIST.slice(i,i+BATCH);
+    const results=await Promise.all(batch.map(s=>analyzeStock(s.sym)));
+    autoResults.push(...results);
+    if(pf)pf.style.width=Math.round(((i+BATCH)/WATCHLIST.length)*100)+'%';
+    if(i+BATCH<WATCHLIST.length)await sleep(800);
+  }
+  if(pb)setTimeout(()=>{pb.style.display='none';},500);
+  renderAutoSignals();
+  const vhc=autoResults.filter(r=>r.level==='very-high').length;
+  const hc=autoResults.filter(r=>r.level==='high').length;
+  document.getElementById('stat-total').textContent=autoResults.length;
+  document.getElementById('stat-vh').textContent=vhc;
+  document.getElementById('stat-h').textContent=hc;
+  const now=new Date().toLocaleTimeString('es',{hour:'2-digit',minute:'2-digit'});
+  document.getElementById('stat-upd').textContent=now;
+  document.getElementById('auto-update').textContent='Actualizado: '+now;
+  if(btn)btn.disabled=false;
+}
+function renderAutoSignals(){
+  const filtered=autoFilter==='all'?autoResults:autoResults.filter(r=>r.level===autoFilter);
+  const order={'very-high':0,'high':1,'none':2};
+  filtered.sort((a,b)=>order[a.level]-order[b.level]);
+  if(!filtered.length){document.getElementById('auto-list').innerHTML='<div class="empty">Sin señales activas.</div>';return;}
+  document.getElementById('auto-list').innerHTML='<div class="signal-list">'+filtered.map(r=>{
+    const stock=WATCHLIST.find(s=>s.sym===r.sym);const p=lp[r.sym];
+    const priceHtml=p?`<div style="text-align:right;"><div style="font-size:12px;font-weight:600;">$${p.c.toFixed(2)}</div><div style="font-size:11px;color:${p.dp>=0?'var(--gd)':'var(--rd)'};">${p.dp>=0?'+':''}${p.dp?.toFixed(2)}%</div></div>`:'';
+    const badge=r.level==='very-high'?'<span class="level-badge level-very-high">Muy alta</span>':r.level==='high'?'<span class="level-badge level-high">Alta</span>':'<span class="level-badge level-none">—</span>';
+    return`<div class="signal-card ${r.level}"><div style="display:flex;align-items:center;gap:10px;"><div><div style="font-size:13px;font-weight:700;">${r.sym}</div><div style="font-size:11px;color:var(--tx2);">${stock?.name||''}</div></div>${priceHtml}</div>${badge}</div>`;
+  }).join('')+'</div>';}
+function filterAuto(f,btn){autoFilter=f;document.querySelectorAll('#auto-ftabs .ftab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderAutoSignals();}
+
+// ═══ AUTHOR SIGNALS ═══
+let authorFilter='all';
+function renderAuthorSignals(){
+  const recs=window.allRecs||[];const el=document.getElementById('author-list');
+  const filtered=authorFilter==='all'?recs:recs.filter(r=>r.type===authorFilter);
+  const ordered=[...filtered.filter(r=>r.pinned),...filtered.filter(r=>!r.pinned)];
+  if(!ordered.length){el.innerHTML='<div class="empty">El autor aún no ha publicado señales.</div>';return;}
+  const tc={compra:{label:'Compra',cls:'rec-compra'},venta:{label:'Venta',cls:'rec-venta'},alerta:{label:'Alerta',cls:'rec-alerta'},analisis:{label:'Análisis',cls:'rec-analisis'},noticia:{label:'Noticia',cls:'rec-noticia'}};
+  el.innerHTML=ordered.map(r=>{const t=tc[r.type]||{label:r.type,cls:'rec-analisis'};const date=new Date(r.tsNum).toLocaleDateString('es',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});const extras=[];if(r.target)extras.push(`<span style="font-size:10px;background:var(--gl);color:var(--gd);padding:2px 7px;border-radius:999px;">Obj: ${r.target}</span>`);if(r.stop)extras.push(`<span style="font-size:10px;background:var(--rl);color:var(--rd);padding:2px 7px;border-radius:999px;">Stop: ${r.stop}</span>`);const pinLabel=r.pinned?'<span class="rec-pin">Fijado</span>':'';return`<div class="rec-card">${pinLabel}<span class="rec-type-badge ${t.cls}">${t.label}${r.symbol?' · '+r.symbol:''}</span><div class="rec-title">${r.title}</div><div class="rec-body">${r.body}</div>${extras.length?'<div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:7px;">'+extras.join('')+'</div>':''}<div class="rec-meta"><img src="logo.png" onerror="this.style.display='none'" alt="SMB" style="width:18px;height:18px;border-radius:50%;object-fit:cover;"><span>StockMarketBro · ${date}</span></div></div>`;}).join('');}
+function renderAuthorList(){
+  const recs=window.allRecs||[];const el=document.getElementById('rec-list-author');
+  if(!recs.length){el.innerHTML='<div class="empty">No has publicado señales aún.</div>';return;}
+  const tc={compra:{label:'Compra',cls:'rec-compra'},venta:{label:'Venta',cls:'rec-venta'},alerta:{label:'Alerta',cls:'rec-alerta'},analisis:{label:'Análisis',cls:'rec-analisis'},noticia:{label:'Noticia',cls:'rec-noticia'}};
+  el.innerHTML='<div style="display:flex;flex-direction:column;gap:9px;">'+recs.map(r=>{const t=tc[r.type]||{label:r.type,cls:'rec-analisis'};const date=new Date(r.tsNum).toLocaleDateString('es',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});const pinLabel=r.pinned?'<span class="rec-pin">Fijado</span>':'';return`<div class="rec-card">${pinLabel}<span class="rec-type-badge ${t.cls}">${t.label}${r.symbol?' · '+r.symbol:''}</span><div class="rec-title">${r.title}</div><div class="rec-body">${r.body}</div><div class="rec-meta"><span>StockMarketBro · ${date}</span><button class="rec-del-btn" onclick="window.deleteRec('${r.id}')">✕ Eliminar</button></div></div>`;}).join('')+'</div>';}
+function filterAuthor(f,btn){authorFilter=f;document.querySelectorAll('#auth-ftabs .ftab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderAuthorSignals();}
+function clearRecForm(){['rec-title','rec-body','rec-symbol','rec-target','rec-stop'].forEach(id=>document.getElementById(id).value='');document.getElementById('rec-pinned').checked=false;document.getElementById('rec-type').value='compra';}
+
+// ═══ MANUAL ALERTS ═══
+let manualAlerts=[],alertHistory=[],alertIdCounter=0;
+const alertPrices={AAPL:189.30,MSFT:412.70,TSLA:172.40,GOOGL:171.90,AMZN:192.50,NVDA:880.00,META:524.60,NFLX:621.00};
+function addAlert(){const sym=document.getElementById('al-sym').value,type=document.getElementById('al-type').value,price=parseFloat(document.getElementById('al-price').value);if(!price||price<=0){showToast('Ingresa un precio válido');return;}manualAlerts.push({id:++alertIdCounter,sym,type,price});document.getElementById('al-price').value='';renderAlerts();showToast('Alerta: '+sym+' '+(type==='above'?'↑ sobre':'↓ bajo')+' $'+price.toFixed(2));}
+function renderAlerts(){const el=document.getElementById('alerts-list');if(!manualAlerts.length){el.innerHTML='<div class="empty">Sin alertas configuradas.</div>';return;}el.innerHTML=manualAlerts.map(a=>{const cur=lp[a.sym]?.c||alertPrices[a.sym];return`<div class="alert-row"><div class="alert-sym">${a.sym}</div><span class="alert-badge ${a.type==='above'?'alert-above':'alert-below'}">${a.type==='above'?'↑ sobre':'↓ bajo'} $${a.price.toFixed(2)}</span><div style="font-size:12px;color:var(--tx2);flex:1;">Live: ${cur?'$'+cur.toFixed(2):'—'}</div><button class="alert-del" onclick="removeAlert(${a.id})">✕</button></div>`;}).join('');}
+function removeAlert(id){manualAlerts=manualAlerts.filter(a=>a.id!==id);renderAlerts();}
+setInterval(()=>{if(!manualAlerts.length)return;const triggered=[];manualAlerts=manualAlerts.filter(a=>{const cur=lp[a.sym]?.c;if(!cur)return true;if((a.type==='above'&&cur>=a.price)||(a.type==='below'&&cur<=a.price)){triggered.push({...a,triggeredAt:cur});return false;}return true;});if(triggered.length){triggered.forEach(a=>{alertHistory.unshift({sym:a.sym,type:a.type,price:a.price,at:a.triggeredAt,time:new Date().toLocaleTimeString('es',{hour:'2-digit',minute:'2-digit'})});});renderAlerts();document.getElementById('alert-dot').style.display='inline-block';triggered.forEach(a=>showToast('SMB Alert: '+a.sym+' '+(a.type==='above'?'superó':'cayó bajo')+' $'+a.price.toFixed(2)));}},30000);
+
+// ═══ NEWS ═══
+const allNews=[{cat:'acciones',tag:'AAPL',tc:'#E1F5EE',tt:'#0F6E56',title:'Apple supera expectativas de ingresos en su reporte trimestral',meta:'Reuters · hace 2h',sent:'pos',sentLabel:'Positivo'},{cat:'macro',tag:'FED',tc:'#EEEDFE',tt:'#3C3489',title:'La Reserva Federal mantiene tasas sin cambios',meta:'Bloomberg · hace 3h',sent:'neu',sentLabel:'Neutral'},{cat:'crypto',tag:'BTC',tc:'#FAEEDA',tt:'#854F0B',title:'Bitcoin supera los $70,000 en medio de mayor demanda institucional',meta:'CoinDesk · hace 4h',sent:'pos',sentLabel:'Positivo'},{cat:'acciones',tag:'TSLA',tc:'#FCEBEB',tt:'#A32D2D',title:'Tesla reporta caída en entregas del primer trimestre',meta:'WSJ · hace 5h',sent:'neg',sentLabel:'Negativo'},{cat:'latam',tag:'LATAM',tc:'#E6F1FB',tt:'#185FA5',title:'Bolsas latinoamericanas registran alza impulsadas por commodities',meta:'El Financiero · hace 6h',sent:'pos',sentLabel:'Positivo'},{cat:'macro',tag:'MACRO',tc:'#EEEDFE',tt:'#3C3489',title:'Inflación en EE.UU. cede levemente, abre puerta a recortes',meta:'FT · hace 7h',sent:'pos',sentLabel:'Positivo'},{cat:'acciones',tag:'NVDA',tc:'#E1F5EE',tt:'#0F6E56',title:'NVIDIA alcanza nuevo máximo histórico tras boom de IA generativa',meta:'CNBC · hace 8h',sent:'pos',sentLabel:'Positivo'},{cat:'crypto',tag:'ETH',tc:'#EEEDFE',tt:'#3C3489',title:'Ethereum consolida soporte en $3,200 tras semanas de volatilidad',meta:'The Block · hace 9h',sent:'neu',sentLabel:'Neutral'},{cat:'latam',tag:'MXN',tc:'#E6F1FB',tt:'#185FA5',title:'Peso mexicano se fortalece frente al dólar por datos de empleo',meta:'El Economista · hace 10h',sent:'pos',sentLabel:'Positivo'},{cat:'acciones',tag:'META',tc:'#E1F5EE',tt:'#0F6E56',title:'Meta Platforms anuncia dividendo por primera vez en su historia',meta:'MarketWatch · hace 11h',sent:'pos',sentLabel:'Positivo'}];
 let currentNewsCat='all';
-function filterNews(cat,btn){currentNewsCat=cat;document.querySelectorAll('#news-filters .sym-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderNews();}
-function renderNews(){const f=currentNewsCat==='all'?allNews:allNews.filter(n=>n.cat===currentNewsCat),mid=Math.ceil(f.length/2);const ri=n=>`<div class="news-item"><div><span class="news-tag" style="background:${n.tc};color:${n.tt};">${n.tag}</span> <span class="sent-${n.sent}" style="padding:1px 7px;border-radius:999px;font-size:10px;font-weight:500;">${n.sentLabel}</span></div><div class="news-title">${n.title}</div><div class="news-meta">${n.meta}</div></div>`;document.getElementById('news-col1').innerHTML=f.slice(0,mid).map(ri).join('');document.getElementById('news-col2').innerHTML=f.slice(mid).map(ri).join('');}
+function filterNews(cat,btn){currentNewsCat=cat;document.querySelectorAll('#news-filters .ftab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderNews();}
+function renderNews(){const f=currentNewsCat==='all'?allNews:allNews.filter(n=>n.cat===currentNewsCat),mid=Math.ceil(f.length/2);const ri=n=>`<div class="news-item"><div><span class="news-tag" style="background:${n.tc};color:${n.tt};">${n.tag}</span> <span class="sent-${n.sent}" style="padding:1px 6px;border-radius:999px;font-size:10px;font-weight:500;">${n.sentLabel}</span></div><div class="news-title">${n.title}</div><div class="news-meta">${n.meta}</div></div>`;document.getElementById('news-col1').innerHTML=f.slice(0,mid).map(ri).join('');document.getElementById('news-col2').innerHTML=f.slice(mid).map(ri).join('');}
 renderNews();
 
-const quizData={basic:[{q:'¿Qué representa una acción de una empresa?',opts:['Un préstamo a la empresa','Una fracción de propiedad','Un bono de deuda','Un contrato de compra futura'],correct:1,exp:'Una acción representa una fracción de la propiedad de la empresa.'},{q:'¿Qué es un dividendo?',opts:['Un impuesto','El precio de compra','Un pago periódico a accionistas','Una comisión'],correct:2,exp:'El dividendo es un reparto de beneficios a los accionistas.'},{q:'¿Qué mide el S&P 500?',opts:['El precio del dólar','Las 500 empresas más grandes de EE.UU.','El volumen de Bitcoin','Bonos del gobierno'],correct:1,exp:'El S&P 500 mide el rendimiento de las 500 empresas más grandes de EE.UU.'},{q:'¿Qué significa "bear market"?',opts:['Precios subiendo +20%','Mercado nocturno','Precios cayendo -20% desde máximos','Más dividendos'],correct:2,exp:'Un bear market es una caída sostenida de más del 20% desde los máximos.'}],adv:[{q:'¿Qué indica un "golden cross"?',opts:['Precio en máximo','Media móvil corta cruza hacia arriba la larga','Volumen cae','RSI supera 70'],correct:1,exp:'El golden cross: la media corta cruza hacia arriba la larga. Señal alcista.'},{q:'¿Qué mide el ratio P/E?',opts:['Diferencia compra-venta','Cuántas veces el precio son las ganancias anuales','Volatilidad','Porcentaje de dividendo'],correct:1,exp:'El P/E indica cuánto pagan los inversores por cada unidad de beneficio.'},{q:'¿Qué es una opción put?',opts:['Derecho a comprar','Orden de mercado','Derecho a vender a precio fijo','Contrato de futuros'],correct:2,exp:'Una put da el derecho de vender un activo a un precio determinado.'},{q:'¿Qué describe el apalancamiento?',opts:['Diversificar activos','Usar capital prestado para amplificar exposición','Reinvertir dividendos','Invertir a largo plazo'],correct:1,exp:'El apalancamiento usa deuda para controlar una posición mayor al capital propio.'}]};
+// ═══ QUIZ ═══
+const quizData={basic:[{q:'¿Qué representa una acción de una empresa?',opts:['Un préstamo a la empresa','Una fracción de propiedad','Un bono de deuda','Un contrato de compra futura'],correct:1,exp:'Una acción representa una fracción de la propiedad de la empresa.'},{q:'¿Qué es un dividendo?',opts:['Un impuesto','El precio de compra','Un pago periódico a accionistas','Una comisión'],correct:2,exp:'El dividendo es un reparto de beneficios que la empresa hace a sus accionistas.'},{q:'¿Qué mide el S&P 500?',opts:['El precio del dólar','Las 500 empresas más grandes de EE.UU.','El volumen de Bitcoin','Bonos del gobierno'],correct:1,exp:'El S&P 500 mide el rendimiento de las 500 empresas más grandes de EE.UU.'},{q:'¿Qué significa "bear market"?',opts:['Precios subiendo +20%','Mercado nocturno','Precios cayendo -20% desde máximos','Más dividendos'],correct:2,exp:'Un bear market es una caída sostenida de más del 20% desde los máximos.'}],adv:[{q:'¿Qué indica un "golden cross"?',opts:['Precio en máximo','Media móvil corta cruza hacia arriba la larga','Volumen cae','RSI supera 70'],correct:1,exp:'El golden cross: media corta cruza hacia arriba la larga. Señal alcista.'},{q:'¿Qué mide el ratio P/E?',opts:['Diferencia compra-venta','Cuántas veces el precio son las ganancias anuales','Volatilidad','Porcentaje de dividendo'],correct:1,exp:'El P/E indica cuánto pagan los inversores por cada unidad de beneficio.'},{q:'¿Qué es una opción put?',opts:['Derecho a comprar','Orden de mercado','Derecho a vender a precio fijo','Contrato de futuros'],correct:2,exp:'Una put da el derecho de vender un activo a un precio determinado.'},{q:'¿Qué describe el apalancamiento?',opts:['Diversificar activos','Usar capital prestado para amplificar exposición','Reinvertir dividendos','Invertir a largo plazo'],correct:1,exp:'El apalancamiento usa deuda para controlar una posición mayor al capital.'}]};
 quizData.mixed=[...quizData.basic,...quizData.adv].sort(()=>Math.random()-0.5);
-let currentQuiz=[],qIndex=0,qCorrect=0,qWrong=0,quizStarted=false,answered=false;
-function startQuiz(cat,btn){document.querySelectorAll('[id^="qcat-"]').forEach(b=>b.classList.remove('active'));btn.classList.add('active');currentQuiz=[...quizData[cat]].sort(()=>Math.random()-0.5);qIndex=0;qCorrect=0;qWrong=0;quizStarted=true;answered=false;updateStats();loadQuestion();}
-function loadQuestion(){if(qIndex>=currentQuiz.length){document.getElementById('quiz-question').textContent='¡Quiz completado! '+qCorrect+'/'+currentQuiz.length+' correctas';document.getElementById('quiz-options').innerHTML='';document.getElementById('quiz-feedback').style.display='none';document.getElementById('quiz-next-btn').textContent='Reiniciar';document.getElementById('quiz-next-btn').disabled=false;document.getElementById('quiz-next-btn').onclick=()=>startQuiz(document.querySelector('[id^="qcat-"].active').id.replace('qcat-',''),document.querySelector('[id^="qcat-"].active'));return;}answered=false;const q=currentQuiz[qIndex];document.getElementById('quiz-question').textContent=(qIndex+1)+'. '+q.q;document.getElementById('quiz-bar').style.width=((qIndex/currentQuiz.length)*100)+'%';document.getElementById('quiz-feedback').style.display='none';document.getElementById('quiz-next-btn').textContent='Siguiente →';document.getElementById('quiz-next-btn').disabled=true;document.getElementById('quiz-options').innerHTML=q.opts.map((o,i)=>`<button class="quiz-opt" onclick="answerQuiz(${i})">${o}</button>`).join('');}
-function answerQuiz(idx){if(answered)return;answered=true;const q=currentQuiz[qIndex];document.querySelectorAll('.quiz-opt').forEach((b,i)=>{b.disabled=true;if(i===q.correct)b.classList.add('correct');else if(i===idx&&idx!==q.correct)b.classList.add('wrong');});if(idx===q.correct)qCorrect++;else qWrong++;const fb=document.getElementById('quiz-feedback');fb.style.display='block';fb.style.background=idx===q.correct?'var(--green-light)':'var(--red-light)';fb.style.color=idx===q.correct?'var(--green-dark)':'var(--red-dark)';fb.textContent=(idx===q.correct?'Correcto · ':'Incorrecto · ')+q.exp;document.getElementById('quiz-next-btn').disabled=false;updateStats();}
-function nextQuestion(){if(!quizStarted){startQuiz('mixed',document.getElementById('qcat-mixed'));return;}qIndex++;loadQuestion();}
-function updateStats(){const total=qCorrect+qWrong;document.getElementById('stat-correct').textContent=qCorrect;document.getElementById('stat-wrong').textContent=qWrong;document.getElementById('stat-pct').textContent=total?Math.round((qCorrect/total)*100)+'%':'0%';document.getElementById('quiz-score-label').textContent=qCorrect+' / '+currentQuiz.length;}
-document.getElementById('quiz-next-btn').textContent='Iniciar quiz';
+let cQuiz=[],qIdx=0,qCorrect=0,qWrong=0,qStarted=false,qAnswered=false;
+function startQuiz(cat,btn){document.querySelectorAll('[id^="qcat-"]').forEach(b=>b.classList.remove('active'));btn.classList.add('active');cQuiz=[...quizData[cat]].sort(()=>Math.random()-0.5);qIdx=0;qCorrect=0;qWrong=0;qStarted=true;qAnswered=false;updateQStats();loadQ();}
+function loadQ(){if(qIdx>=cQuiz.length){document.getElementById('quiz-q').textContent='¡Quiz completado! '+qCorrect+'/'+cQuiz.length+' correctas';document.getElementById('quiz-opts').innerHTML='';document.getElementById('quiz-fb').style.display='none';document.getElementById('quiz-next').textContent='Reiniciar';document.getElementById('quiz-next').disabled=false;document.getElementById('quiz-next').onclick=()=>startQuiz(document.querySelector('[id^="qcat-"].active').id.replace('qcat-',''),document.querySelector('[id^="qcat-"].active'));return;}qAnswered=false;const q=cQuiz[qIdx];document.getElementById('quiz-q').textContent=(qIdx+1)+'. '+q.q;document.getElementById('quiz-bar').style.width=((qIdx/cQuiz.length)*100)+'%';document.getElementById('quiz-fb').style.display='none';document.getElementById('quiz-next').textContent='Siguiente →';document.getElementById('quiz-next').disabled=true;document.getElementById('quiz-opts').innerHTML=q.opts.map((o,i)=>`<button class="quiz-opt" onclick="answerQ(${i})">${o}</button>`).join('');}
+function answerQ(idx){if(qAnswered)return;qAnswered=true;const q=cQuiz[qIdx];document.querySelectorAll('.quiz-opt').forEach((b,i)=>{b.disabled=true;if(i===q.correct)b.classList.add('correct');else if(i===idx&&idx!==q.correct)b.classList.add('wrong');});if(idx===q.correct)qCorrect++;else qWrong++;const fb=document.getElementById('quiz-fb');fb.style.display='block';fb.style.background=idx===q.correct?'var(--gl)':'var(--rl)';fb.style.color=idx===q.correct?'var(--gd)':'var(--rd)';fb.textContent=(idx===q.correct?'Correcto · ':'Incorrecto · ')+q.exp;document.getElementById('quiz-next').disabled=false;updateQStats();}
+function nextQ(){if(!qStarted){startQuiz('mixed',document.getElementById('qcat-mixed'));return;}qIdx++;loadQ();}
+function updateQStats(){const total=qCorrect+qWrong;document.getElementById('stat-correct').textContent=qCorrect;document.getElementById('stat-wrong').textContent=qWrong;document.getElementById('stat-pct').textContent=total?Math.round((qCorrect/total)*100)+'%':'0%';document.getElementById('quiz-score-label').textContent=qCorrect+'/'+cQuiz.length;}
+document.getElementById('quiz-next').textContent='Iniciar quiz';
 
+// ═══ GLOSARIO ═══
 const glosario=[{term:'Acción',def:'Título que representa una fracción de la propiedad de una empresa.'},{term:'Bull market',def:'Periodo donde los precios suben más del 20%. Asociado a optimismo económico.'},{term:'Bear market',def:'Caída sostenida superior al 20% desde los máximos recientes.'},{term:'Dividendo',def:'Pago periódico que una empresa distribuye entre sus accionistas.'},{term:'ETF',def:'Fondo que agrupa múltiples activos y cotiza en bolsa como una acción.'},{term:'Stop-loss',def:'Orden automática para vender cuando el precio cae a un nivel predefinido.'},{term:'P/E ratio',def:'Ratio precio/beneficio. Compara el precio con las ganancias por acción.'},{term:'Volatilidad',def:'Medida de cuánto varía el precio. Alta volatilidad = mayor riesgo y oportunidad.'},{term:'Spread bid-ask',def:'Diferencia entre precio de compra y venta. Costo implícito de la operación.'},{term:'Apalancamiento',def:'Usar deuda para amplificar la exposición. Multiplica ganancias y pérdidas.'},{term:'Backtesting',def:'Probar una estrategia con datos históricos para evaluar su rentabilidad.'},{term:'Liquidez',def:'Facilidad con la que un activo puede comprarse o venderse sin mover su precio.'}];
-const gl=document.getElementById('glosario-list');
-glosario.forEach(g=>{const div=document.createElement('div');div.className='glosario-item';div.innerHTML=`<div class="glosario-term">${g.term}<span class="arrow">▾</span></div><div class="glosario-def">${g.def}</div>`;div.onclick=()=>div.classList.toggle('open');gl.appendChild(div);});
+const gl=document.getElementById('glos-list');
+glosario.forEach(g=>{const div=document.createElement('div');div.className='glos-item';div.innerHTML=`<div class="glos-term">${g.term}<span class="arr">▾</span></div><div class="glos-def">${g.def}</div>`;div.onclick=()=>div.classList.toggle('open');gl.appendChild(div);});
 
-const lessons={bolsa:`<h3 style="font-size:16px;font-weight:500;margin-bottom:12px;">¿Qué es la bolsa de valores?</h3><p>La bolsa de valores es un mercado organizado donde se compran y venden partes de empresas llamadas <strong>acciones</strong>. Funciona como cualquier mercado: hay compradores, vendedores y un precio que varía según la oferta y la demanda.</p><br><p><strong>¿Para qué sirve?</strong> Para las empresas es una forma de conseguir dinero para crecer. Para los inversores es una forma de hacer crecer su dinero participando en el éxito de esas empresas.</p>`,acciones:`<h3 style="font-size:16px;font-weight:500;margin-bottom:12px;">Acciones y dividendos</h3><p>Una <strong>acción</strong> es una fracción de la propiedad de una empresa. Al comprarla te conviertes en copropietario proporcional.</p><br><p><strong>¿Cómo ganas dinero?</strong> Por <em>plusvalía</em> (vendes más caro de lo que compraste) y por <em>dividendos</em> (pagos periódicos de las ganancias de la empresa).</p>`,etfs:`<h3 style="font-size:16px;font-weight:500;margin-bottom:12px;">ETFs e índices</h3><p>Un <strong>ETF</strong> agrupa muchos activos y cotiza en bolsa como si fuera una sola acción. Comprar un ETF del S&P 500 equivale a invertir en las 500 empresas más grandes de EE.UU. al mismo tiempo.</p><br><p><strong>Ventajas:</strong> Diversificación instantánea, comisiones bajas y fácil compra/venta.</p>`,tecnico:`<h3 style="font-size:16px;font-weight:500;margin-bottom:12px;">Análisis técnico</h3><p>Estudia el comportamiento pasado de los precios para anticipar movimientos futuros. Usa gráficos, soportes, resistencias, medias móviles e indicadores como RSI y MACD.</p>`,fundamental:`<h3 style="font-size:16px;font-weight:500;margin-bottom:12px;">Análisis fundamental</h3><p>Evalúa el valor real de una empresa mirando sus finanzas: ingresos, ganancias, deuda, P/E ratio, ROE y perspectivas de crecimiento.</p>`,riesgo:`<h3 style="font-size:16px;font-weight:500;margin-bottom:12px;">Gestión del riesgo</h3><p>Conjunto de reglas para proteger tu capital: usar stop-loss, no arriesgar más del 2% por operación, diversificar y mantener una proporción riesgo/beneficio favorable.</p>`,opciones:`<h3 style="font-size:16px;font-weight:500;margin-bottom:12px;">Opciones financieras</h3><p>Una <strong>call</strong> da derecho a comprar un activo a un precio fijo. Una <strong>put</strong> da derecho a venderlo. Son derivados que permiten especular o cubrirse con menos capital.</p>`,algo:`<h3 style="font-size:16px;font-weight:500;margin-bottom:12px;">Trading algorítmico</h3><p>Uso de programas informáticos para ejecutar operaciones automáticamente según reglas predefinidas. Incluye backtesting para validar estrategias con datos históricos.</p>`,forex:`<h3 style="font-size:16px;font-weight:500;margin-bottom:12px;">Forex y divisas</h3><p>El mercado de divisas (Forex) es el más grande del mundo. Se opera en pares como EUR/USD o USD/JPY. Opera 24h al día, 5 días a la semana, con alto apalancamiento disponible.</p>`};
-function openLesson(key){document.getElementById('lesson-modal').style.display='flex';document.getElementById('lesson-content').innerHTML=lessons[key]||'<p style="color:var(--text2);">Contenido próximamente.</p>';}
+// ═══ LECCIONES ═══
+const lessons={bolsa:`<h3 style="font-size:16px;font-weight:600;margin-bottom:12px;">¿Qué es la bolsa de valores?</h3><p>La bolsa es un mercado organizado donde se compran y venden partes de empresas. Hay compradores, vendedores y un precio que varía según oferta y demanda. Para las empresas es una forma de conseguir capital. Para los inversores, una forma de hacer crecer su dinero.</p>`,acciones:`<h3 style="font-size:16px;font-weight:600;margin-bottom:12px;">Acciones y dividendos</h3><p>Una acción es una fracción de la propiedad de una empresa. Ganas dinero de dos formas: por plusvalía (vendes más caro de lo que compraste) y por dividendos (pagos periódicos de las ganancias de la empresa).</p>`,etfs:`<h3 style="font-size:16px;font-weight:600;margin-bottom:12px;">ETFs e índices</h3><p>Un ETF agrupa muchos activos y cotiza en bolsa como una acción. Comprar un ETF del S&P 500 equivale a invertir en las 500 empresas más grandes de EE.UU. al mismo tiempo. Ventajas: diversificación instantánea y comisiones bajas.</p>`,tecnico:`<h3 style="font-size:16px;font-weight:600;margin-bottom:12px;">Análisis técnico</h3><p>Estudia el comportamiento pasado de los precios para anticipar movimientos futuros. Usa gráficos, soportes, resistencias, medias móviles e indicadores como RSI, MACD y Stochastic RSI.</p>`,fundamental:`<h3 style="font-size:16px;font-weight:600;margin-bottom:12px;">Análisis fundamental</h3><p>Evalúa el valor real de una empresa mirando sus finanzas: ingresos, ganancias, deuda, P/E ratio, ROE y perspectivas de crecimiento. La base para inversores de largo plazo.</p>`,riesgo:`<h3 style="font-size:16px;font-weight:600;margin-bottom:12px;">Gestión del riesgo</h3><p>Reglas para proteger tu capital: usar stop-loss, no arriesgar más del 2% por operación, diversificar y mantener una proporción riesgo/beneficio mínima de 1:2.</p>`,opciones:`<h3 style="font-size:16px;font-weight:600;margin-bottom:12px;">Opciones financieras</h3><p>Una call da derecho a comprar un activo a precio fijo. Una put da derecho a venderlo. Son derivados que permiten especular o cubrir posiciones con menor capital.</p>`,algo:`<h3 style="font-size:16px;font-weight:600;margin-bottom:12px;">Trading algorítmico</h3><p>Uso de programas para ejecutar operaciones automáticamente según reglas predefinidas. Incluye backtesting para validar estrategias con datos históricos antes de operar en vivo.</p>`,forex:`<h3 style="font-size:16px;font-weight:600;margin-bottom:12px;">Forex y divisas</h3><p>El mercado de divisas es el más grande del mundo. Se opera en pares como EUR/USD o USD/JPY. Opera 24h al día, 5 días a la semana, con alto apalancamiento disponible.</p>`};
+function openLesson(key){document.getElementById('lesson-modal').style.display='flex';document.getElementById('lesson-content').innerHTML=lessons[key]||'<p style="color:var(--tx2);">Contenido próximamente.</p>';}
 function closeLesson(){document.getElementById('lesson-modal').style.display='none';}
 
+// ═══ PWA ═══
 let deferredPrompt=null;
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;document.getElementById('install-banner').classList.add('show');});
 document.getElementById('install-btn').addEventListener('click',async()=>{if(!deferredPrompt)return;deferredPrompt.prompt();const{outcome}=await deferredPrompt.userChoice;deferredPrompt=null;document.getElementById('install-banner').classList.remove('show');if(outcome==='accepted')showToast('¡StockMarketBro instalada!');});
-if('serviceWorker'in navigator){navigator.serviceWorker.register('sw.js').catch(()=>{});}
-function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.style.display='block';setTimeout(()=>t.style.display='none',3000);}
+if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+
+// ═══ TOAST ═══
+function showToast(m){const t=document.getElementById('toast');t.textContent=m;t.style.display='block';setTimeout(()=>t.style.display='none',3500);}
 </script>
 </body>
 </html>
