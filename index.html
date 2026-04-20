@@ -923,20 +923,21 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 <div class="toast" id="toast"></div>
 
 <!-- ═══ FIREBASE ═══ -->
-<script type="module">
-import{initializeApp,getApps}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import{getAuth,signInWithEmailAndPassword,createUserWithEmailAndPassword,signInWithPopup,signInWithRedirect,getRedirectResult,GoogleAuthProvider,signOut,onAuthStateChanged,sendPasswordResetEmail,updateProfile}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import{getFirestore,collection,addDoc,getDocs,deleteDoc,doc,query,orderBy,serverTimestamp,setDoc,getDoc}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
-const fbConfig={apiKey:"AIzaSyDSCJU2IuuCZfjtfiXjxrq_fo1ODsJiJ7I",authDomain:"stockmarketbro.firebaseapp.com",projectId:"stockmarketbro",storageBucket:"stockmarketbro.firebasestorage.app",messagingSenderId:"1071822179137",appId:"1:1071822179137:web:0ab5250b2bf8fed3016fc0"};
-const fbApp=getApps().length===0?initializeApp(fbConfig):getApps()[0];
-const auth=getAuth(fbApp);
-auth.useDeviceLanguage();
-const db=getFirestore(fbApp);
-const gp=new GoogleAuthProvider();
-
-// ← CAMBIA ESTO POR TU EMAIL DE AUTOR
-const AUTHOR_EMAIL='cryptoguitar1@gmail.com';
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script>
+const fbApp = firebase.initializeApp({
+  apiKey:"AIzaSyDSCJU2IuuCZfjtfiXjxrq_fo1ODsJiJ7I",
+  authDomain:"stockmarketbro.firebaseapp.com",
+  projectId:"stockmarketbro",
+  storageBucket:"stockmarketbro.firebasestorage.app",
+  messagingSenderId:"1071822179137",
+  appId:"1:1071822179137:web:0ab5250b2bf8fed3016fc0"
+});
+const auth = firebase.auth();
+const db = firebase.firestore();
+const AUTHOR_EMAIL = 'cryptoguitar1@gmail.com';
 
 function showApp(user){
   document.getElementById('modal-bg').classList.remove('open');
@@ -944,7 +945,7 @@ function showApp(user){
   const appui=document.getElementById('app-ui');
   appui.style.display='flex';
   appui.classList.add('show');
-  window.scrollTo({top:0,behavior:'instant'});
+  window.scrollTo(0,0);
   const name=user.displayName||user.email.split('@')[0];
   document.getElementById('um-name').textContent=name;
   document.getElementById('um-email').textContent=user.email;
@@ -960,56 +961,82 @@ function showApp(user){
     if(window.loadUserData)window.loadUserData();
   },400);
 }
+
 function showLanding(){
   document.getElementById('landing').style.display='block';
   document.getElementById('app-ui').style.display='none';
   document.getElementById('app-ui').classList.remove('show');
 }
 
-// Wait for Firebase to resolve auth state before touching the UI
-// authReady prevents showLanding() from firing during initialization
-let authReady=false;
-onAuthStateChanged(auth,user=>{
-  if(!authReady){
-    authReady=true;
-    // First call: Firebase has resolved the initial auth state
-    if(user){showApp(user);}
-    else{showLanding();}
-    return;
-  }
-  // Subsequent calls: real auth changes (login/logout)
-  if(user){showApp(user);}
-  else{showLanding();}
+// onAuthStateChanged — single source of truth
+auth.onAuthStateChanged(user=>{
+  if(user){ showApp(user); }
+  else{ showLanding(); }
 });
 
-// Handle Google redirect result (must be after showApp is defined)
-getRedirectResult(auth).then(r=>{if(r&&r.user)showApp(r.user);}).catch(()=>{});
-
 window.doLogin=async()=>{
-  const e=document.getElementById('m-email').value.trim(),p=document.getElementById('m-pass').value;
+  const e=document.getElementById('m-email').value.trim();
+  const p=document.getElementById('m-pass').value;
   if(!e||!p){showMErr('Completa todos los campos');return;}
-  try{await signInWithEmailAndPassword(auth,e,p);}catch(err){showMErr(authMsg(err.code));}
+  const btn=document.querySelector('#mf-login .mbtn');
+  if(btn){btn.textContent='Ingresando...';btn.disabled=true;}
+  try{
+    await auth.signInWithEmailAndPassword(e,p);
+  }catch(err){
+    showMErr(authMsg(err.code));
+    if(btn){btn.textContent='Entrar a StockMarketBro';btn.disabled=false;}
+  }
 };
+
 window.doRegister=async()=>{
-  const n=document.getElementById('m-name').value.trim(),e=document.getElementById('m-remail').value.trim(),p=document.getElementById('m-rpass').value;
+  const n=document.getElementById('m-name').value.trim();
+  const e=document.getElementById('m-remail').value.trim();
+  const p=document.getElementById('m-rpass').value;
   if(!n||!e||!p){showMErr('Completa todos los campos');return;}
   if(p.length<6){showMErr('La contraseña debe tener al menos 6 caracteres');return;}
-  try{const c=await createUserWithEmailAndPassword(auth,e,p);await updateProfile(c.user,{displayName:n});}catch(err){showMErr(authMsg(err.code));}
+  const btn=document.querySelector('#mf-register .mbtn');
+  if(btn){btn.textContent='Creando cuenta...';btn.disabled=true;}
+  try{
+    const cred=await auth.createUserWithEmailAndPassword(e,p);
+    await cred.user.updateProfile({displayName:n});
+  }catch(err){
+    showMErr(authMsg(err.code));
+    if(btn){btn.textContent='Crear cuenta gratis';btn.disabled=false;}
+  }
 };
-window.doGoogle=async()=>{try{await signInWithPopup(auth,gp);}catch(err){if(err.code==='auth/popup-blocked'||err.code==='auth/popup-closed-by-user'){signInWithRedirect(auth,gp);}else{showMErr(authMsg(err.code));}}};
+
+window.doGoogle=async()=>{
+  const provider=new firebase.auth.GoogleAuthProvider();
+  try{
+    await auth.signInWithPopup(provider);
+  }catch(err){
+    if(err.code==='auth/popup-blocked'){
+      await auth.signInWithRedirect(provider);
+    }else{
+      showMErr(authMsg(err.code));
+    }
+  }
+};
+
 window.doReset=async()=>{
   const e=document.getElementById('m-resetmail').value.trim();
   if(!e){showMErr('Ingresa tu correo');return;}
-  try{await sendPasswordResetEmail(auth,e);document.getElementById('mf-reset').innerHTML='<div style="text-align:center;padding:18px;color:var(--gd);font-size:14px;">✓ Correo enviado. Revisa tu bandeja.</div>';}catch(err){showMErr(authMsg(err.code));}
+  try{
+    await auth.sendPasswordResetEmail(e);
+    document.getElementById('mf-reset').innerHTML='<div style="text-align:center;padding:18px;color:var(--gd);font-size:14px;">✓ Correo enviado. Revisa tu bandeja.</div>';
+  }catch(err){showMErr(authMsg(err.code));}
 };
-window.doSignOut=async()=>{await signOut(auth);document.getElementById('user-menu').classList.remove('open');};
+
+window.doSignOut=async()=>{
+  await auth.signOut();
+  document.getElementById('user-menu').classList.remove('open');
+};
 
 // FIRESTORE SIGNALS
 window.allRecs=[];
 window.fbLoadRecs=async()=>{
   try{
-    const q=query(collection(db,'signals'),orderBy('tsNum','desc'));
-    const snap=await getDocs(q);
+    const snap=await db.collection('signals').orderBy('tsNum','desc').get();
     window.allRecs=snap.docs.map(d=>({id:d.id,...d.data()}));
   }catch(e){window.allRecs=[];}
   renderAuthorSignals();
@@ -1021,21 +1048,38 @@ window.publishRec=async()=>{
   const title=document.getElementById('rec-title').value.trim();
   const body=document.getElementById('rec-body').value.trim();
   if(!title||!body){showToast('Completa título y mensaje');return;}
-  const rec={type:document.getElementById('rec-type').value,title,body,symbol:document.getElementById('rec-symbol').value.trim().toUpperCase(),target:document.getElementById('rec-target').value.trim(),stop:document.getElementById('rec-stop').value.trim(),pinned:document.getElementById('rec-pinned').checked,ts:serverTimestamp(),tsNum:Date.now()};
-  try{await addDoc(collection(db,'signals'),rec);clearRecForm();await window.fbLoadRecs();showToast('✓ Señal publicada');document.getElementById('rec-dot').style.display='inline-block';}
-  catch(e){showToast('Error al publicar. Verifica conexión.');}
+  const rec={
+    type:document.getElementById('rec-type').value,
+    title,body,
+    symbol:document.getElementById('rec-symbol').value.trim().toUpperCase(),
+    target:document.getElementById('rec-target').value.trim(),
+    stop:document.getElementById('rec-stop').value.trim(),
+    pinned:document.getElementById('rec-pinned').checked,
+    ts:firebase.firestore.FieldValue.serverTimestamp(),
+    tsNum:Date.now()
+  };
+  try{
+    await db.collection('signals').add(rec);
+    clearRecForm();
+    await window.fbLoadRecs();
+    showToast('✓ Señal publicada');
+    document.getElementById('rec-dot').style.display='inline-block';
+  }catch(e){showToast('Error al publicar.');}
 };
+
 window.deleteRec=async(id)=>{
-  try{await deleteDoc(doc(db,'signals',id));await window.fbLoadRecs();showToast('Señal eliminada');}
-  catch(e){showToast('Error al eliminar');}
+  try{
+    await db.collection('signals').doc(id).delete();
+    await window.fbLoadRecs();
+    showToast('Señal eliminada');
+  }catch(e){showToast('Error al eliminar');}
 };
 
-// ── USER DATA PERSISTENCE ──
-
+// USER DATA PERSISTENCE
 window.saveUserData=async()=>{
   const user=auth.currentUser;if(!user)return;
   try{
-    await setDoc(doc(db,'userdata',user.uid),{
+    await db.collection('userdata').doc(user.uid).set({
       balance:window.aBalance,
       portfolio:window.aPortfolio,
       alerts:window.manualAlerts,
@@ -1049,16 +1093,14 @@ window.saveUserData=async()=>{
 window.loadUserData=async()=>{
   const user=auth.currentUser;if(!user)return;
   try{
-    const snap=await getDoc(doc(db,'userdata',user.uid));
-    if(snap.exists()){
+    const snap=await db.collection('userdata').doc(user.uid).get();
+    if(snap.exists){
       const d=snap.data();
       if(typeof d.balance==='number') window.aBalance=d.balance;
       if(d.portfolio&&typeof d.portfolio==='object') window.aPortfolio=d.portfolio;
       if(Array.isArray(d.alerts)&&d.alerts.length) window.manualAlerts=d.alerts.map(a=>({...a}));
       if(Array.isArray(d.alertHistory)) window.alertHistory=d.alertHistory;
       if(typeof d.alertIdCounter==='number') window.alertIdCounter=d.alertIdCounter;
-      else window.alertIdCounter=window.manualAlerts.length;
-      // Re-render all UI after loading
       setTimeout(()=>{
         if(typeof aUpdateSimUI==='function') aUpdateSimUI();
         if(typeof renderAlerts==='function') renderAlerts();
@@ -1068,7 +1110,19 @@ window.loadUserData=async()=>{
 };
 
 function showMErr(m){const e=document.getElementById('merr');e.textContent=m;e.style.display='block';}
-function authMsg(code){return({'auth/user-not-found':'No existe cuenta con ese correo.','auth/wrong-password':'Contraseña incorrecta.','auth/email-already-in-use':'Ya existe cuenta con ese correo.','auth/invalid-email':'Correo no válido.','auth/weak-password':'Contraseña muy débil.','auth/popup-closed-by-user':'Se canceló el inicio de sesión.','auth/invalid-credential':'Correo o contraseña incorrectos.'}[code]||'Error de autenticación.');}
+function authMsg(code){
+  const msgs={
+    'auth/user-not-found':'No existe cuenta con ese correo.',
+    'auth/wrong-password':'Contraseña incorrecta.',
+    'auth/email-already-in-use':'Ya existe cuenta con ese correo.',
+    'auth/invalid-email':'Correo no válido.',
+    'auth/weak-password':'Contraseña muy débil.',
+    'auth/popup-closed-by-user':'Se canceló el inicio de sesión.',
+    'auth/invalid-credential':'Correo o contraseña incorrectos.',
+    'auth/too-many-requests':'Demasiados intentos. Espera unos minutos.'
+  };
+  return msgs[code]||'Error de autenticación ('+code+').';
+}
 </script>
 
 <script>
