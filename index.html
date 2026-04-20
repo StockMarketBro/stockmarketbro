@@ -365,9 +365,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 
   <!-- TOPBAR -->
   <div class="topbar a1">
-    <div class="logo">
-      <img src="logo.png" onerror="this.style.display='none'" alt="SMB">
-      <div class="logo-name">STOCKMARKET<span>BRO</span></div>
+    <div style="display:flex;align-items:center;gap:12px;">
+      <button onclick="goToLanding()" style="padding:5px 10px;border-radius:var(--rad);border:0.5px solid var(--br);background:transparent;font-size:12px;cursor:pointer;color:var(--tx2);font-family:inherit;">← Inicio</button>
+      <div class="logo">
+        <img src="logo.png" onerror="this.style.display='none'" alt="SMB">
+        <div class="logo-name">STOCKMARKET<span>BRO</span></div>
+      </div>
     </div>
     <div class="nav-links">
       <button class="nav-link" onclick="goTo('#sim-section')">Simulador</button>
@@ -432,8 +435,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
             <button class="pop-btn" onclick="lPick('NFLX','Netflix')">NFLX</button>
             <button class="pop-btn" onclick="lPick('AMD','AMD')">AMD</button>
             <button class="pop-btn" onclick="lPick('COIN','Coinbase')">COIN</button>
-            <button class="pop-btn" onclick="lPick('PYPL','PayPal')">PYPL</button>
-            <button class="pop-btn" onclick="lPick('UBER','Uber')">UBER</button>
+            <button class="pop-btn" onclick="lPick('BTCUSD','Bitcoin')">BTC</button>
+            <button class="pop-btn" onclick="lPick('ETHUSD','Ethereum')">ETH</button>
           </div>
           <div class="price-box" id="l-pricebox">
             <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;">
@@ -636,9 +639,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
     </div>
   </div>
   <div class="app-topbar">
-    <div class="logo">
-      <img src="logo.png" onerror="this.style.display='none'" alt="SMB">
-      <div class="logo-name">STOCKMARKET<span>BRO</span></div>
+    <div style="display:flex;align-items:center;gap:12px;">
+      <button onclick="goToLanding()" style="padding:5px 10px;border-radius:var(--rad);border:0.5px solid var(--br);background:transparent;font-size:12px;cursor:pointer;color:var(--tx2);font-family:inherit;">← Inicio</button>
+      <div class="logo">
+        <img src="logo.png" onerror="this.style.display='none'" alt="SMB">
+        <div class="logo-name">STOCKMARKET<span>BRO</span></div>
+      </div>
     </div>
     <div class="app-nav">
       <button class="app-nav-btn active" onclick="showAppTab('mercado')">Mercado</button>
@@ -816,6 +822,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
           <button class="pop-btn" onclick="aPick('NFLX','Netflix')">NFLX</button>
           <button class="pop-btn" onclick="aPick('AMD','AMD')">AMD</button>
           <button class="pop-btn" onclick="aPick('COIN','Coinbase')">COIN</button>
+          <button class="pop-btn" onclick="aPick('BTCUSD','Bitcoin')">BTC</button>
+          <button class="pop-btn" onclick="aPick('ETHUSD','Ethereum')">ETH</button>
         </div>
         <!-- PRECIO EN VIVO -->
         <div class="price-box" id="a-pricebox" style="display:none;margin-bottom:10px;">
@@ -1008,31 +1016,80 @@ const AUTHOR_EMAIL = 'cryptoguitar1@gmail.com';
 
 function showApp(user){
   document.getElementById('modal-bg').classList.remove('open');
+  // Keep landing visible — update topbar to show user info
+  document.getElementById('landing').style.display='block';
+  const appui=document.getElementById('app-ui');
+  appui.style.display='none';
+  appui.classList.remove('show');
+  // Update landing topbar for logged-in state
+  const name=user.displayName||user.email.split('@')[0];
+  showLoggedInTopbar(user,name);
+  // Show floating dashboard button
+  showDashboardBtn();
+  if(window.fbLoadRecs)window.fbLoadRecs();
+  setTimeout(()=>{
+    try{runScan();}catch(e){}
+    try{if(window.loadUserData)window.loadUserData();}catch(e){}
+  },600);
+}
+
+function goToDashboard(){
   document.getElementById('landing').style.display='none';
   const appui=document.getElementById('app-ui');
   appui.style.display='flex';
   appui.classList.add('show');
   window.scrollTo(0,0);
-  const name=user.displayName||user.email.split('@')[0];
-  document.getElementById('um-name').textContent=name;
-  document.getElementById('um-email').textContent=user.email;
-  const av=document.getElementById('user-avatar');
-  if(user.photoURL){av.innerHTML='<img src="'+user.photoURL+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">';}
-  else{av.textContent=name.charAt(0).toUpperCase();}
-  document.getElementById('autor-btn').style.display=user.email===AUTHOR_EMAIL?'block':'none';
-  if(window.fbLoadRecs)window.fbLoadRecs();
   setTimeout(()=>{
-    try{initAppChart();}catch(e){console.log('initAppChart err',e);}
-    try{aRefreshPrices();}catch(e){console.log('aRefreshPrices err',e);}
-    try{runScan();}catch(e){console.log('runScan err',e);}
-    try{if(window.loadUserData)window.loadUserData();}catch(e){console.log('loadUserData err',e);}
-  },600);
+    try{initAppChart();}catch(e){}
+    try{aRefreshPrices();}catch(e){}
+  },400);
+}
+
+function goToLanding(){
+  document.getElementById('landing').style.display='block';
+  const appui=document.getElementById('app-ui');
+  appui.style.display='none';
+  appui.classList.remove('show');
+}
+
+function showLoggedInTopbar(user,name){
+  // Replace login/signup buttons with user info + dashboard button
+  const navLinks=document.querySelector('.nav-links');
+  if(!navLinks)return;
+  const av=document.getElementById('user-avatar');
+  if(av){
+    if(user.photoURL){av.innerHTML='<img src="'+user.photoURL+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">';}
+    else{av.textContent=name.charAt(0).toUpperCase();}
+  }
+  navLinks.innerHTML=`
+    <button class="nav-link" onclick="goTo('#sim-section')">Simulador</button>
+    <button class="nav-link" onclick="goTo('#features-section')">Funciones</button>
+    <button class="nav-link" onclick="goTo('#modules-section')">Módulos</button>
+    <button class="btn-login" onclick="goToDashboard()" style="background:var(--g);color:#fff;border-color:var(--g);">Ir al dashboard</button>
+    <button class="btn-login" onclick="doSignOut()" style="margin-left:5px;">Cerrar sesión</button>
+  `;
+}
+
+function showDashboardBtn(){
+  // Show floating button to go to dashboard
+  let fb=document.getElementById('float-dashboard-btn');
+  if(!fb){
+    fb=document.createElement('div');
+    fb.id='float-dashboard-btn';
+    fb.style.cssText='position:fixed;bottom:24px;right:24px;z-index:500;';
+    fb.innerHTML='<button onclick="goToDashboard()" style="padding:12px 20px;border-radius:999px;border:none;background:var(--g);color:#fff;font-size:13px;font-weight:600;cursor:pointer;box-shadow:0 4px 16px rgba(29,158,117,0.4);font-family:inherit;display:flex;align-items:center;gap:8px;">📊 Ir al dashboard</button>';
+    document.body.appendChild(fb);
+  }
+  fb.style.display='block';
 }
 
 function showLanding(){
   document.getElementById('landing').style.display='block';
   document.getElementById('app-ui').style.display='none';
   document.getElementById('app-ui').classList.remove('show');
+  // Hide dashboard floating button when logged out
+  const fb=document.getElementById('float-dashboard-btn');
+  if(fb)fb.style.display='none';
 }
 
 // onAuthStateChanged — espera el primer estado real de Firebase
@@ -1260,10 +1317,12 @@ function appSearchSym(){const raw=document.getElementById('app-sym-input').value
 const FK='d7hq9bpr01qirk40k170d7hq9bpr01qirk40k17g';
 const TD_KEY='30230ec6e79d4866b5ce3609ef6a9e49';
 let lp={};
+const CRYPTO_MAP={'BTCUSD':'BINANCE:BTCUSDT','ETHUSD':'BINANCE:ETHUSDT','SOLUSD':'BINANCE:SOLUSDT'};
 async function fetchP(sym){
   try{
-    const r=await fetch(`https://finnhub.io/api/v1/quote?symbol=${sym}&token=${FK}`);
-    if(r.status===429){console.log('Finnhub 429 - rate limit, using cached price for',sym);return lp[sym]?.c||null;}
+    const fsym=CRYPTO_MAP[sym]||sym;
+    const r=await fetch(`https://finnhub.io/api/v1/quote?symbol=${fsym}&token=${FK}`);
+    if(r.status===429){return lp[sym]?.c||null;}
     if(!r.ok)return lp[sym]?.c||null;
     const d=await r.json();
     if(d&&d.c>0){lp[sym]={c:d.c,d:d.d,dp:d.dp,h:d.h,l:d.l};return d.c;}
@@ -1272,7 +1331,7 @@ async function fetchP(sym){
 }
 
 // ═══ LANDING SIMULATOR ═══
-const CATALOG=[{sym:'AAPL',name:'Apple Inc.'},{sym:'MSFT',name:'Microsoft'},{sym:'GOOGL',name:'Alphabet'},{sym:'AMZN',name:'Amazon'},{sym:'TSLA',name:'Tesla'},{sym:'NVDA',name:'NVIDIA'},{sym:'META',name:'Meta'},{sym:'NFLX',name:'Netflix'},{sym:'AMD',name:'AMD'},{sym:'INTC',name:'Intel'},{sym:'DIS',name:'Disney'},{sym:'JPM',name:'JPMorgan'},{sym:'BAC',name:'Bank of America'},{sym:'PYPL',name:'PayPal'},{sym:'UBER',name:'Uber'},{sym:'SPOT',name:'Spotify'},{sym:'COIN',name:'Coinbase'},{sym:'PLTR',name:'Palantir'},{sym:'SNAP',name:'Snap'},{sym:'NKE',name:'Nike'},{sym:'SBUX',name:'Starbucks'},{sym:'WMT',name:'Walmart'},{sym:'KO',name:'Coca-Cola'},{sym:'V',name:'Visa'},{sym:'MA',name:'Mastercard'},{sym:'PFE',name:'Pfizer'},{sym:'XOM',name:'ExxonMobil'},{sym:'BA',name:'Boeing'},{sym:'GE',name:'General Electric'},{sym:'HOOD',name:'Robinhood'}];
+const CATALOG=[{sym:'AAPL',name:'Apple Inc.'},{sym:'MSFT',name:'Microsoft'},{sym:'GOOGL',name:'Alphabet'},{sym:'AMZN',name:'Amazon'},{sym:'TSLA',name:'Tesla'},{sym:'NVDA',name:'NVIDIA'},{sym:'META',name:'Meta'},{sym:'NFLX',name:'Netflix'},{sym:'AMD',name:'AMD'},{sym:'INTC',name:'Intel'},{sym:'DIS',name:'Disney'},{sym:'JPM',name:'JPMorgan'},{sym:'BAC',name:'Bank of America'},{sym:'PYPL',name:'PayPal'},{sym:'UBER',name:'Uber'},{sym:'SPOT',name:'Spotify'},{sym:'COIN',name:'Coinbase'},{sym:'PLTR',name:'Palantir'},{sym:'SNAP',name:'Snap'},{sym:'NKE',name:'Nike'},{sym:'SBUX',name:'Starbucks'},{sym:'WMT',name:'Walmart'},{sym:'KO',name:'Coca-Cola'},{sym:'V',name:'Visa'},{sym:'MA',name:'Mastercard'},{sym:'PFE',name:'Pfizer'},{sym:'XOM',name:'ExxonMobil'},{sym:'BA',name:'Boeing'},{sym:'GE',name:'General Electric'},{sym:'HOOD',name:'Robinhood'},{sym:'BTCUSD',name:'Bitcoin'},{sym:'ETHUSD',name:'Ethereum'},{sym:'SOLUSD',name:'Solana'}];
 let lBalance=10000,lPortfolio={},lHistory=[],lSym=null,lName=null,lMode='shares';
 function lOnSearch(v){if(!v){document.getElementById('l-results').classList.remove('open');return;}const q=v.toUpperCase();const m=CATALOG.filter(s=>s.sym.includes(q)||s.name.toUpperCase().includes(q)).slice(0,7);if(!m.length){document.getElementById('l-results').classList.remove('open');return;}const el=document.getElementById('l-results');el.innerHTML=m.map(s=>{const p=lp[s.sym];return`<div class="sri" onclick="lPick('${s.sym}','${s.name.replace(/'/g,"\\'")}')"><div><div class="sri-sym">${s.sym}</div><div class="sri-name">${s.name}</div></div>${p?`<span style="font-size:12px;font-weight:600;">$${p.c.toFixed(2)}</span>`:''}</div>`;}).join('');el.classList.add('open');}
 async function lSearchEnter(){const v=document.getElementById('l-search').value.trim().toUpperCase();if(!v)return;const found=CATALOG.find(s=>s.sym===v);if(found){lPick(found.sym,found.name);}else{const pr=await fetchP(v);if(pr)lPick(v,v);else showToast('No encontrado: '+v);}document.getElementById('l-results').classList.remove('open');}
