@@ -1,54 +1,63 @@
-const CACHE_NAME = 'stockmarketbro-v3';
-const STATIC_ASSETS = ['/manifest.json', '/logo.png'];
+const CACHE_NAME = 'stockmarketbro-v4';
 
 self.addEventListener('install', e => {
-  e.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(STATIC_ASSETS))
-  );
   self.skipWaiting();
 });
 
 self.addEventListener('activate', e => {
   e.waitUntil(
     caches.keys().then(keys =>
-      Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
+      Promise.all(keys.map(k => caches.delete(k)))
     )
   );
   self.clients.claim();
 });
 
+// Only intercept GET requests for static assets
+// Let ALL other requests (Firebase, API, POST) go straight to network
 self.addEventListener('fetch', e => {
-  const url = e.request.url;
+  const req = e.request;
 
-  // NEVER cache index.html — always fetch fresh from network
-  if (url.includes('index.html') || url.endsWith('/') || url === self.location.origin + '/') {
+  // Only handle GET requests
+  if (req.method !== 'GET') return;
+
+  const url = req.url;
+
+  // Never intercept Firebase, Google APIs, TradingView, Finnhub, Twelve Data
+  if (
+    url.includes('firebase') ||
+    url.includes('firestore') ||
+    url.includes('googleapis.com') ||
+    url.includes('gstatic.com') ||
+    url.includes('finnhub.io') ||
+    url.includes('twelvedata.com') ||
+    url.includes('tradingview.com') ||
+    url.includes('identitytoolkit') ||
+    url.includes('securetoken') ||
+    url.includes('recaptcha')
+  ) return;
+
+  // For HTML pages — always network first, no cache
+  if (req.destination === 'document' || url.endsWith('.html') || url.endsWith('/')) {
     e.respondWith(
-      fetch(e.request, {cache: 'no-store'}).catch(() => caches.match('/index.html'))
+      fetch(req, { cache: 'no-store' }).catch(() => caches.match(req))
     );
     return;
   }
 
-  // Never cache API calls
-  if (
-    url.includes('finnhub.io') ||
-    url.includes('twelvedata.com') ||
-    url.includes('tradingview.com') ||
-    url.includes('firestore.googleapis.com') ||
-    url.includes('firebase') ||
-    url.includes('gstatic.com')
-  ) {
+  // For logo and manifest only — cache first
+  if (url.endsWith('logo.png') || url.endsWith('manifest.json')) {
+    e.respondWith(
+      caches.match(req).then(cached => {
+        if (cached) return cached;
+        return fetch(req).then(res => {
+          caches.open(CACHE_NAME).then(c => c.put(req, res.clone()));
+          return res;
+        });
+      })
+    );
     return;
   }
 
-  // Cache-first for static assets (logo, manifest)
-  e.respondWith(
-    caches.match(e.request).then(cached => {
-      if (cached) return cached;
-      return fetch(e.request).then(res => {
-        const clone = res.clone();
-        caches.open(CACHE_NAME).then(cache => cache.put(e.request, clone));
-        return res;
-      });
-    })
-  );
+  // Everything else — network only
 });

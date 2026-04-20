@@ -924,12 +924,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 
 <!-- ═══ FIREBASE ═══ -->
 <script type="module">
-import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import{initializeApp,getApps}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import{getAuth,signInWithEmailAndPassword,createUserWithEmailAndPassword,signInWithPopup,signInWithRedirect,getRedirectResult,GoogleAuthProvider,signOut,onAuthStateChanged,sendPasswordResetEmail,updateProfile}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import{getFirestore,collection,addDoc,getDocs,deleteDoc,doc,query,orderBy,serverTimestamp,setDoc,getDoc}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-const fbApp=initializeApp({apiKey:"AIzaSyDSCJU2IuuCZfjtfiXjxrq_fo1ODsJiJ7I",authDomain:"stockmarketbro.firebaseapp.com",projectId:"stockmarketbro",storageBucket:"stockmarketbro.firebasestorage.app",messagingSenderId:"1071822179137",appId:"1:1071822179137:web:0ab5250b2bf8fed3016fc0"});
+const fbConfig={apiKey:"AIzaSyDSCJU2IuuCZfjtfiXjxrq_fo1ODsJiJ7I",authDomain:"stockmarketbro.firebaseapp.com",projectId:"stockmarketbro",storageBucket:"stockmarketbro.firebasestorage.app",messagingSenderId:"1071822179137",appId:"1:1071822179137:web:0ab5250b2bf8fed3016fc0"};
+const fbApp=getApps().length===0?initializeApp(fbConfig):getApps()[0];
 const auth=getAuth(fbApp);
+auth.useDeviceLanguage();
 const db=getFirestore(fbApp);
 const gp=new GoogleAuthProvider();
 
