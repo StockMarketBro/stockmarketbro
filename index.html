@@ -926,7 +926,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 <script type="module">
 import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import{getAuth,signInWithEmailAndPassword,createUserWithEmailAndPassword,signInWithPopup,signInWithRedirect,getRedirectResult,GoogleAuthProvider,signOut,onAuthStateChanged,sendPasswordResetEmail,updateProfile}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import{getFirestore,collection,addDoc,getDocs,deleteDoc,doc,query,orderBy,serverTimestamp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import{getFirestore,collection,addDoc,getDocs,deleteDoc,doc,query,orderBy,serverTimestamp,setDoc,getDoc}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const fbApp=initializeApp({apiKey:"AIzaSyDSCJU2IuuCZfjtfiXjxrq_fo1ODsJiJ7I",authDomain:"stockmarketbro.firebaseapp.com",projectId:"stockmarketbro",storageBucket:"stockmarketbro.firebasestorage.app",messagingSenderId:"1071822179137",appId:"1:1071822179137:web:0ab5250b2bf8fed3016fc0"});
 const auth=getAuth(fbApp);
@@ -952,7 +952,12 @@ function showApp(user){
   else{av.textContent=name.charAt(0).toUpperCase();}
   document.getElementById('autor-btn').style.display=user.email===AUTHOR_EMAIL?'block':'none';
   if(window.fbLoadRecs)window.fbLoadRecs();
-  setTimeout(()=>{initAppChart();aRefreshPrices();runScan();},400);
+  setTimeout(()=>{
+    initAppChart();
+    aRefreshPrices();
+    runScan();
+    if(window.loadUserData)window.loadUserData();
+  },400);
 }
 function showLanding(){
   document.getElementById('landing').style.display='block';
@@ -1006,6 +1011,43 @@ window.publishRec=async()=>{
 window.deleteRec=async(id)=>{
   try{await deleteDoc(doc(db,'signals',id));await window.fbLoadRecs();showToast('Señal eliminada');}
   catch(e){showToast('Error al eliminar');}
+};
+
+// ── USER DATA PERSISTENCE ──
+
+window.saveUserData=async()=>{
+  const user=auth.currentUser;if(!user)return;
+  try{
+    await setDoc(doc(db,'userdata',user.uid),{
+      balance:window.aBalance,
+      portfolio:window.aPortfolio,
+      alerts:window.manualAlerts,
+      alertHistory:window.alertHistory,
+      alertIdCounter:window.alertIdCounter,
+      updatedAt:Date.now()
+    });
+  }catch(e){console.log('saveUserData error',e);}
+};
+
+window.loadUserData=async()=>{
+  const user=auth.currentUser;if(!user)return;
+  try{
+    const snap=await getDoc(doc(db,'userdata',user.uid));
+    if(snap.exists()){
+      const d=snap.data();
+      if(typeof d.balance==='number') window.aBalance=d.balance;
+      if(d.portfolio&&typeof d.portfolio==='object') window.aPortfolio=d.portfolio;
+      if(Array.isArray(d.alerts)&&d.alerts.length) window.manualAlerts=d.alerts.map(a=>({...a}));
+      if(Array.isArray(d.alertHistory)) window.alertHistory=d.alertHistory;
+      if(typeof d.alertIdCounter==='number') window.alertIdCounter=d.alertIdCounter;
+      else window.alertIdCounter=window.manualAlerts.length;
+      // Re-render all UI after loading
+      setTimeout(()=>{
+        if(typeof aUpdateSimUI==='function') aUpdateSimUI();
+        if(typeof renderAlerts==='function') renderAlerts();
+      },200);
+    }
+  }catch(e){console.log('loadUserData error',e);}
 };
 
 function showMErr(m){const e=document.getElementById('merr');e.textContent=m;e.style.display='block';}
@@ -1077,15 +1119,15 @@ function lReset(){if(!confirm('¿Reiniciar simulación?'))return;lBalance=10000;
 setInterval(()=>{if(lSym)fetchP(lSym).then(()=>{const p=lp[lSym];if(p){document.getElementById('l-price').textContent='$'+p.c.toFixed(2);lCalcS();lCalcU();}});},30000);
 
 // ═══ APP SIMULATOR ═══
-let aBalance=10000,aPortfolio={};
+window.aBalance=10000;window.aPortfolio={};
 const aFK=FK;
 async function aRefreshPrices(){const sym=document.getElementById('a-ticker')?.value;if(!sym)return;await fetchP(sym);aUpdatePriceDisplay();aUpdatePortfolioPnl();}
 function aUpdatePriceDisplay(){const sym=document.getElementById('a-ticker').value;const qty=parseInt(document.getElementById('a-qty').value)||1;const p=lp[sym];if(!p){document.getElementById('a-price').textContent='Cargando...';return;}document.getElementById('a-price').textContent='$'+p.c.toFixed(2);const sign=p.dp>=0?'+':'';const ch=document.getElementById('a-change');ch.textContent=sign+p.d.toFixed(2)+' ('+sign+p.dp.toFixed(2)+'%)';ch.style.color=p.dp>=0?'var(--gd)':'var(--rd)';document.getElementById('a-total').textContent='$'+(p.c*qty).toFixed(2);}
 function aUpdateTotal(){aUpdatePriceDisplay();}
 function aOnTickerChange(){aRefreshPrices();}
-async function aTrade(type){const sym=document.getElementById('a-ticker').value;const qty=parseInt(document.getElementById('a-qty').value)||1;let price=lp[sym]?.c;if(!price){await fetchP(sym);price=lp[sym]?.c;}if(!price){showToast('No se pudo obtener precio');return;}const cost=+(price*qty).toFixed(2);if(type==='buy'){if(aBalance<cost){showToast('Saldo insuficiente');return;}aBalance=+(aBalance-cost).toFixed(2);if(!aPortfolio[sym])aPortfolio[sym]={qty:0,avgCost:0};const prev=aPortfolio[sym],tq=prev.qty+qty;prev.avgCost=+((prev.avgCost*prev.qty+price*qty)/tq).toFixed(4);prev.qty=tq;showToast('Compraste '+qty+' × '+sym+' a $'+price.toFixed(2));}else{if(!aPortfolio[sym]||aPortfolio[sym].qty<qty){showToast('Sin acciones suficientes');return;}aBalance=+(aBalance+cost).toFixed(2);aPortfolio[sym].qty-=qty;if(!aPortfolio[sym].qty)delete aPortfolio[sym];showToast('Vendiste '+qty+' × '+sym+' a $'+price.toFixed(2));}aUpdateSimUI();}
-function aUpdateSimUI(){document.getElementById('a-bal').textContent='$'+aBalance.toLocaleString('es',{minimumFractionDigits:2,maximumFractionDigits:2});aUpdatePortfolioPnl();}
-function aUpdatePortfolioPnl(){const tbody=document.getElementById('a-ptbody');const entries=Object.entries(aPortfolio).filter(([,v])=>v.qty>0);if(!entries.length){tbody.innerHTML='<tr><td colspan="5" class="empty">Aún sin posiciones.</td></tr>';document.getElementById('a-total-port').textContent='$0.00';const tp=+(aBalance-10000).toFixed(2);const pel=document.getElementById('a-pnl');pel.textContent=(tp>=0?'+$':'-$')+Math.abs(tp).toFixed(2);pel.style.color=tp>=0?'var(--g)':'var(--r)';return;}let tv=0;tbody.innerHTML=entries.map(([sym,pos])=>{const liveP=lp[sym]?.c||pos.avgCost;const val=+(liveP*pos.qty).toFixed(2);const pl=+((liveP-pos.avgCost)*pos.qty).toFixed(2);const plp=+((liveP-pos.avgCost)/pos.avgCost*100).toFixed(2);tv+=val;const c=pl>=0?'var(--gd)':'var(--rd)';const s=pl>=0?'+':'';return`<tr><td style="font-weight:600;font-size:12px;">${sym}</td><td>${pos.qty}</td><td>$${liveP.toFixed(2)}</td><td>$${val.toFixed(2)}</td><td style="color:${c};font-size:11px;">${s}$${pl.toFixed(2)}<br><span style="font-size:10px;">${s}${plp}%</span></td></tr>`;}).join('');document.getElementById('a-total-port').textContent='$'+tv.toFixed(2);const tp=+(aBalance+tv-10000).toFixed(2);const pel=document.getElementById('a-pnl');pel.textContent=(tp>=0?'+$':'-$')+Math.abs(tp).toFixed(2);pel.style.color=tp>=0?'var(--g)':'var(--r)';}
+async function aTrade(type){const sym=document.getElementById('a-ticker').value;const qty=parseInt(document.getElementById('a-qty').value)||1;let price=lp[sym]?.c;if(!price){await fetchP(sym);price=lp[sym]?.c;}if(!price){showToast('No se pudo obtener precio');return;}const cost=+(price*qty).toFixed(2);if(type==='buy'){if(window.aBalance<cost){showToast('Saldo insuficiente');return;}window.aBalance=+(window.aBalance-cost).toFixed(2);if(!window.aPortfolio[sym])window.aPortfolio[sym]={qty:0,avgCost:0};const prev=window.aPortfolio[sym],tq=prev.qty+qty;prev.avgCost=+((prev.avgCost*prev.qty+price*qty)/tq).toFixed(4);prev.qty=tq;showToast('Compraste '+qty+' × '+sym+' a $'+price.toFixed(2));}else{if(!window.aPortfolio[sym]||window.aPortfolio[sym].qty<qty){showToast('Sin acciones suficientes');return;}window.aBalance=+(window.aBalance+cost).toFixed(2);window.aPortfolio[sym].qty-=qty;if(!window.aPortfolio[sym].qty)delete window.aPortfolio[sym];showToast('Vendiste '+qty+' × '+sym+' a $'+price.toFixed(2));}aUpdateSimUI();if(window.saveUserData)window.saveUserData();}
+function aUpdateSimUI(){document.getElementById('a-bal').textContent='$'+window.aBalance.toLocaleString('es',{minimumFractionDigits:2,maximumFractionDigits:2});aUpdatePortfolioPnl();}
+function aUpdatePortfolioPnl(){const tbody=document.getElementById('a-ptbody');const entries=Object.entries(window.aPortfolio).filter(([,v])=>v.qty>0);if(!entries.length){tbody.innerHTML='<tr><td colspan="5" class="empty">Aún sin posiciones.</td></tr>';document.getElementById('a-total-port').textContent='$0.00';const tp=+(window.aBalance-10000).toFixed(2);const pel=document.getElementById('a-pnl');pel.textContent=(tp>=0?'+$':'-$')+Math.abs(tp).toFixed(2);pel.style.color=tp>=0?'var(--g)':'var(--r)';return;}let tv=0;tbody.innerHTML=entries.map(([sym,pos])=>{const liveP=lp[sym]?.c||pos.avgCost;const val=+(liveP*pos.qty).toFixed(2);const pl=+((liveP-pos.avgCost)*pos.qty).toFixed(2);const plp=+((liveP-pos.avgCost)/pos.avgCost*100).toFixed(2);tv+=val;const c=pl>=0?'var(--gd)':'var(--rd)';const s=pl>=0?'+':'';return`<tr><td style="font-weight:600;font-size:12px;">${sym}</td><td>${pos.qty}</td><td>$${liveP.toFixed(2)}</td><td>$${val.toFixed(2)}</td><td style="color:${c};font-size:11px;">${s}$${pl.toFixed(2)}<br><span style="font-size:10px;">${s}${plp}%</span></td></tr>`;}).join('');document.getElementById('a-total-port').textContent='$'+tv.toFixed(2);if(document.getElementById('a-portval-top'))document.getElementById('a-portval-top').textContent='$'+tv.toFixed(0);const tp=+(window.aBalance+tv-10000).toFixed(2);const pel=document.getElementById('a-pnl');pel.textContent=(tp>=0?'+$':'-$')+Math.abs(tp).toFixed(2);pel.style.color=tp>=0?'var(--g)':'var(--r)';}
 setInterval(aRefreshPrices,30000);
 
 // ═══ AUTO SIGNALS (Twelve Data) ═══
@@ -1218,12 +1260,12 @@ function filterAuthor(f,btn){authorFilter=f;document.querySelectorAll('#auth-fta
 function clearRecForm(){['rec-title','rec-body','rec-symbol','rec-target','rec-stop'].forEach(id=>document.getElementById(id).value='');document.getElementById('rec-pinned').checked=false;document.getElementById('rec-type').value='compra';}
 
 // ═══ MANUAL ALERTS ═══
-let manualAlerts=[],alertHistory=[],alertIdCounter=0;
+window.manualAlerts=[];window.alertHistory=[];window.alertIdCounter=0;
 const alertPrices={AAPL:189.30,MSFT:412.70,TSLA:172.40,GOOGL:171.90,AMZN:192.50,NVDA:880.00,META:524.60,NFLX:621.00};
-function addAlert(){const sym=document.getElementById('al-sym').value,type=document.getElementById('al-type').value,price=parseFloat(document.getElementById('al-price').value);if(!price||price<=0){showToast('Ingresa un precio válido');return;}manualAlerts.push({id:++alertIdCounter,sym,type,price});document.getElementById('al-price').value='';renderAlerts();showToast('Alerta: '+sym+' '+(type==='above'?'↑ sobre':'↓ bajo')+' $'+price.toFixed(2));}
-function renderAlerts(){const el=document.getElementById('alerts-list');if(!manualAlerts.length){el.innerHTML='<div class="empty">Sin alertas configuradas.</div>';return;}el.innerHTML=manualAlerts.map(a=>{const cur=lp[a.sym]?.c||alertPrices[a.sym];return`<div class="alert-row"><div class="alert-sym">${a.sym}</div><span class="alert-badge ${a.type==='above'?'alert-above':'alert-below'}">${a.type==='above'?'↑ sobre':'↓ bajo'} $${a.price.toFixed(2)}</span><div style="font-size:12px;color:var(--tx2);flex:1;">Live: ${cur?'$'+cur.toFixed(2):'—'}</div><button class="alert-del" onclick="removeAlert(${a.id})">✕</button></div>`;}).join('');}
-function removeAlert(id){manualAlerts=manualAlerts.filter(a=>a.id!==id);renderAlerts();}
-setInterval(()=>{if(!manualAlerts.length)return;const triggered=[];manualAlerts=manualAlerts.filter(a=>{const cur=lp[a.sym]?.c;if(!cur)return true;if((a.type==='above'&&cur>=a.price)||(a.type==='below'&&cur<=a.price)){triggered.push({...a,triggeredAt:cur});return false;}return true;});if(triggered.length){triggered.forEach(a=>{alertHistory.unshift({sym:a.sym,type:a.type,price:a.price,at:a.triggeredAt,time:new Date().toLocaleTimeString('es',{hour:'2-digit',minute:'2-digit'})});});renderAlerts();document.getElementById('alert-dot').style.display='inline-block';triggered.forEach(a=>showToast('SMB Alert: '+a.sym+' '+(a.type==='above'?'superó':'cayó bajo')+' $'+a.price.toFixed(2)));}},30000);
+function addAlert(){const sym=document.getElementById('al-sym').value,type=document.getElementById('al-type').value,price=parseFloat(document.getElementById('al-price').value);if(!price||price<=0){showToast('Ingresa un precio válido');return;}window.manualAlerts.push({id:++window.alertIdCounter,sym,type,price});document.getElementById('al-price').value='';renderAlerts();if(window.saveUserData)window.saveUserData();showToast('Alerta: '+sym+' '+(type==='above'?'↑ sobre':'↓ bajo')+' $'+price.toFixed(2));}
+function renderAlerts(){const el=document.getElementById('alerts-list');if(!window.manualAlerts.length){el.innerHTML='<div class="empty">Sin alertas configuradas.</div>';return;}el.innerHTML=window.manualAlerts.map(a=>{const cur=lp[a.sym]?.c||alertPrices[a.sym];return`<div class="alert-row"><div class="alert-sym">${a.sym}</div><span class="alert-badge ${a.type==='above'?'alert-above':'alert-below'}">${a.type==='above'?'↑ sobre':'↓ bajo'} $${a.price.toFixed(2)}</span><div style="font-size:12px;color:var(--tx2);flex:1;">Live: ${cur?'$'+cur.toFixed(2):'—'}</div><button class="alert-del" onclick="removeAlert(${a.id})">✕</button></div>`;}).join('');}
+function removeAlert(id){window.manualAlerts=window.manualAlerts.filter(a=>a.id!==id);renderAlerts();if(window.saveUserData)window.saveUserData();}
+setInterval(()=>{if(!window.manualAlerts.length)return;const triggered=[];window.manualAlerts=window.manualAlerts.filter(a=>{const cur=lp[a.sym]?.c;if(!cur)return true;if((a.type==='above'&&cur>=a.price)||(a.type==='below'&&cur<=a.price)){triggered.push({...a,triggeredAt:cur});return false;}return true;});if(triggered.length){triggered.forEach(a=>{window.alertHistory.unshift({sym:a.sym,type:a.type,price:a.price,at:a.triggeredAt,time:new Date().toLocaleTimeString('es',{hour:'2-digit',minute:'2-digit'})});});renderAlerts();document.getElementById('alert-dot').style.display='inline-block';triggered.forEach(a=>showToast('SMB Alert: '+a.sym+' '+(a.type==='above'?'superó':'cayó bajo')+' $'+a.price.toFixed(2)));}},30000);
 
 // ═══ NEWS ═══
 const allNews=[{cat:'acciones',tag:'AAPL',tc:'#E1F5EE',tt:'#0F6E56',title:'Apple supera expectativas de ingresos en su reporte trimestral',meta:'Reuters · hace 2h',sent:'pos',sentLabel:'Positivo'},{cat:'macro',tag:'FED',tc:'#EEEDFE',tt:'#3C3489',title:'La Reserva Federal mantiene tasas sin cambios',meta:'Bloomberg · hace 3h',sent:'neu',sentLabel:'Neutral'},{cat:'crypto',tag:'BTC',tc:'#FAEEDA',tt:'#854F0B',title:'Bitcoin supera los $70,000 en medio de mayor demanda institucional',meta:'CoinDesk · hace 4h',sent:'pos',sentLabel:'Positivo'},{cat:'acciones',tag:'TSLA',tc:'#FCEBEB',tt:'#A32D2D',title:'Tesla reporta caída en entregas del primer trimestre',meta:'WSJ · hace 5h',sent:'neg',sentLabel:'Negativo'},{cat:'latam',tag:'LATAM',tc:'#E6F1FB',tt:'#185FA5',title:'Bolsas latinoamericanas registran alza impulsadas por commodities',meta:'El Financiero · hace 6h',sent:'pos',sentLabel:'Positivo'},{cat:'macro',tag:'MACRO',tc:'#EEEDFE',tt:'#3C3489',title:'Inflación en EE.UU. cede levemente, abre puerta a recortes',meta:'FT · hace 7h',sent:'pos',sentLabel:'Positivo'},{cat:'acciones',tag:'NVDA',tc:'#E1F5EE',tt:'#0F6E56',title:'NVIDIA alcanza nuevo máximo histórico tras boom de IA generativa',meta:'CNBC · hace 8h',sent:'pos',sentLabel:'Positivo'},{cat:'crypto',tag:'ETH',tc:'#EEEDFE',tt:'#3C3489',title:'Ethereum consolida soporte en $3,200 tras semanas de volatilidad',meta:'The Block · hace 9h',sent:'neu',sentLabel:'Neutral'},{cat:'latam',tag:'MXN',tc:'#E6F1FB',tt:'#185FA5',title:'Peso mexicano se fortalece frente al dólar por datos de empleo',meta:'El Economista · hace 10h',sent:'pos',sentLabel:'Positivo'},{cat:'acciones',tag:'META',tc:'#E1F5EE',tt:'#0F6E56',title:'Meta Platforms anuncia dividendo por primera vez en su historia',meta:'MarketWatch · hace 11h',sent:'pos',sentLabel:'Positivo'}];
