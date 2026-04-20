@@ -968,8 +968,17 @@ function showLanding(){
   document.getElementById('app-ui').classList.remove('show');
 }
 
-// onAuthStateChanged — single source of truth
+// onAuthStateChanged — espera el primer estado real de Firebase
+// El primer NULL es el estado inicial antes de que Firebase verifique la sesión
+let _authInitialized = false;
 auth.onAuthStateChanged(user=>{
+  if(!_authInitialized){
+    _authInitialized = true;
+    if(user){ showApp(user); }
+    else{ showLanding(); }
+    return;
+  }
+  // Llamadas posteriores: cambios reales (login/logout)
   if(user){ showApp(user); }
   else{ showLanding(); }
 });
@@ -1391,30 +1400,18 @@ function closeLesson(){document.getElementById('lesson-modal').style.display='no
 let deferredPrompt=null;
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;document.getElementById('install-banner').classList.add('show');});
 document.getElementById('install-btn').addEventListener('click',async()=>{if(!deferredPrompt)return;deferredPrompt.prompt();const{outcome}=await deferredPrompt.userChoice;deferredPrompt=null;document.getElementById('install-banner').classList.remove('show');if(outcome==='accepted')showToast('¡StockMarketBro instalada!');});
-if('serviceWorker'in navigator){
-  navigator.serviceWorker.register('sw.js').then(reg=>{
-    // Force update check on every load
-    reg.update();
-    // If a new SW is waiting, activate it immediately
-    if(reg.waiting){reg.waiting.postMessage({type:'SKIP_WAITING'});}
-    reg.addEventListener('updatefound',()=>{
-      const newSW=reg.installing;
-      newSW.addEventListener('statechange',()=>{
-        if(newSW.state==='installed'&&navigator.serviceWorker.controller){
-          // New version available - reload to get fresh content
-          window.location.reload();
-        }
-      });
-    });
-  }).catch(()=>{});
-  // Clear all caches on load to ensure fresh content
+// Desregistrar cualquier Service Worker anterior y limpiar caché
+if('serviceWorker' in navigator){
+  // Unregister ALL service workers to prevent caching issues
+  navigator.serviceWorker.getRegistrations().then(regs=>{
+    regs.forEach(r=>r.unregister());
+  });
+  // Clear all caches
   if(caches){
-    caches.keys().then(keys=>{
-      keys.forEach(key=>{
-        if(key!=='stockmarketbro-v3') caches.delete(key);
-      });
-    });
+    caches.keys().then(keys=>keys.forEach(k=>caches.delete(k)));
   }
+  // Register the minimal new SW
+  navigator.serviceWorker.register('sw.js').catch(()=>{});
 }
 
 // ═══ TOAST ═══
