@@ -955,10 +955,10 @@ function showApp(user){
   document.getElementById('autor-btn').style.display=user.email===AUTHOR_EMAIL?'block':'none';
   if(window.fbLoadRecs)window.fbLoadRecs();
   setTimeout(()=>{
-    initAppChart();
-    aRefreshPrices();
-    runScan();
-    if(window.loadUserData)window.loadUserData();
+    try{initAppChart();}catch(e){}
+    try{aRefreshPrices();}catch(e){}
+    try{runScan();}catch(e){}
+    try{if(window.loadUserData)window.loadUserData();}catch(e){}
   },400);
 }
 
@@ -982,6 +982,8 @@ window.doLogin=async()=>{
   if(btn){btn.textContent='Ingresando...';btn.disabled=true;}
   try{
     await auth.signInWithEmailAndPassword(e,p);
+    // onAuthStateChanged will call showApp — reset button just in case
+    if(btn){btn.textContent='Entrar a StockMarketBro';btn.disabled=false;}
   }catch(err){
     showMErr(authMsg(err.code));
     if(btn){btn.textContent='Entrar a StockMarketBro';btn.disabled=false;}
@@ -1170,7 +1172,16 @@ function appSearchSym(){const raw=document.getElementById('app-sym-input').value
 const FK='d7hq9bpr01qirk40k170d7hq9bpr01qirk40k17g';
 const TD_KEY='30230ec6e79d4866b5ce3609ef6a9e49';
 let lp={};
-async function fetchP(sym){try{const r=await fetch(`https://finnhub.io/api/v1/quote?symbol=${sym}&token=${FK}`);const d=await r.json();if(d&&d.c>0){lp[sym]={c:d.c,d:d.d,dp:d.dp,h:d.h,l:d.l};return d.c;}}catch(e){}return null;}
+async function fetchP(sym){
+  try{
+    const r=await fetch(`https://finnhub.io/api/v1/quote?symbol=${sym}&token=${FK}`);
+    if(r.status===429){console.log('Finnhub 429 - rate limit, using cached price for',sym);return lp[sym]?.c||null;}
+    if(!r.ok)return lp[sym]?.c||null;
+    const d=await r.json();
+    if(d&&d.c>0){lp[sym]={c:d.c,d:d.d,dp:d.dp,h:d.h,l:d.l};return d.c;}
+  }catch(e){return lp[sym]?.c||null;}
+  return lp[sym]?.c||null;
+}
 
 // ═══ LANDING SIMULATOR ═══
 const CATALOG=[{sym:'AAPL',name:'Apple Inc.'},{sym:'MSFT',name:'Microsoft'},{sym:'GOOGL',name:'Alphabet'},{sym:'AMZN',name:'Amazon'},{sym:'TSLA',name:'Tesla'},{sym:'NVDA',name:'NVIDIA'},{sym:'META',name:'Meta'},{sym:'NFLX',name:'Netflix'},{sym:'AMD',name:'AMD'},{sym:'INTC',name:'Intel'},{sym:'DIS',name:'Disney'},{sym:'JPM',name:'JPMorgan'},{sym:'BAC',name:'Bank of America'},{sym:'PYPL',name:'PayPal'},{sym:'UBER',name:'Uber'},{sym:'SPOT',name:'Spotify'},{sym:'COIN',name:'Coinbase'},{sym:'PLTR',name:'Palantir'},{sym:'SNAP',name:'Snap'},{sym:'NKE',name:'Nike'},{sym:'SBUX',name:'Starbucks'},{sym:'WMT',name:'Walmart'},{sym:'KO',name:'Coca-Cola'},{sym:'V',name:'Visa'},{sym:'MA',name:'Mastercard'},{sym:'PFE',name:'Pfizer'},{sym:'XOM',name:'ExxonMobil'},{sym:'BA',name:'Boeing'},{sym:'GE',name:'General Electric'},{sym:'HOOD',name:'Robinhood'}];
@@ -1192,7 +1203,17 @@ setInterval(()=>{if(lSym)fetchP(lSym).then(()=>{const p=lp[lSym];if(p){document.
 // ═══ APP SIMULATOR ═══
 window.aBalance=10000;window.aPortfolio={};
 const aFK=FK;
-async function aRefreshPrices(){const sym=document.getElementById('a-ticker')?.value;if(!sym)return;await fetchP(sym);aUpdatePriceDisplay();aUpdatePortfolioPnl();}
+async function aRefreshPrices(){
+  try{
+    const sym=document.getElementById('a-ticker')?.value;
+    if(!sym)return;
+    await fetchP(sym);
+    aUpdatePriceDisplay();
+    aUpdatePortfolioPnl();
+  }catch(e){
+    console.log('aRefreshPrices error (possibly 429):',e);
+  }
+}
 function aUpdatePriceDisplay(){const sym=document.getElementById('a-ticker').value;const qty=parseInt(document.getElementById('a-qty').value)||1;const p=lp[sym];if(!p){document.getElementById('a-price').textContent='Cargando...';return;}document.getElementById('a-price').textContent='$'+p.c.toFixed(2);const sign=p.dp>=0?'+':'';const ch=document.getElementById('a-change');ch.textContent=sign+p.d.toFixed(2)+' ('+sign+p.dp.toFixed(2)+'%)';ch.style.color=p.dp>=0?'var(--gd)':'var(--rd)';document.getElementById('a-total').textContent='$'+(p.c*qty).toFixed(2);}
 function aUpdateTotal(){aUpdatePriceDisplay();}
 function aOnTickerChange(){aRefreshPrices();}
