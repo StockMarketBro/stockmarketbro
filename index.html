@@ -713,11 +713,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
       <div><div style="font-size:15px;font-weight:600;">Centro de Alertas · StockMarketBro</div><div style="font-size:12px;color:var(--tx2);margin-top:2px;">Señales del autor + análisis técnico automático</div></div>
       <button onclick="runScan()" id="scan-btn" style="padding:7px 14px;border-radius:var(--rad);border:0.5px solid var(--br);background:var(--bg);font-size:12px;cursor:pointer;font-family:inherit;">↻ Actualizar señales</button>
     </div>
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:9px;">
+    <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:9px;">
       <div style="background:var(--bg2);border-radius:var(--rad);padding:11px;text-align:center;"><div style="font-size:20px;font-weight:700;" id="stat-total">—</div><div style="font-size:10px;color:var(--tx2);margin-top:2px;text-transform:uppercase;letter-spacing:.04em;">Analizadas</div></div>
+      <div style="background:var(--gl);border-radius:var(--rad);padding:11px;text-align:center;"><div style="font-size:20px;font-weight:700;color:var(--gd);" id="stat-buy">—</div><div style="font-size:10px;color:var(--gd);margin-top:2px;text-transform:uppercase;letter-spacing:.04em;">Compra</div></div>
+      <div style="background:var(--rl);border-radius:var(--rad);padding:11px;text-align:center;"><div style="font-size:20px;font-weight:700;color:var(--rd);" id="stat-sell">—</div><div style="font-size:10px;color:var(--rd);margin-top:2px;text-transform:uppercase;letter-spacing:.04em;">Venta</div></div>
       <div style="background:var(--bg2);border-radius:var(--rad);padding:11px;text-align:center;"><div style="font-size:20px;font-weight:700;color:var(--rd);" id="stat-vh">—</div><div style="font-size:10px;color:var(--tx2);margin-top:2px;text-transform:uppercase;letter-spacing:.04em;">Nivel muy alta</div></div>
       <div style="background:var(--bg2);border-radius:var(--rad);padding:11px;text-align:center;"><div style="font-size:20px;font-weight:700;color:var(--ad);" id="stat-h">—</div><div style="font-size:10px;color:var(--tx2);margin-top:2px;text-transform:uppercase;letter-spacing:.04em;">Nivel alta</div></div>
-      <div style="background:var(--bg2);border-radius:var(--rad);padding:11px;text-align:center;"><div style="font-size:14px;font-weight:600;" id="stat-upd">—</div><div style="font-size:10px;color:var(--tx2);margin-top:2px;text-transform:uppercase;letter-spacing:.04em;">Actualización</div></div>
+      <div style="background:var(--bg2);border-radius:var(--rad);padding:11px;text-align:center;"><div style="font-size:13px;font-weight:600;" id="stat-upd">—</div><div style="font-size:10px;color:var(--tx2);margin-top:2px;text-transform:uppercase;letter-spacing:.04em;">Actualización</div></div>
     </div>
     <div class="progress-bar" id="scan-pb"><div class="progress-fill" id="scan-pf" style="width:0%"></div></div>
     <div class="alerts-grid">
@@ -726,8 +728,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
           <div class="section-card-title" style="margin:0;"><span class="live-dot"></span>Señales automáticas</div>
           <div class="filter-tabs" id="auto-ftabs">
             <button class="ftab active" onclick="filterAuto('all',this)">Todas</button>
-            <button class="ftab" onclick="filterAuto('very-high',this)" style="background:var(--rl);color:var(--rd);border-color:var(--rl);">Muy alta</button>
-            <button class="ftab" onclick="filterAuto('high',this)" style="background:var(--al);color:var(--ad);border-color:var(--al);">Alta</button>
+            <button class="ftab" onclick="filterAuto('buy',this)" style="background:var(--gl);color:var(--gd);border-color:var(--gl);">Compra</button>
+            <button class="ftab" onclick="filterAuto('sell',this)" style="background:var(--rl);color:var(--rd);border-color:var(--rl);">Venta</button>
+            <button class="ftab" onclick="filterAuto('very-high',this)">Muy alta</button>
+            <button class="ftab" onclick="filterAuto('high',this)">Alta</button>
           </div>
         </div>
         <div id="auto-list"><div class="loading-state">Cargando análisis técnico...</div></div>
@@ -934,8 +938,10 @@ const AUTHOR_EMAIL='cryptoguitar1@gmail.com';
 
 onAuthStateChanged(auth,user=>{
   if(user){
+    document.getElementById('modal-bg').classList.remove('open');
     document.getElementById('landing').style.display='none';
     document.getElementById('app-ui').classList.add('show');
+    window.scrollTo(0,0);
     const name=user.displayName||user.email.split('@')[0];
     document.getElementById('um-name').textContent=name;
     document.getElementById('um-email').textContent=user.email;
@@ -943,10 +949,8 @@ onAuthStateChanged(auth,user=>{
     av.innerHTML=user.photoURL?`<img src="${user.photoURL}" alt="${name}">`:`${name.charAt(0).toUpperCase()}`;
     const isAuthor=user.email===AUTHOR_EMAIL;
     document.getElementById('autor-btn').style.display=isAuthor?'block':'none';
-    window.fbLoadRecs&&window.fbLoadRecs();
-    initAppChart();
-    aRefreshPrices();
-    runScan();
+    if(window.fbLoadRecs)window.fbLoadRecs();
+    setTimeout(()=>{initAppChart();aRefreshPrices();runScan();},300);
   }else{
     document.getElementById('landing').style.display='block';
     document.getElementById('app-ui').classList.remove('show');
@@ -956,15 +960,15 @@ onAuthStateChanged(auth,user=>{
 window.doLogin=async()=>{
   const e=document.getElementById('m-email').value.trim(),p=document.getElementById('m-pass').value;
   if(!e||!p){showMErr('Completa todos los campos');return;}
-  try{await signInWithEmailAndPassword(auth,e,p);closeModal();}catch(err){showMErr(authMsg(err.code));}
+  try{await signInWithEmailAndPassword(auth,e,p);}catch(err){showMErr(authMsg(err.code));}
 };
 window.doRegister=async()=>{
   const n=document.getElementById('m-name').value.trim(),e=document.getElementById('m-remail').value.trim(),p=document.getElementById('m-rpass').value;
   if(!n||!e||!p){showMErr('Completa todos los campos');return;}
   if(p.length<6){showMErr('La contraseña debe tener al menos 6 caracteres');return;}
-  try{const c=await createUserWithEmailAndPassword(auth,e,p);await updateProfile(c.user,{displayName:n});closeModal();}catch(err){showMErr(authMsg(err.code));}
+  try{const c=await createUserWithEmailAndPassword(auth,e,p);await updateProfile(c.user,{displayName:n});}catch(err){showMErr(authMsg(err.code));}
 };
-window.doGoogle=async()=>{try{await signInWithPopup(auth,gp);closeModal();}catch(err){showMErr(authMsg(err.code));}};
+window.doGoogle=async()=>{try{await signInWithPopup(auth,gp);}catch(err){showMErr(authMsg(err.code));}};
 window.doReset=async()=>{
   const e=document.getElementById('m-resetmail').value.trim();
   if(!e){showMErr('Ingresa tu correo');return;}
@@ -1085,6 +1089,9 @@ async function fetchTD(ep){try{const r=await fetch(`https://api.twelvedata.com/$
 function isRSIUp(d){if(!d?.values||d.values.length<2)return false;return parseFloat(d.values[0].value)>parseFloat(d.values[1].value);}
 function isMACDUp(d){if(!d?.values||d.values.length<2)return false;return parseFloat(d.values[0].macd)>parseFloat(d.values[1].macd);}
 function isStochUp(d){if(!d?.values||d.values.length<2)return false;return parseFloat(d.values[0].k)>parseFloat(d.values[1].k);}
+function isRSIDown(d){if(!d?.values||d.values.length<2)return false;return parseFloat(d.values[0].value)<parseFloat(d.values[1].value);}
+function isMACDDown(d){if(!d?.values||d.values.length<2)return false;return parseFloat(d.values[0].macd)<parseFloat(d.values[1].macd);}
+function isStochDown(d){if(!d?.values||d.values.length<2)return false;return parseFloat(d.values[0].k)<parseFloat(d.values[1].k);}
 async function analyzeStock(sym){
   const[rsi1m,macd1m,stoch1m,rsi2m,macd2m,stoch2m]=await Promise.all([
     fetchTD(`rsi?symbol=${sym}&interval=1month&time_period=14&outputsize=3`),
@@ -1094,9 +1101,15 @@ async function analyzeStock(sym){
     fetchTD(`macd?symbol=${sym}&interval=2month&fast_period=12&slow_period=26&signal_period=9&outputsize=3`),
     fetchTD(`stochrsi?symbol=${sym}&interval=2month&time_period=14&fast_k_period=3&fast_d_period=3&outputsize=3`),
   ]);
-  const monthly=isRSIUp(rsi1m)&&isMACDUp(macd1m)&&isStochUp(stoch1m);
-  const bimonthly=isRSIUp(rsi2m)&&isMACDUp(macd2m)&&isStochUp(stoch2m);
-  return{sym,level:bimonthly?'very-high':monthly?'high':'none'};
+  const monthlyUp=isRSIUp(rsi1m)&&isMACDUp(macd1m)&&isStochUp(stoch1m);
+  const bimonthlyUp=isRSIUp(rsi2m)&&isMACDUp(macd2m)&&isStochUp(stoch2m);
+  const monthlyDown=isRSIDown(rsi1m)&&isMACDDown(macd1m)&&isStochDown(stoch1m);
+  const bimonthlyDown=isRSIDown(rsi2m)&&isMACDDown(macd2m)&&isStochDown(stoch2m);
+  if(bimonthlyUp) return{sym,level:'very-high',dir:'buy'};
+  if(monthlyUp) return{sym,level:'high',dir:'buy'};
+  if(bimonthlyDown) return{sym,level:'very-high',dir:'sell'};
+  if(monthlyDown) return{sym,level:'high',dir:'sell'};
+  return{sym,level:'none',dir:'none'};
 }
 function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
 async function runScan(){
@@ -1119,24 +1132,65 @@ async function runScan(){
   renderAutoSignals();
   const vhc=autoResults.filter(r=>r.level==='very-high').length;
   const hc=autoResults.filter(r=>r.level==='high').length;
+  const buyc=autoResults.filter(r=>r.dir==='buy'&&r.level!=='none').length;
+  const sellc=autoResults.filter(r=>r.dir==='sell'&&r.level!=='none').length;
   document.getElementById('stat-total').textContent=autoResults.length;
   document.getElementById('stat-vh').textContent=vhc;
   document.getElementById('stat-h').textContent=hc;
+  const statUpd=document.getElementById('stat-upd');
+  if(statUpd){
+    const buyEl=document.getElementById('stat-buy');
+    const sellEl=document.getElementById('stat-sell');
+    if(buyEl) buyEl.textContent=buyc;
+    if(sellEl) sellEl.textContent=sellc;
+  }
   const now=new Date().toLocaleTimeString('es',{hour:'2-digit',minute:'2-digit'});
   document.getElementById('stat-upd').textContent=now;
   document.getElementById('auto-update').textContent='Actualizado: '+now;
   if(btn)btn.disabled=false;
 }
 function renderAutoSignals(){
-  const filtered=autoFilter==='all'?autoResults:autoResults.filter(r=>r.level===autoFilter);
+  const filtered=autoFilter==='all'?autoResults:autoResults.filter(r=>{
+    if(autoFilter==='buy') return r.dir==='buy'&&r.level!=='none';
+    if(autoFilter==='sell') return r.dir==='sell'&&r.level!=='none';
+    if(autoFilter==='very-high') return r.level==='very-high';
+    if(autoFilter==='high') return r.level==='high';
+    return true;
+  });
   const order={'very-high':0,'high':1,'none':2};
-  filtered.sort((a,b)=>order[a.level]-order[b.level]);
+  filtered.sort((a,b)=>{
+    const lo=order[a.level]-order[b.level];
+    if(lo!==0)return lo;
+    if(a.dir==='buy'&&b.dir!=='buy')return -1;
+    if(a.dir!=='buy'&&b.dir==='buy')return 1;
+    return 0;
+  });
   if(!filtered.length){document.getElementById('auto-list').innerHTML='<div class="empty">Sin señales activas.</div>';return;}
   document.getElementById('auto-list').innerHTML='<div class="signal-list">'+filtered.map(r=>{
     const stock=WATCHLIST.find(s=>s.sym===r.sym);const p=lp[r.sym];
     const priceHtml=p?`<div style="text-align:right;"><div style="font-size:12px;font-weight:600;">$${p.c.toFixed(2)}</div><div style="font-size:11px;color:${p.dp>=0?'var(--gd)':'var(--rd)'};">${p.dp>=0?'+':''}${p.dp?.toFixed(2)}%</div></div>`:'';
-    const badge=r.level==='very-high'?'<span class="level-badge level-very-high">Muy alta</span>':r.level==='high'?'<span class="level-badge level-high">Alta</span>':'<span class="level-badge level-none">—</span>';
-    return`<div class="signal-card ${r.level}"><div style="display:flex;align-items:center;gap:10px;"><div><div style="font-size:13px;font-weight:700;">${r.sym}</div><div style="font-size:11px;color:var(--tx2);">${stock?.name||''}</div></div>${priceHtml}</div>${badge}</div>`;
+    const levelBadge=r.level==='very-high'
+      ?`<span class="level-badge level-very-high">Muy alta</span>`
+      :r.level==='high'
+      ?`<span class="level-badge level-high">Alta</span>`
+      :`<span class="level-badge level-none">—</span>`;
+    const dirBadge=r.dir==='buy'
+      ?`<span style="padding:3px 9px;border-radius:999px;font-size:11px;font-weight:700;background:var(--gl);color:var(--gd);margin-left:4px;">Compra</span>`
+      :r.dir==='sell'
+      ?`<span style="padding:3px 9px;border-radius:999px;font-size:11px;font-weight:700;background:var(--rl);color:var(--rd);margin-left:4px;">Venta</span>`
+      :'';
+    const cardBorder=r.level==='very-high'&&r.dir==='buy'?'border-left:3px solid var(--gd);background:rgba(225,245,238,0.3);'
+      :r.level==='very-high'&&r.dir==='sell'?'border-left:3px solid var(--rd);background:rgba(252,235,235,0.3);'
+      :r.level==='high'&&r.dir==='buy'?'border-left:3px solid var(--g);background:rgba(225,245,238,0.15);'
+      :r.level==='high'&&r.dir==='sell'?'border-left:3px solid var(--r);background:rgba(252,235,235,0.15);'
+      :'opacity:0.45;';
+    return`<div class="signal-card" style="${cardBorder}">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div><div style="font-size:13px;font-weight:700;">${r.sym}</div><div style="font-size:11px;color:var(--tx2);">${stock?.name||''}</div></div>
+        ${priceHtml}
+      </div>
+      <div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;">${levelBadge}${dirBadge}</div>
+    </div>`;
   }).join('')+'</div>';}
 function filterAuto(f,btn){autoFilter=f;document.querySelectorAll('#auto-ftabs .ftab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderAutoSignals();}
 
