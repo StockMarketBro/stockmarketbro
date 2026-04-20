@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-<!-- SMB v4 -->
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -788,44 +787,111 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 
   <!-- SIMULADOR -->
   <div id="tab-simulador" class="app-section-content">
+    <!-- BALANCE ROW -->
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;">
+      <div class="section-card"><div class="sim-label-sm">Saldo disponible</div><div style="font-size:22px;font-weight:700;" id="a-bal">$10,000.00</div></div>
+      <div class="section-card"><div class="sim-label-sm">Valor portafolio</div><div style="font-size:22px;font-weight:700;" id="a-portval">$0.00</div></div>
+      <div class="section-card"><div class="sim-label-sm">Ganancia / pérdida</div><div id="a-pnl" style="font-size:22px;font-weight:700;color:var(--g);">+$0.00</div></div>
+    </div>
     <div class="two-col">
+      <!-- TRADE PANEL -->
       <div class="section-card">
-        <div style="display:flex;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
-          <div><div class="sim-label-sm">Saldo disponible</div><div style="font-size:22px;font-weight:700;" id="a-bal">$10,000.00</div></div>
-          <div style="text-align:right;"><div class="sim-label-sm">Ganancia / pérdida</div><div id="a-pnl" style="font-size:18px;font-weight:700;color:var(--g);">+$0.00</div></div>
+        <div style="font-size:13px;font-weight:600;margin-bottom:12px;">Nueva operación</div>
+        <!-- BUSCADOR -->
+        <div style="font-size:11px;color:var(--tx2);margin-bottom:4px;">Buscar acción</div>
+        <div class="search-wrap" style="margin-bottom:8px;">
+          <input class="inp" id="a-search" type="text" placeholder="ej. Apple, TSLA, NVDA..." autocomplete="off"
+            oninput="aOnSearch(this.value)" onkeydown="if(event.key==='Enter')aSearchEnter()" style="margin-bottom:0;">
+          <div class="search-results" id="a-results"></div>
         </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:10px;">
-          <div>
-            <div style="font-size:11px;color:var(--tx2);margin-bottom:3px;">Acción</div>
-            <select id="a-ticker" onchange="aOnTickerChange()" style="width:100%;padding:7px 9px;border:0.5px solid var(--br);border-radius:var(--rad);font-size:13px;background:var(--bg2);color:var(--tx);font-family:inherit;">
-              <option value="AAPL">AAPL · Apple</option><option value="MSFT">MSFT · Microsoft</option>
-              <option value="TSLA">TSLA · Tesla</option><option value="GOOGL">GOOGL · Alphabet</option>
-              <option value="AMZN">AMZN · Amazon</option><option value="NVDA">NVDA · NVIDIA</option>
-              <option value="META">META · Meta</option><option value="NFLX">NFLX · Netflix</option>
-            </select>
-          </div>
-          <div>
-            <div style="font-size:11px;color:var(--tx2);margin-bottom:3px;">Cantidad</div>
-            <input type="number" id="a-qty" value="1" min="0.000001" step="1" oninput="aUpdateTotal()" style="width:100%;padding:7px 9px;border:0.5px solid var(--br);border-radius:var(--rad);font-size:13px;background:var(--bg2);color:var(--tx);outline:none;font-family:inherit;">
-          </div>
+        <!-- POPULARES -->
+        <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px;">
+          <button class="pop-btn" onclick="aPick('AAPL','Apple')">AAPL</button>
+          <button class="pop-btn" onclick="aPick('MSFT','Microsoft')">MSFT</button>
+          <button class="pop-btn" onclick="aPick('TSLA','Tesla')">TSLA</button>
+          <button class="pop-btn" onclick="aPick('NVDA','NVIDIA')">NVDA</button>
+          <button class="pop-btn" onclick="aPick('GOOGL','Alphabet')">GOOGL</button>
+          <button class="pop-btn" onclick="aPick('AMZN','Amazon')">AMZN</button>
+          <button class="pop-btn" onclick="aPick('META','Meta')">META</button>
+          <button class="pop-btn" onclick="aPick('NFLX','Netflix')">NFLX</button>
+          <button class="pop-btn" onclick="aPick('AMD','AMD')">AMD</button>
+          <button class="pop-btn" onclick="aPick('COIN','Coinbase')">COIN</button>
         </div>
-        <div style="background:var(--bg2);border-radius:var(--rad-lg);padding:11px;margin-bottom:11px;">
+        <!-- PRECIO EN VIVO -->
+        <div class="price-box" id="a-pricebox" style="display:none;margin-bottom:10px;">
           <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;">
-            <div><div style="font-size:10px;color:var(--tx2);margin-bottom:2px;"><span class="live-dot"></span>Precio real · Finnhub</div><div style="font-size:22px;font-weight:700;" id="a-price">Cargando...</div></div>
-            <div style="text-align:right;"><div style="font-size:10px;color:var(--tx2);margin-bottom:2px;">Cambio hoy</div><div style="font-size:13px;font-weight:600;" id="a-change">—</div></div>
-            <div style="text-align:right;"><div style="font-size:10px;color:var(--tx2);margin-bottom:2px;">Total operación</div><div style="font-size:13px;font-weight:600;" id="a-total">—</div></div>
+            <div>
+              <div style="font-size:10px;color:var(--tx2);margin-bottom:2px;"><span class="live-dot"></span>Precio real · Finnhub</div>
+              <div style="font-size:22px;font-weight:700;" id="a-price">—</div>
+              <div style="font-size:12px;font-weight:500;" id="a-change">—</div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-size:12px;font-weight:600;" id="a-sym-label">—</div>
+              <div style="font-size:10px;color:var(--tx2);" id="a-name-label">—</div>
+            </div>
+          </div>
+        </div>
+        <!-- MODO: ACCIONES o USD -->
+        <div class="mode-tabs" style="margin-bottom:10px;">
+          <button class="mode-tab active" id="a-mt-s" onclick="aSetMode('shares')">Por acciones</button>
+          <button class="mode-tab" id="a-mt-u" onclick="aSetMode('usd')">Por monto USD</button>
+        </div>
+        <!-- PANEL ACCIONES -->
+        <div id="a-panel-s">
+          <div style="font-size:11px;color:var(--tx2);margin-bottom:4px;">Cantidad de acciones</div>
+          <input class="inp" type="number" id="a-qty-s" value="1" min="0.000001" step="1" oninput="aCalcS()" style="margin-bottom:8px;">
+          <div style="display:flex;justify-content:space-between;padding:6px 0;border-top:0.5px solid var(--br);border-bottom:0.5px solid var(--br);margin-bottom:10px;">
+            <div style="font-size:12px;color:var(--tx2);">Total operación</div>
+            <div style="font-size:13px;font-weight:600;" id="a-tot-s">—</div>
+          </div>
+        </div>
+        <!-- PANEL USD -->
+        <div id="a-panel-u" style="display:none;">
+          <div style="font-size:11px;color:var(--tx2);margin-bottom:4px;">Monto en USD</div>
+          <input class="inp" type="number" id="a-qty-u" value="100" min="1" oninput="aCalcU()" style="margin-bottom:7px;">
+          <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px;">
+            <button class="qa-btn" onclick="aSetU(50)">$50</button>
+            <button class="qa-btn" onclick="aSetU(100)">$100</button>
+            <button class="qa-btn" onclick="aSetU(250)">$250</button>
+            <button class="qa-btn" onclick="aSetU(500)">$500</button>
+            <button class="qa-btn" onclick="aSetU(1000)">$1K</button>
+            <button class="qa-btn" onclick="aSetU(Math.floor(window.aBalance))">Máx</button>
+          </div>
+          <div style="background:var(--gl);border-radius:var(--rad);padding:8px 10px;margin-bottom:8px;display:none;" id="a-calc-box">
+            <div style="display:flex;justify-content:space-between;">
+              <div style="font-size:11px;color:var(--gd);">Recibirás aprox.</div>
+              <div style="font-size:13px;font-weight:600;color:var(--gd);" id="a-frac">— acciones</div>
+            </div>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:6px 0;border-top:0.5px solid var(--br);border-bottom:0.5px solid var(--br);margin-bottom:10px;">
+            <div style="font-size:12px;color:var(--tx2);">Total a pagar</div>
+            <div style="font-size:13px;font-weight:600;" id="a-tot-u">—</div>
           </div>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-          <button class="btn-buy" onclick="aTrade('buy')">Comprar</button>
-          <button class="btn-sell" onclick="aTrade('sell')">Vender</button>
+          <button class="btn-buy" onclick="aTradeNew('buy')">Comprar</button>
+          <button class="btn-sell" onclick="aTradeNew('sell')">Vender</button>
         </div>
         <div style="margin-top:9px;padding:7px 9px;background:var(--bg2);border-radius:var(--rad);font-size:10px;color:var(--tx2);">Precios reales vía Finnhub · Simulación sin dinero real · Actualiza cada 30s</div>
       </div>
-      <div class="section-card">
-        <div class="section-card-title">Mi portafolio</div>
-        <table class="ptable"><thead><tr><th>Ticker</th><th>Acc.</th><th>Precio</th><th>Valor</th><th>P&L</th></tr></thead><tbody id="a-ptbody"><tr><td colspan="5" class="empty">Aún sin posiciones.</td></tr></tbody></table>
-        <div style="margin-top:9px;padding-top:9px;border-top:0.5px solid var(--br);display:flex;justify-content:space-between;"><div style="font-size:11px;color:var(--tx2);">Valor total</div><div style="font-size:14px;font-weight:600;" id="a-total-port">$0.00</div></div>
+      <!-- PORTFOLIO -->
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div class="section-card">
+          <div class="section-card-title">Mi portafolio</div>
+          <table class="ptable"><thead><tr><th>Activo</th><th>Acciones</th><th>Precio</th><th>Valor</th><th>P&L</th></tr></thead>
+          <tbody id="a-ptbody"><tr><td colspan="5" class="empty">Aún sin posiciones.</td></tr></tbody></table>
+          <div style="margin-top:9px;padding-top:9px;border-top:0.5px solid var(--br);display:flex;justify-content:space-between;">
+            <div style="font-size:11px;color:var(--tx2);">Valor total portafolio</div>
+            <div style="font-size:14px;font-weight:600;" id="a-total-port">$0.00</div>
+          </div>
+        </div>
+        <div class="section-card">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:9px;">
+            <div class="section-card-title" style="margin:0;">Historial</div>
+            <button class="pop-btn" onclick="aResetSim()" style="color:var(--rd);border-color:var(--rl);">↺ Reiniciar</button>
+          </div>
+          <div id="a-history"><div class="empty">Aún sin operaciones.</div></div>
+        </div>
       </div>
     </div>
   </div>
@@ -1222,28 +1288,90 @@ function lUpdateUI(){document.getElementById('l-bal').textContent='$'+lBalance.t
 function lReset(){if(!confirm('¿Reiniciar simulación?'))return;lBalance=10000;lPortfolio={};lHistory=[];lUpdateUI();showToast('Simulación reiniciada · $10,000');}
 setInterval(()=>{if(lSym)fetchP(lSym).then(()=>{const p=lp[lSym];if(p){document.getElementById('l-price').textContent='$'+p.c.toFixed(2);lCalcS();lCalcU();}});},30000);
 
-// ═══ APP SIMULATOR ═══
+// ═══ APP SIMULATOR (advanced) ═══
 window.aBalance=10000;window.aPortfolio={};
-const aFK=FK;
+let aSym=null,aName=null,aMode='shares',aTradeHistory=[];
+
+function aOnSearch(v){
+  if(!v){document.getElementById('a-results').classList.remove('open');return;}
+  const q=v.toUpperCase();
+  const m=CATALOG.filter(s=>s.sym.includes(q)||s.name.toUpperCase().includes(q)).slice(0,7);
+  if(!m.length){document.getElementById('a-results').classList.remove('open');return;}
+  const el=document.getElementById('a-results');
+  el.innerHTML=m.map(s=>{const p=lp[s.sym];return`<div class="sri" onclick="aPick('${s.sym}','${s.name.replace(/'/g,"\'")}')"><div><div class="sri-sym">${s.sym}</div><div class="sri-name">${s.name}</div></div>${p?`<span style="font-size:12px;font-weight:600;">$${p.c.toFixed(2)}</span>`:''}</div>`;}).join('');
+  el.classList.add('open');
+}
+async function aSearchEnter(){const v=document.getElementById('a-search').value.trim().toUpperCase();if(!v)return;const found=CATALOG.find(s=>s.sym===v);if(found){aPick(found.sym,found.name);}else{const pr=await fetchP(v);if(pr)aPick(v,v);else showToast('No encontrado: '+v);}document.getElementById('a-results').classList.remove('open');}
+async function aPick(sym,name){
+  aSym=sym;aName=name;
+  document.getElementById('a-search').value=sym+' — '+name;
+  document.getElementById('a-results').classList.remove('open');
+  document.getElementById('a-pricebox').style.display='block';
+  document.getElementById('a-sym-label').textContent=sym;
+  document.getElementById('a-name-label').textContent=name;
+  document.getElementById('a-price').textContent='Cargando...';
+  await fetchP(sym);
+  const p=lp[sym];
+  if(!p){document.getElementById('a-price').textContent='No disponible';return;}
+  document.getElementById('a-price').textContent='$'+p.c.toFixed(2);
+  const sign=p.dp>=0?'+':'';
+  const ch=document.getElementById('a-change');
+  ch.textContent=sign+p.d.toFixed(2)+' ('+sign+p.dp.toFixed(2)+'%)';
+  ch.style.color=p.dp>=0?'var(--gd)':'var(--rd)';
+  aCalcS();aCalcU();
+}
+function aSetMode(m){aMode=m;document.getElementById('a-mt-s').classList.toggle('active',m==='shares');document.getElementById('a-mt-u').classList.toggle('active',m==='usd');document.getElementById('a-panel-s').style.display=m==='shares'?'block':'none';document.getElementById('a-panel-u').style.display=m==='usd'?'block':'none';}
+function aCalcS(){const q=parseFloat(document.getElementById('a-qty-s')?.value)||0;const p=aSym?lp[aSym]?.c:null;const el=document.getElementById('a-tot-s');if(el)el.textContent=p&&q?'$'+(p*q).toFixed(2):'—';}
+function aCalcU(){const u=parseFloat(document.getElementById('a-qty-u')?.value)||0;const p=aSym?lp[aSym]?.c:null;const fu=document.getElementById('a-tot-u');const ff=document.getElementById('a-frac');const fc=document.getElementById('a-calc-box');if(!p||!u){if(fu)fu.textContent='—';if(ff)ff.textContent='— acciones';if(fc)fc.style.display='none';return;}if(ff)ff.textContent=(u/p).toFixed(6)+' acciones';if(fu)fu.textContent='$'+u.toFixed(2);if(fc)fc.style.display='block';}
+function aSetU(v){const el=document.getElementById('a-qty-u');if(el){el.value=v;aCalcU();}}
+async function aTradeNew(type){
+  if(!aSym){showToast('Selecciona una acción primero');return;}
+  let price=lp[aSym]?.c;
+  if(!price){await fetchP(aSym);price=lp[aSym]?.c;}
+  if(!price){showToast('No se pudo obtener precio');return;}
+  let qty,cost;
+  if(aMode==='shares'){qty=parseFloat(document.getElementById('a-qty-s').value)||0;if(qty<=0){showToast('Ingresa una cantidad válida');return;}cost=+(price*qty).toFixed(6);}
+  else{const u=parseFloat(document.getElementById('a-qty-u').value)||0;if(u<=0){showToast('Ingresa un monto válido');return;}qty=+(u/price).toFixed(6);cost=u;}
+  if(type==='buy'){
+    if(window.aBalance<cost){showToast('Saldo insuficiente');return;}
+    window.aBalance=+(window.aBalance-cost).toFixed(6);
+    if(!window.aPortfolio[aSym])window.aPortfolio[aSym]={qty:0,avgCost:0,name:aName};
+    const prev=window.aPortfolio[aSym],tq=+(prev.qty+qty).toFixed(6);
+    prev.avgCost=+((prev.avgCost*prev.qty+price*qty)/tq).toFixed(6);prev.qty=tq;
+    aTradeHistory.unshift({type:'compra',sym:aSym,qty,price,cost,ts:Date.now()});
+    showToast('✓ Compraste '+fmtQ(qty)+' × '+aSym+' a $'+price.toFixed(2));
+  }else{
+    if(!window.aPortfolio[aSym]||window.aPortfolio[aSym].qty<qty-0.000001){showToast('Sin acciones suficientes de '+aSym);return;}
+    window.aBalance=+(window.aBalance+cost).toFixed(6);
+    window.aPortfolio[aSym].qty=+(window.aPortfolio[aSym].qty-qty).toFixed(6);
+    if(window.aPortfolio[aSym].qty<0.000001)delete window.aPortfolio[aSym];
+    aTradeHistory.unshift({type:'venta',sym:aSym,qty,price,cost,ts:Date.now()});
+    showToast('✓ Vendiste '+fmtQ(qty)+' × '+aSym+' a $'+price.toFixed(2));
+  }
+  aUpdateSimUI();if(window.saveUserData)window.saveUserData();
+}
+function aTrade(type){aTradeNew(type);}
+function aOnTickerChange(){}
+function aUpdateTotal(){}
+function aResetSim(){if(!confirm('¿Reiniciar simulación?'))return;window.aBalance=10000;window.aPortfolio={};aTradeHistory=[];aUpdateSimUI();if(window.saveUserData)window.saveUserData();showToast('Simulación reiniciada · $10,000');}
 async function aRefreshPrices(){
   try{
-    const sym=document.getElementById('a-ticker')?.value;
-    if(!sym)return;
-    await fetchP(sym);
-    aUpdatePriceDisplay();
+    if(aSym){await fetchP(aSym);const p=lp[aSym];if(p){const pe=document.getElementById('a-price');if(pe)pe.textContent='$'+p.c.toFixed(2);aCalcS();aCalcU();}}
     aUpdatePortfolioPnl();
-  }catch(e){
-    console.log('aRefreshPrices error (possibly 429):',e);
-  }
+  }catch(e){}
 }
-function aUpdatePriceDisplay(){const sym=document.getElementById('a-ticker').value;const qty=parseInt(document.getElementById('a-qty').value)||1;const p=lp[sym];if(!p){document.getElementById('a-price').textContent='Cargando...';return;}document.getElementById('a-price').textContent='$'+p.c.toFixed(2);const sign=p.dp>=0?'+':'';const ch=document.getElementById('a-change');ch.textContent=sign+p.d.toFixed(2)+' ('+sign+p.dp.toFixed(2)+'%)';ch.style.color=p.dp>=0?'var(--gd)':'var(--rd)';document.getElementById('a-total').textContent='$'+(p.c*qty).toFixed(2);}
-function aUpdateTotal(){aUpdatePriceDisplay();}
-function aOnTickerChange(){aRefreshPrices();}
-async function aTrade(type){const sym=document.getElementById('a-ticker').value;const qty=parseInt(document.getElementById('a-qty').value)||1;let price=lp[sym]?.c;if(!price){await fetchP(sym);price=lp[sym]?.c;}if(!price){showToast('No se pudo obtener precio');return;}const cost=+(price*qty).toFixed(2);if(type==='buy'){if(window.aBalance<cost){showToast('Saldo insuficiente');return;}window.aBalance=+(window.aBalance-cost).toFixed(2);if(!window.aPortfolio[sym])window.aPortfolio[sym]={qty:0,avgCost:0};const prev=window.aPortfolio[sym],tq=prev.qty+qty;prev.avgCost=+((prev.avgCost*prev.qty+price*qty)/tq).toFixed(4);prev.qty=tq;showToast('Compraste '+qty+' × '+sym+' a $'+price.toFixed(2));}else{if(!window.aPortfolio[sym]||window.aPortfolio[sym].qty<qty){showToast('Sin acciones suficientes');return;}window.aBalance=+(window.aBalance+cost).toFixed(2);window.aPortfolio[sym].qty-=qty;if(!window.aPortfolio[sym].qty)delete window.aPortfolio[sym];showToast('Vendiste '+qty+' × '+sym+' a $'+price.toFixed(2));}aUpdateSimUI();if(window.saveUserData)window.saveUserData();}
-function aUpdateSimUI(){document.getElementById('a-bal').textContent='$'+window.aBalance.toLocaleString('es',{minimumFractionDigits:2,maximumFractionDigits:2});aUpdatePortfolioPnl();}
-function aUpdatePortfolioPnl(){const tbody=document.getElementById('a-ptbody');const entries=Object.entries(window.aPortfolio).filter(([,v])=>v.qty>0);if(!entries.length){tbody.innerHTML='<tr><td colspan="5" class="empty">Aún sin posiciones.</td></tr>';document.getElementById('a-total-port').textContent='$0.00';const tp=+(window.aBalance-10000).toFixed(2);const pel=document.getElementById('a-pnl');pel.textContent=(tp>=0?'+$':'-$')+Math.abs(tp).toFixed(2);pel.style.color=tp>=0?'var(--g)':'var(--r)';return;}let tv=0;tbody.innerHTML=entries.map(([sym,pos])=>{const liveP=lp[sym]?.c||pos.avgCost;const val=+(liveP*pos.qty).toFixed(2);const pl=+((liveP-pos.avgCost)*pos.qty).toFixed(2);const plp=+((liveP-pos.avgCost)/pos.avgCost*100).toFixed(2);tv+=val;const c=pl>=0?'var(--gd)':'var(--rd)';const s=pl>=0?'+':'';return`<tr><td style="font-weight:600;font-size:12px;">${sym}</td><td>${pos.qty}</td><td>$${liveP.toFixed(2)}</td><td>$${val.toFixed(2)}</td><td style="color:${c};font-size:11px;">${s}$${pl.toFixed(2)}<br><span style="font-size:10px;">${s}${plp}%</span></td></tr>`;}).join('');document.getElementById('a-total-port').textContent='$'+tv.toFixed(2);if(document.getElementById('a-portval-top'))document.getElementById('a-portval-top').textContent='$'+tv.toFixed(0);const tp=+(window.aBalance+tv-10000).toFixed(2);const pel=document.getElementById('a-pnl');pel.textContent=(tp>=0?'+$':'-$')+Math.abs(tp).toFixed(2);pel.style.color=tp>=0?'var(--g)':'var(--r)';}
+function aUpdateSimUI(){
+  const bal=document.getElementById('a-bal');
+  if(bal)bal.textContent='$'+window.aBalance.toLocaleString('es',{minimumFractionDigits:2,maximumFractionDigits:2});
+  aUpdatePortfolioPnl();
+  const hist=document.getElementById('a-history');
+  if(!hist)return;
+  if(!aTradeHistory.length){hist.innerHTML='<div class="empty">Aún sin operaciones.</div>';return;}
+  hist.innerHTML=aTradeHistory.slice(0,10).map(h=>{const dt=new Date(h.ts).toLocaleString('es',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});const isC=h.type==='compra';return`<div class="hist-item"><div style="display:flex;align-items:center;gap:7px;"><span class="hist-badge" style="background:${isC?'var(--gl)':'var(--rl)'};color:${isC?'var(--gd)':'var(--rd)'};">${isC?'Compra':'Venta'}</span><div><div style="font-size:12px;font-weight:600;">${h.sym}</div><div style="font-size:10px;color:var(--tx2);">${fmtQ(h.qty)} × $${h.price.toFixed(2)}</div></div></div><div style="text-align:right;"><div style="font-size:12px;font-weight:600;">$${h.cost.toFixed(2)}</div><div style="font-size:10px;color:var(--tx2);">${dt}</div></div></div>`;}).join('');
+}
 setInterval(aRefreshPrices,30000);
 
+// ═══ AUTO SIGNALS
 // ═══ AUTO SIGNALS (Twelve Data) ═══
 const WATCHLIST=[{sym:'AAPL',name:'Apple'},{sym:'MSFT',name:'Microsoft'},{sym:'NVDA',name:'NVIDIA'},{sym:'TSLA',name:'Tesla'},{sym:'GOOGL',name:'Alphabet'},{sym:'AMZN',name:'Amazon'},{sym:'META',name:'Meta'},{sym:'NFLX',name:'Netflix'},{sym:'AMD',name:'AMD'},{sym:'INTC',name:'Intel'},{sym:'JPM',name:'JPMorgan'},{sym:'BAC',name:'Bank of America'},{sym:'V',name:'Visa'},{sym:'MA',name:'Mastercard'},{sym:'DIS',name:'Disney'},{sym:'PYPL',name:'PayPal'},{sym:'UBER',name:'Uber'},{sym:'COIN',name:'Coinbase'},{sym:'PLTR',name:'Palantir'},{sym:'SNAP',name:'Snap'},{sym:'NKE',name:'Nike'},{sym:'SBUX',name:'Starbucks'},{sym:'WMT',name:'Walmart'},{sym:'KO',name:'Coca-Cola'}];
 let autoResults=[],autoFilter='all';
