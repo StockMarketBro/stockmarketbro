@@ -935,7 +935,6 @@ const gp=new GoogleAuthProvider();
 
 // ← CAMBIA ESTO POR TU EMAIL DE AUTOR
 const AUTHOR_EMAIL='cryptoguitar1@gmail.com';
-getRedirectResult(auth).then(r=>{if(r&&r.user)showApp(r.user);}).catch(()=>{});
 
 function showApp(user){
   document.getElementById('modal-bg').classList.remove('open');
@@ -964,9 +963,25 @@ function showLanding(){
   document.getElementById('app-ui').style.display='none';
   document.getElementById('app-ui').classList.remove('show');
 }
+
+// Wait for Firebase to resolve auth state before touching the UI
+// authReady prevents showLanding() from firing during initialization
+let authReady=false;
 onAuthStateChanged(auth,user=>{
-  if(user){showApp(user);}else{showLanding();}
+  if(!authReady){
+    authReady=true;
+    // First call: Firebase has resolved the initial auth state
+    if(user){showApp(user);}
+    else{showLanding();}
+    return;
+  }
+  // Subsequent calls: real auth changes (login/logout)
+  if(user){showApp(user);}
+  else{showLanding();}
 });
+
+// Handle Google redirect result (must be after showApp is defined)
+getRedirectResult(auth).then(r=>{if(r&&r.user)showApp(r.user);}).catch(()=>{});
 
 window.doLogin=async()=>{
   const e=document.getElementById('m-email').value.trim(),p=document.getElementById('m-pass').value;
