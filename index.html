@@ -955,11 +955,11 @@ function showApp(user){
   document.getElementById('autor-btn').style.display=user.email===AUTHOR_EMAIL?'block':'none';
   if(window.fbLoadRecs)window.fbLoadRecs();
   setTimeout(()=>{
-    try{initAppChart();}catch(e){}
-    try{aRefreshPrices();}catch(e){}
-    try{runScan();}catch(e){}
-    try{if(window.loadUserData)window.loadUserData();}catch(e){}
-  },400);
+    try{initAppChart();}catch(e){console.log('initAppChart err',e);}
+    try{aRefreshPrices();}catch(e){console.log('aRefreshPrices err',e);}
+    try{runScan();}catch(e){console.log('runScan err',e);}
+    try{if(window.loadUserData)window.loadUserData();}catch(e){console.log('loadUserData err',e);}
+  },600);
 }
 
 function showLanding(){
@@ -1154,18 +1154,30 @@ document.getElementById('live-row').innerHTML=liveRows.map(r=>{const c=r.u?'var(
 
 // ═══ HERO COUNTERS ═══
 function count(el,target,pre,suf,ms){let v=0,s=target/50;const iv=setInterval(()=>{v=Math.min(v+s,target);el.textContent=pre+Math.floor(v)+suf;if(v>=target)clearInterval(iv);},ms/50);}
-setTimeout(()=>{count(document.getElementById('hs1'),50,'+','',900);count(document.getElementById('hs2'),9,'','',700);count(document.getElementById('hs3'),8,'','',600);document.getElementById('hs4').textContent='$0';},400);
+setTimeout(()=>{
+  const hs1=document.getElementById('hs1');const hs2=document.getElementById('hs2');
+  const hs3=document.getElementById('hs3');const hs4=document.getElementById('hs4');
+  if(hs1)count(hs1,50,'+','',900);
+  if(hs2)count(hs2,9,'','',700);
+  if(hs3)count(hs3,8,'','',600);
+  if(hs4)hs4.textContent='$0';
+},400);
 
 // ═══ APP TABS ═══
 const APP_TABS=['mercado','senales','educacion','simulador','noticias','quiz','alertas','glosario','autor'];
 function showAppTab(t){
-  APP_TABS.forEach(id=>{document.getElementById('tab-'+id).classList.toggle('active',id===t);});
-  document.querySelectorAll('.app-nav-btn').forEach((b,i)=>b.classList.toggle('active',APP_TABS[i]===t));
-  if(t==='mercado')initAppChart();
-  if(t==='simulador')aRefreshPrices();
-  if(t==='senales'){if(window.fbLoadRecs)window.fbLoadRecs();document.getElementById('rec-dot').style.display='none';runScan();}
-  if(t==='alertas')document.getElementById('alert-dot').style.display='none';
-  if(t==='autor'&&window.fbLoadRecs)window.fbLoadRecs();
+  APP_TABS.forEach(id=>{
+    const el=document.getElementById('tab-'+id);
+    if(el) el.classList.toggle('active',id===t);
+  });
+  document.querySelectorAll('.app-nav-btn').forEach((b,i)=>{
+    if(b) b.classList.toggle('active',APP_TABS[i]===t);
+  });
+  try{if(t==='mercado')initAppChart();}catch(e){}
+  try{if(t==='simulador')aRefreshPrices();}catch(e){}
+  try{if(t==='senales'){if(window.fbLoadRecs)window.fbLoadRecs();const rd=document.getElementById('rec-dot');if(rd)rd.style.display='none';runScan();}}catch(e){}
+  try{if(t==='alertas'){const ad=document.getElementById('alert-dot');if(ad)ad.style.display='none';}}catch(e){}
+  try{if(t==='autor'&&window.fbLoadRecs)window.fbLoadRecs();}catch(e){}
 }
 function toggleUM(){document.getElementById('user-menu').classList.toggle('open');}
 document.addEventListener('click',e=>{if(!e.target.closest('#user-avatar')&&!e.target.closest('#user-menu'))document.getElementById('user-menu').classList.remove('open');});
