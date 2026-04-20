@@ -925,7 +925,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 <!-- ═══ FIREBASE ═══ -->
 <script type="module">
 import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import{getAuth,signInWithEmailAndPassword,createUserWithEmailAndPassword,signInWithPopup,GoogleAuthProvider,signOut,onAuthStateChanged,sendPasswordResetEmail,updateProfile}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import{getAuth,signInWithEmailAndPassword,createUserWithEmailAndPassword,signInWithPopup,signInWithRedirect,getRedirectResult,GoogleAuthProvider,signOut,onAuthStateChanged,sendPasswordResetEmail,updateProfile}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import{getFirestore,collection,addDoc,getDocs,deleteDoc,doc,query,orderBy,serverTimestamp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const fbApp=initializeApp({apiKey:"AIzaSyDSCJU2IuuCZfjtfiXjxrq_fo1ODsJiJ7I",authDomain:"stockmarketbro.firebaseapp.com",projectId:"stockmarketbro",storageBucket:"stockmarketbro.firebasestorage.app",messagingSenderId:"1071822179137",appId:"1:1071822179137:web:0ab5250b2bf8fed3016fc0"});
@@ -935,26 +935,32 @@ const gp=new GoogleAuthProvider();
 
 // ← CAMBIA ESTO POR TU EMAIL DE AUTOR
 const AUTHOR_EMAIL='cryptoguitar1@gmail.com';
+getRedirectResult(auth).then(r=>{if(r&&r.user)showApp(r.user);}).catch(()=>{});
 
+function showApp(user){
+  document.getElementById('modal-bg').classList.remove('open');
+  document.getElementById('landing').style.display='none';
+  const appui=document.getElementById('app-ui');
+  appui.style.display='flex';
+  appui.classList.add('show');
+  window.scrollTo({top:0,behavior:'instant'});
+  const name=user.displayName||user.email.split('@')[0];
+  document.getElementById('um-name').textContent=name;
+  document.getElementById('um-email').textContent=user.email;
+  const av=document.getElementById('user-avatar');
+  if(user.photoURL){av.innerHTML='<img src="'+user.photoURL+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">';}
+  else{av.textContent=name.charAt(0).toUpperCase();}
+  document.getElementById('autor-btn').style.display=user.email===AUTHOR_EMAIL?'block':'none';
+  if(window.fbLoadRecs)window.fbLoadRecs();
+  setTimeout(()=>{initAppChart();aRefreshPrices();runScan();},400);
+}
+function showLanding(){
+  document.getElementById('landing').style.display='block';
+  document.getElementById('app-ui').style.display='none';
+  document.getElementById('app-ui').classList.remove('show');
+}
 onAuthStateChanged(auth,user=>{
-  if(user){
-    document.getElementById('modal-bg').classList.remove('open');
-    document.getElementById('landing').style.display='none';
-    document.getElementById('app-ui').classList.add('show');
-    window.scrollTo(0,0);
-    const name=user.displayName||user.email.split('@')[0];
-    document.getElementById('um-name').textContent=name;
-    document.getElementById('um-email').textContent=user.email;
-    const av=document.getElementById('user-avatar');
-    av.innerHTML=user.photoURL?`<img src="${user.photoURL}" alt="${name}">`:`${name.charAt(0).toUpperCase()}`;
-    const isAuthor=user.email===AUTHOR_EMAIL;
-    document.getElementById('autor-btn').style.display=isAuthor?'block':'none';
-    if(window.fbLoadRecs)window.fbLoadRecs();
-    setTimeout(()=>{initAppChart();aRefreshPrices();runScan();},300);
-  }else{
-    document.getElementById('landing').style.display='block';
-    document.getElementById('app-ui').classList.remove('show');
-  }
+  if(user){showApp(user);}else{showLanding();}
 });
 
 window.doLogin=async()=>{
@@ -968,7 +974,7 @@ window.doRegister=async()=>{
   if(p.length<6){showMErr('La contraseña debe tener al menos 6 caracteres');return;}
   try{const c=await createUserWithEmailAndPassword(auth,e,p);await updateProfile(c.user,{displayName:n});}catch(err){showMErr(authMsg(err.code));}
 };
-window.doGoogle=async()=>{try{await signInWithPopup(auth,gp);}catch(err){showMErr(authMsg(err.code));}};
+window.doGoogle=async()=>{try{await signInWithPopup(auth,gp);}catch(err){if(err.code==='auth/popup-blocked'||err.code==='auth/popup-closed-by-user'){signInWithRedirect(auth,gp);}else{showMErr(authMsg(err.code));}}};
 window.doReset=async()=>{
   const e=document.getElementById('m-resetmail').value.trim();
   if(!e){showMErr('Ingresa tu correo');return;}
