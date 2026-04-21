@@ -397,14 +397,62 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
     </div>
     <div class="hero-stats a5">
       <div><div class="hstat-num" id="hs1">0</div><div class="hstat-label">Activos disponibles</div></div>
-      <div><div class="hstat-num" id="hs2">0</div><div class="hstat-label">Lecciones interactivas</div></div>
-      <div><div class="hstat-num" id="hs3">0</div><div class="hstat-label">Módulos integrados</div></div>
-      <div><div class="hstat-num" id="hs4">$0</div><div class="hstat-label">Costo de uso</div></div>
+      <div><div class="hstat-num" id="hs2" style="font-size:18px;"></div><div class="hstat-label">Curso Código BOLSA</div></div>
     </div>
   </div>
 
   <!-- LIVE PRICES -->
-  <div class="live-row a3" id="live-row"></div>
+  <!-- INDEX CARDS -->
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding:0 28px 48px;max-width:1020px;margin:0 auto;" class="a3" id="index-cards">
+  <!-- S&P 500 -->
+  <div style="border:0.5px solid var(--br);border-radius:var(--rad-lg);overflow:hidden;background:var(--bg);">
+    <div style="padding:10px 14px 6px;">
+      <div style="font-size:11px;font-weight:700;color:var(--tx2);">S&P 500</div>
+      <div style="font-size:10px;color:var(--tx2);margin-bottom:6px;">FOREXCOM:SPXUSD</div>
+    </div>
+    <div class="tradingview-widget-container"><div class="tradingview-widget-container__widget"></div>
+      <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js" async>
+      {"symbol":"FOREXCOM:SPXUSD","width":"100%","height":150,"locale":"es","dateRange":"1D","colorTheme":"light","isTransparent":true,"autosize":true,"largeChartUrl":""}
+      </script>
+    </div>
+  </div>
+  <!-- NASDAQ -->
+  <div style="border:0.5px solid var(--br);border-radius:var(--rad-lg);overflow:hidden;background:var(--bg);">
+    <div style="padding:10px 14px 6px;">
+      <div style="font-size:11px;font-weight:700;color:var(--tx2);">NASDAQ 100</div>
+      <div style="font-size:10px;color:var(--tx2);margin-bottom:6px;">FOREXCOM:NSXUSD</div>
+    </div>
+    <div class="tradingview-widget-container"><div class="tradingview-widget-container__widget"></div>
+      <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js" async>
+      {"symbol":"FOREXCOM:NSXUSD","width":"100%","height":150,"locale":"es","dateRange":"1D","colorTheme":"light","isTransparent":true,"autosize":true,"largeChartUrl":""}
+      </script>
+    </div>
+  </div>
+  <!-- DOW JONES -->
+  <div style="border:0.5px solid var(--br);border-radius:var(--rad-lg);overflow:hidden;background:var(--bg);">
+    <div style="padding:10px 14px 6px;">
+      <div style="font-size:11px;font-weight:700;color:var(--tx2);">DOW JONES</div>
+      <div style="font-size:10px;color:var(--tx2);margin-bottom:6px;">DJ:DJI</div>
+    </div>
+    <div class="tradingview-widget-container"><div class="tradingview-widget-container__widget"></div>
+      <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js" async>
+      {"symbol":"DJ:DJI","width":"100%","height":150,"locale":"es","dateRange":"1D","colorTheme":"light","isTransparent":true,"autosize":true,"largeChartUrl":""}
+      </script>
+    </div>
+  </div>
+  <!-- BITCOIN -->
+  <div style="border:0.5px solid var(--br);border-radius:var(--rad-lg);overflow:hidden;background:var(--bg);">
+    <div style="padding:10px 14px 6px;">
+      <div style="font-size:11px;font-weight:700;color:var(--tx2);">BITCOIN</div>
+      <div style="font-size:10px;color:var(--tx2);margin-bottom:6px;">BITSTAMP:BTCUSD</div>
+    </div>
+    <div class="tradingview-widget-container"><div class="tradingview-widget-container__widget"></div>
+      <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js" async>
+      {"symbol":"BITSTAMP:BTCUSD","width":"100%","height":150,"locale":"es","dateRange":"1D","colorTheme":"light","isTransparent":true,"autosize":true,"largeChartUrl":""}
+      </script>
+    </div>
+  </div>
+</div>
 
   <!-- SIMULATOR SECTION -->
   <div class="sim-section" id="sim-section">
@@ -530,37 +578,61 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
     <div class="sec-label a1">Por qué StockMarketBro</div>
     <div class="sec-title a2">Todo en una sola plataforma</div>
     <div class="sec-sub a3">Diseñada para todos los niveles</div>
-    <div class="feat-grid a4">
-      <div class="feat-card"><div class="feat-icon" style="background:var(--gl);">📈</div><div class="feat-title">Mercado en tiempo real</div><div class="feat-desc">Gráficos TradingView, ticker tape y cotizaciones en vivo de acciones, cripto, forex y materias primas.</div></div>
-      <div class="feat-card"><div class="feat-icon" style="background:var(--al);">🎓</div><div class="feat-title">Educación por niveles</div><div class="feat-desc">9 lecciones desde básico hasta avanzado. Análisis técnico, fundamental, gestión del riesgo y más.</div></div>
-      <div class="feat-card"><div class="feat-icon" style="background:var(--pl);">📡</div><div class="feat-title">Señales del autor</div><div class="feat-desc">Recomendaciones de compra, venta y análisis directamente del equipo de StockMarketBro.</div></div>
-      <div class="feat-card"><div class="feat-icon" style="background:var(--rl);">🔔</div><div class="feat-title">Alertas de precio</div><div class="feat-desc">Configura alertas cuando una acción suba o baje a tu precio objetivo con precios reales.</div></div>
-      <div class="feat-card"><div class="feat-icon" style="background:var(--bl);">🧠</div><div class="feat-title">Quiz interactivo</div><div class="feat-desc">Pon a prueba tus conocimientos con quizzes de 3 niveles y mide tu progreso.</div></div>
-      <div class="feat-card"><div class="feat-icon" style="background:var(--gl);">📖</div><div class="feat-title">Glosario financiero</div><div class="feat-desc">12 términos esenciales explicados en español. Siempre disponibles en la app.</div></div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;" class="a4">
+      <div class="feat-card" onclick="goTo('#sim-section')" style="cursor:pointer;transition:border-color 0.15s,transform 0.15s;" onmouseover="this.style.transform='translateY(-3px)';this.style.borderColor='var(--g)'" onmouseout="this.style.transform='';this.style.borderColor=''">
+        <div class="feat-icon" style="background:var(--gl);">📈</div>
+        <div class="feat-title">Mercado en tiempo real</div>
+        <div class="feat-desc">Gráficos TradingView, heatmap estilo Finviz y cotizaciones en vivo de acciones, cripto y forex.</div>
+        <div style="margin-top:12px;font-size:11px;color:var(--g);font-weight:500;">Ver mercados →</div>
+      </div>
+      <div class="feat-card" onclick="openModal('register')" style="cursor:pointer;transition:border-color 0.15s,transform 0.15s;" onmouseover="this.style.transform='translateY(-3px)';this.style.borderColor='var(--g)'" onmouseout="this.style.transform='';this.style.borderColor=''">
+        <div class="feat-icon" style="background:var(--al);">🎓</div>
+        <div class="feat-title">Educación por niveles</div>
+        <div class="feat-desc">Curso Código BOLSA en video + lecciones interactivas desde básico hasta avanzado.</div>
+        <div style="margin-top:12px;font-size:11px;color:var(--g);font-weight:500;">Ver educación →</div>
+      </div>
+      <div class="feat-card" onclick="openModal('register')" style="cursor:pointer;transition:border-color 0.15s,transform 0.15s;" onmouseover="this.style.transform='translateY(-3px)';this.style.borderColor='var(--g)'" onmouseout="this.style.transform='';this.style.borderColor=''">
+        <div class="feat-icon" style="background:var(--pl);">📡</div>
+        <div class="feat-title">Señales del autor</div>
+        <div class="feat-desc">Recomendaciones de compra, venta y análisis del equipo de StockMarketBro en tiempo real.</div>
+        <div style="margin-top:12px;font-size:11px;color:var(--g);font-weight:500;">Ver señales →</div>
+      </div>
     </div>
   </div>
 
   <!-- MODULES -->
   <div class="app-section" id="modules-section" style="padding-top:0;">
     <div class="sec-label a1">Módulos</div>
-    <div class="sec-title a2">8 módulos en una sola app</div>
-    <div class="sec-sub a3">Accede a todo desde la navegación principal</div>
-    <div class="mod-grid a4">
-      <div class="mod-card" onclick="openModal('register')"><div class="mod-icon">📊</div><div class="mod-name">Mercado</div><div class="mod-desc">Gráficos en vivo</div></div>
-      <div class="mod-card" onclick="openModal('register')"><div class="mod-icon">📡</div><div class="mod-name">Señales</div><div class="mod-desc">Del autor + automáticas</div></div>
-      <div class="mod-card" onclick="openModal('register')"><div class="mod-icon">🎓</div><div class="mod-name">Educación</div><div class="mod-desc">9 lecciones por nivel</div></div>
-      <div class="mod-card" onclick="openModal('register')"><div class="mod-icon">💹</div><div class="mod-name">Simulador</div><div class="mod-desc">Con precios reales</div></div>
-      <div class="mod-card" onclick="openModal('register')"><div class="mod-icon">📰</div><div class="mod-name">Noticias</div><div class="mod-desc">Noticias filtradas</div></div>
-      <div class="mod-card" onclick="openModal('register')"><div class="mod-icon">🧠</div><div class="mod-name">Quiz</div><div class="mod-desc">3 niveles de dificultad</div></div>
-      <div class="mod-card" onclick="openModal('register')"><div class="mod-icon">🔔</div><div class="mod-name">Alertas</div><div class="mod-desc">Precio objetivo en vivo</div></div>
-      <div class="mod-card" onclick="openModal('register')"><div class="mod-icon">📖</div><div class="mod-name">Glosario</div><div class="mod-desc">12 términos clave</div></div>
+    <div class="sec-title a2">4 módulos esenciales</div>
+    <div class="sec-sub a3">Todo lo que necesitas para invertir mejor</div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;" class="a4">
+      <div class="mod-card" onclick="goToModuleOrLogin('mercado')" style="text-align:center;">
+        <div class="mod-icon" style="font-size:28px;margin-bottom:10px;">📊</div>
+        <div class="mod-name" style="font-size:14px;margin-bottom:6px;">Mercado</div>
+        <div class="mod-desc">Gráficos en vivo, heatmap y cotizaciones</div>
+      </div>
+      <div class="mod-card" onclick="goToModuleOrLogin('senales')" style="text-align:center;">
+        <div class="mod-icon" style="font-size:28px;margin-bottom:10px;">📡</div>
+        <div class="mod-name" style="font-size:14px;margin-bottom:6px;">Señales</div>
+        <div class="mod-desc">Análisis técnico automático + del autor</div>
+      </div>
+      <div class="mod-card" onclick="goToModuleOrLogin('educacion')" style="text-align:center;">
+        <div class="mod-icon" style="font-size:28px;margin-bottom:10px;">🎓</div>
+        <div class="mod-name" style="font-size:14px;margin-bottom:6px;">Educación</div>
+        <div class="mod-desc">Curso Código BOLSA + lecciones</div>
+      </div>
+      <div class="mod-card" onclick="goToModuleOrLogin('simulador')" style="text-align:center;">
+        <div class="mod-icon" style="font-size:28px;margin-bottom:10px;">💹</div>
+        <div class="mod-name" style="font-size:14px;margin-bottom:6px;">Simulador</div>
+        <div class="mod-desc">Opera con precios reales · BTC · ETH</div>
+      </div>
     </div>
   </div>
 
   <!-- CTA -->
   <div style="background:var(--bg2);border-top:0.5px solid var(--br);padding:56px 28px;text-align:center;">
     <h2 class="a1" style="font-size:30px;font-weight:700;letter-spacing:-.02em;margin-bottom:9px;">Empieza a invertir<br><span style="color:var(--g);">inteligentemente hoy</span></h2>
-    <p class="a2" style="font-size:15px;color:var(--tx2);margin-bottom:24px;">Crea tu cuenta gratis y accede a todos los módulos en segundos</p>
+    <p class="a2" style="font-size:15px;color:var(--tx2);margin-bottom:24px;">Crea tu cuenta gratis y accede a todos los módulos · 100% gratis</p>
     <div class="hero-btns a3">
       <button class="btn-primary" onclick="openModal('register')" style="font-size:14px;padding:12px 26px;">Crear cuenta gratis</button>
       <button class="btn-secondary" onclick="goTo('#sim-section')" style="font-size:14px;padding:12px 26px;">Probar el simulador</button>
@@ -1274,6 +1346,15 @@ function openModal(tab){document.getElementById('modal-bg').classList.add('open'
 function closeModal(){document.getElementById('modal-bg').classList.remove('open');}
 function switchM(tab){['login','register','reset'].forEach(t=>{document.getElementById('mf-'+t).style.display=t===tab?'block':'none';});document.getElementById('mt-login').classList.toggle('active',tab==='login');document.getElementById('mt-reg').classList.toggle('active',tab==='register');document.getElementById('merr').style.display='none';}
 function goTo(sel){document.querySelector(sel)?.scrollIntoView({behavior:'smooth'});}
+function goToModuleOrLogin(tab){
+  // If logged in go to dashboard module, else open login modal
+  if(typeof auth!=='undefined'&&auth.currentUser){
+    goToDashboard();
+    setTimeout(()=>showAppTab(tab),500);
+  }else{
+    openModal('register');
+  }
+}
 
 // ═══ TICKER ═══
 const ticks=[{s:'S&P 500',p:'5,284',d:'+1.23%',u:true},{s:'NASDAQ',p:'16,421',d:'+0.87%',u:true},{s:'AAPL',p:'$189.30',d:'+2.10%',u:true},{s:'MSFT',p:'$412.70',d:'+1.40%',u:true},{s:'TSLA',p:'$172.40',d:'-3.20%',u:false},{s:'NVDA',p:'$880',d:'+4.50%',u:true},{s:'BTC',p:'$70,421',d:'+2.87%',u:true},{s:'ETH',p:'$3,210',d:'+1.54%',u:true},{s:'META',p:'$524.60',d:'+1.20%',u:true},{s:'EUR/USD',p:'1.0842',d:'+0.12%',u:true},{s:'ORO',p:'$2,345',d:'+0.55%',u:true},{s:'DJI',p:'38,912',d:'-0.31%',u:false}];
@@ -1287,12 +1368,10 @@ document.getElementById('live-row').innerHTML=liveRows.map(r=>{const c=r.u?'var(
 // ═══ HERO COUNTERS ═══
 function count(el,target,pre,suf,ms){let v=0,s=target/50;const iv=setInterval(()=>{v=Math.min(v+s,target);el.textContent=pre+Math.floor(v)+suf;if(v>=target)clearInterval(iv);},ms/50);}
 setTimeout(()=>{
-  const hs1=document.getElementById('hs1');const hs2=document.getElementById('hs2');
-  const hs3=document.getElementById('hs3');const hs4=document.getElementById('hs4');
+  const hs1=document.getElementById('hs1');
+  const hs2=document.getElementById('hs2');
   if(hs1)count(hs1,50,'+','',900);
-  if(hs2)count(hs2,9,'','',700);
-  if(hs3)count(hs3,8,'','',600);
-  if(hs4)hs4.textContent='$0';
+  if(hs2)hs2.textContent='📈';
 },400);
 
 // ═══ APP TABS ═══
@@ -1758,21 +1837,21 @@ function updateQStats(){const total=qCorrect+qWrong;document.getElementById('sta
 document.getElementById('quiz-next').textContent='Iniciar quiz';
 
 // ═══ HEATMAP ═══
+// TradingView heatmap via iframe — scripts injected via innerHTML don't execute
+const HEATMAP_CONFIGS = {
+  spx: {exchanges:[],dataSource:'SPX500',grouping:'sector',blockSize:'market_cap_basic',blockColor:'change',locale:'es',colorTheme:'light',hasTopBar:false,isDataSetEnabled:false,isZoomEnabled:true,hasSymbolTooltip:true,isMonoSize:false,width:'100%',height:'500'},
+  crypto: {exchanges:[],dataSource:'Crypto',grouping:'no_group',blockSize:'market_cap_calc',blockColor:'change',locale:'es',colorTheme:'light',hasTopBar:false,isDataSetEnabled:false,isZoomEnabled:true,hasSymbolTooltip:true,isMonoSize:false,width:'100%',height:'500'},
+  etf: {exchanges:[],dataSource:'ETF',grouping:'sector',blockSize:'volume',blockColor:'change',locale:'es',colorTheme:'light',hasTopBar:false,isDataSetEnabled:false,isZoomEnabled:true,hasSymbolTooltip:true,isMonoSize:false,width:'100%',height:'500'},
+};
 function switchHeatmap(source, btn){
-  document.querySelectorAll('#heatmap-filters .app-nav-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('#heatmap-btns .ftab, #heatmap-filters .app-nav-btn').forEach(b=>b.classList.remove('active'));
   if(btn) btn.classList.add('active');
   const container = document.getElementById('heatmap-container');
   if(!container) return;
-  let dataSource, grouping, blockSize;
-  if(source==='crypto'){
-    dataSource='Crypto'; grouping='no_group'; blockSize='market_cap_calc';
-  }else if(source==='etf'){
-    dataSource='ETF'; grouping='sector'; blockSize='volume';
-  }else{
-    dataSource='SPX500'; grouping='sector'; blockSize='market_cap_basic';
-  }
-  const config={exchanges:[],dataSource,grouping,blockSize,blockColor:'change',locale:'es',colorTheme:'light',hasTopBar:false,isDataSetEnabled:false,isZoomEnabled:true,hasSymbolTooltip:true,isMonoSize:false,width:'100%',height:'500'};
-  container.innerHTML='<div class="tradingview-widget-container" style="height:100%;"><div class="tradingview-widget-container__widget" style="height:100%;"></div><script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-stock-heatmap.js" async>'+JSON.stringify(config)+'<'+'/script></div>';
+  const cfg = HEATMAP_CONFIGS[source] || HEATMAP_CONFIGS.spx;
+  // Use srcdoc iframe to properly execute the TradingView script
+  const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><style>*{margin:0;padding:0;box-sizing:border-box;}body{overflow:hidden;}</style></head><body><div class="tradingview-widget-container" style="height:500px;"><div class="tradingview-widget-container__widget" style="height:100%;"></div><script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-stock-heatmap.js" async>${JSON.stringify(cfg)}<\/script></div></body></html>`;
+  container.innerHTML = '<iframe srcdoc="' + html.replace(/"/g,'&quot;') + '" style="width:100%;height:500px;border:none;" scrolling="no" allowtransparency="true"></iframe>';
 }
 
 // ═══ GLOSARIO ═══
