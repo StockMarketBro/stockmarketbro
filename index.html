@@ -651,10 +651,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
       <button class="app-nav-btn" onclick="showAppTab('senales')">Señales <span class="notif-dot" id="rec-dot" style="display:none;"></span></button>
       <button class="app-nav-btn" onclick="showAppTab('educacion')">Educación</button>
       <button class="app-nav-btn" onclick="showAppTab('simulador')">Simulador</button>
-      <button class="app-nav-btn" onclick="showAppTab('noticias')">Noticias</button>
-      <button class="app-nav-btn" onclick="showAppTab('quiz')">Quiz</button>
-      <button class="app-nav-btn" onclick="showAppTab('alertas')">Alertas <span class="notif-dot" id="alert-dot" style="display:none;"></span></button>
-      <button class="app-nav-btn" onclick="showAppTab('glosario')">Glosario</button>
       <button class="app-nav-btn" id="autor-btn" onclick="showAppTab('autor')" style="border:0.5px solid var(--br);display:none;">Panel autor</button>
     </div>
     <div style="position:relative;">
@@ -707,6 +703,29 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
         <div class="tradingview-widget-container"><div class="tradingview-widget-container__widget"></div>
           <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-market-quotes.js" async>
           {"symbols":[["Bitcoin","BITSTAMP:BTCUSD|1D"],["Ethereum","BITSTAMP:ETHUSD|1D"],["Solana","COINBASE:SOLUSD|1D"],["BNB","BINANCE:BNBUSD|1D"],["XRP","BITSTAMP:XRPUSD|1D"],["Cardano","COINBASE:ADAUSD|1D"]],"showSymbolLogo":false,"isTransparent":true,"colorTheme":"light","locale":"es","width":"100%","height":250}
+          </script>
+        </div>
+      </div>
+    </div>
+
+    <!-- HEATMAP -->
+    <div class="section-card" style="padding:0;overflow:hidden;">
+      <div style="padding:12px 16px 10px;border-bottom:0.5px solid var(--br);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+        <div>
+          <div class="section-card-title" style="margin:0;">Mapa de calor del mercado</div>
+          <div style="font-size:11px;color:var(--tx2);margin-top:2px;">S&P 500 · Rendimiento por sector · TradingView</div>
+        </div>
+        <div style="display:flex;gap:5px;" id="heatmap-filters">
+          <button class="app-nav-btn active" id="hm-sp500" onclick="switchHeatmap('sp500',this)">S&P 500</button>
+          <button class="app-nav-btn" id="hm-crypto" onclick="switchHeatmap('crypto',this)">Cripto</button>
+          <button class="app-nav-btn" id="hm-etf" onclick="switchHeatmap('etf',this)">ETFs</button>
+        </div>
+      </div>
+      <div id="heatmap-container" style="height:500px;">
+        <div class="tradingview-widget-container" style="height:100%;">
+          <div class="tradingview-widget-container__widget" style="height:100%;"></div>
+          <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-stock-heatmap.js" async>
+          {"exchanges":[],"dataSource":"SPX500","grouping":"sector","blockSize":"market_cap_basic","blockColor":"change","locale":"es","colorTheme":"light","hasTopBar":false,"isDataSetEnabled":false,"isZoomEnabled":true,"hasSymbolTooltip":true,"isMonoSize":false,"width":"100%","height":"500"}
           </script>
         </div>
       </div>
@@ -771,6 +790,41 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 
   <!-- EDUCACIÓN -->
   <div id="tab-educacion" class="app-section-content">
+
+    <!-- CURSO CÓDIGO BOLSA -->
+    <div style="background:linear-gradient(135deg,#0a0a0a 0%,#1a1a2e 50%,#16213e 100%);border-radius:var(--rad-xl);overflow:hidden;position:relative;">
+      <div style="padding:20px 24px 16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+        <div>
+          <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.1);padding:3px 10px;border-radius:999px;margin-bottom:10px;">
+            <span style="width:6px;height:6px;border-radius:50%;background:#ff4444;display:inline-block;animation:pulse 1.5s infinite;"></span>
+            <span style="font-size:10px;font-weight:600;color:rgba(255,255,255,0.8);text-transform:uppercase;letter-spacing:0.08em;">Curso exclusivo</span>
+          </div>
+          <div style="font-size:22px;font-weight:800;color:#fff;letter-spacing:-0.02em;margin-bottom:4px;">
+            📈 CÓDIGO <span style="color:#1D9E75;">BOLSA</span>
+          </div>
+          <div style="font-size:13px;color:rgba(255,255,255,0.6);margin-bottom:12px;">Aprende a invertir desde cero · Por StockMarketBro</div>
+          <div style="display:inline-flex;align-items:center;gap:8px;background:rgba(29,158,117,0.2);border:1px solid rgba(29,158,117,0.4);padding:5px 12px;border-radius:999px;">
+            <span style="font-size:18px;">▶️</span>
+            <span style="font-size:13px;font-weight:600;color:#1D9E75;">Sesión 1 — Introducción al mercado</span>
+          </div>
+        </div>
+        <div style="font-size:48px;opacity:0.15;position:absolute;right:24px;top:50%;transform:translateY(-50%);">📊</div>
+      </div>
+      <div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;">
+        <iframe
+          src="https://www.youtube.com/embed/nSXTPARR5B0?rel=0&modestbranding=1&color=white"
+          style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;"
+          allowfullscreen
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture">
+        </iframe>
+      </div>
+      <div style="padding:12px 24px;display:flex;align-items:center;gap:16px;border-top:1px solid rgba(255,255,255,0.07);">
+        <div style="display:flex;align-items:center;gap:6px;"><span style="font-size:14px;">🎓</span><span style="font-size:12px;color:rgba(255,255,255,0.5);">Nivel: Principiante</span></div>
+        <div style="display:flex;align-items:center;gap:6px;"><span style="font-size:14px;">⏱️</span><span style="font-size:12px;color:rgba(255,255,255,0.5);">Sesión 1 de N</span></div>
+        <div style="display:flex;align-items:center;gap:6px;"><span style="font-size:14px;">📡</span><span style="font-size:12px;color:rgba(255,255,255,0.5);">StockMarketBro</span></div>
+      </div>
+    </div>
+
     <div style="font-size:13px;color:var(--tx2);">Haz clic en una lección para explorarla</div>
     <div class="three-col">
       <div class="feat-card" style="cursor:pointer;" onclick="openLesson('bolsa')"><div class="feat-icon" style="background:var(--gl);">📈</div><div class="feat-title">¿Qué es la bolsa?</div><div class="feat-desc">Conceptos básicos del mercado.</div><span style="display:inline-block;margin-top:6px;padding:2px 7px;border-radius:999px;font-size:10px;font-weight:500;background:var(--gl);color:var(--gd);">Básico</span></div>
@@ -902,54 +956,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
         </div>
       </div>
     </div>
-  </div>
-
-  <!-- NOTICIAS -->
-  <div id="tab-noticias" class="app-section-content">
-    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
-      <div style="font-size:13px;color:var(--tx2);">Noticias financieras · StockMarketBro</div>
-      <div style="display:flex;gap:5px;flex-wrap:wrap;" id="news-filters">
-        <button class="ftab active" onclick="filterNews('all',this)">Todas</button>
-        <button class="ftab" onclick="filterNews('acciones',this)">Acciones</button>
-        <button class="ftab" onclick="filterNews('crypto',this)">Cripto</button>
-        <button class="ftab" onclick="filterNews('macro',this)">Macro</button>
-        <button class="ftab" onclick="filterNews('latam',this)">Latam</button>
-      </div>
-    </div>
-    <div class="two-col">
-      <div class="section-card" style="padding:10px 13px;"><div id="news-col1"></div></div>
-      <div class="section-card" style="padding:10px 13px;"><div id="news-col2"></div></div>
-    </div>
-  </div>
-
-  <!-- QUIZ -->
-  <div id="tab-quiz" class="app-section-content">
-    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
-      <div><div style="font-size:15px;font-weight:600;">Quiz · StockMarketBro</div><div style="font-size:12px;color:var(--tx2);">Pon a prueba tus conocimientos</div></div>
-      <div style="display:flex;gap:5px;">
-        <button class="ftab" id="qcat-basic" onclick="startQuiz('basic',this)">Básico</button>
-        <button class="ftab active" id="qcat-mixed" onclick="startQuiz('mixed',this)">Mixto</button>
-        <button class="ftab" id="qcat-adv" onclick="startQuiz('adv',this)">Avanzado</button>
-      </div>
-    </div>
-    <div class="quiz-card">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:13px;"><div class="quiz-bar-wrap"><div class="quiz-bar" id="quiz-bar" style="width:0%"></div></div><div style="font-size:12px;color:var(--tx2);white-space:nowrap;" id="quiz-score-label">0/0</div></div>
-      <div class="quiz-q" id="quiz-q">Selecciona nivel y presiona Iniciar</div>
-      <div id="quiz-opts"></div>
-      <div class="quiz-feedback" id="quiz-fb"></div>
-      <div style="margin-top:13px;"><button class="btn-buy" id="quiz-next" onclick="nextQ()" disabled>Iniciar quiz</button></div>
-    </div>
-    <div style="display:flex;gap:9px;">
-      <div class="section-card" style="flex:1;text-align:center;padding:13px;"><div style="font-size:22px;font-weight:700;" id="stat-correct">0</div><div style="font-size:10px;color:var(--tx2);margin-top:2px;">Correctas</div></div>
-      <div class="section-card" style="flex:1;text-align:center;padding:13px;"><div style="font-size:22px;font-weight:700;" id="stat-wrong">0</div><div style="font-size:10px;color:var(--tx2);margin-top:2px;">Incorrectas</div></div>
-      <div class="section-card" style="flex:1;text-align:center;padding:13px;"><div style="font-size:22px;font-weight:700;" id="stat-pct">0%</div><div style="font-size:10px;color:var(--tx2);margin-top:2px;">Precisión</div></div>
-    </div>
-  </div>
-
-  <!-- GLOSARIO -->
-  <div id="tab-glosario" class="app-section-content">
-    <div style="font-size:13px;color:var(--tx2);">Glosario financiero · StockMarketBro</div>
-    <div id="glos-list"></div>
   </div>
 
   <!-- PANEL AUTOR -->
@@ -1290,7 +1296,7 @@ setTimeout(()=>{
 },400);
 
 // ═══ APP TABS ═══
-const APP_TABS=['mercado','senales','educacion','simulador','noticias','quiz','alertas','glosario','autor'];
+const APP_TABS=['mercado','senales','educacion','simulador','autor'];
 function showAppTab(t){
   APP_TABS.forEach(id=>{
     const el=document.getElementById('tab-'+id);
@@ -1299,10 +1305,9 @@ function showAppTab(t){
   document.querySelectorAll('.app-nav-btn').forEach((b,i)=>{
     if(b) b.classList.toggle('active',APP_TABS[i]===t);
   });
-  try{if(t==='mercado')initAppChart();}catch(e){}
+  try{if(t==='mercado'){initAppChart();setTimeout(()=>initHeatmap(),500);}}catch(e){}
   try{if(t==='simulador')aRefreshPrices();}catch(e){}
   try{if(t==='senales'){if(window.fbLoadRecs)window.fbLoadRecs();const rd=document.getElementById('rec-dot');if(rd)rd.style.display='none';runScan();}}catch(e){}
-  try{if(t==='alertas'){const ad=document.getElementById('alert-dot');if(ad)ad.style.display='none';}}catch(e){}
   try{if(t==='autor'&&window.fbLoadRecs)window.fbLoadRecs();}catch(e){}
 }
 function toggleUM(){document.getElementById('user-menu').classList.toggle('open');}
@@ -1312,6 +1317,41 @@ document.addEventListener('click',e=>{if(!e.target.closest('#user-avatar')&&!e.t
 let chartInited=false;
 function initAppChart(){if(chartInited)return;chartInited=true;if(typeof TradingView!=='undefined')buildChart('NASDAQ:AAPL');else{const s=document.createElement('script');s.src='https://s3.tradingview.com/tv.js';s.onload=()=>buildChart('NASDAQ:AAPL');document.head.appendChild(s);}}
 function buildChart(sym){document.getElementById('app-chart').innerHTML='';new TradingView.widget({symbol:sym,interval:'D',container_id:'app-chart',width:'100%',height:380,theme:'light',style:'1',locale:'es',toolbar_bg:'transparent',enable_publishing:false,save_image:false,allow_symbol_change:true,backgroundColor:'rgba(0,0,0,0)',gridColor:'rgba(0,0,0,0.04)'});}
+
+let currentHeatmap='sp500';
+function initHeatmap(){
+  buildHeatmap('sp500');
+}
+function switchHeatmap(type,btn){
+  document.querySelectorAll('#heatmap-filters .app-nav-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  currentHeatmap=type;
+  buildHeatmap(type);
+}
+function buildHeatmap(type){
+  const container=document.getElementById('heatmap-container');
+  if(!container)return;
+  container.innerHTML='';
+  const configs={
+    sp500:{dataSource:'SPX500',grouping:'sector',blockSize:'market_cap_basic',blockColor:'change',locale:'es',symbolUrl:'',colorTheme:'light',hasTopBar:false,isDataSetEnabled:false,isZoomEnabled:true,hasSymbolTooltip:true,isMonoSize:false,width:'100%',height:500},
+    crypto:{dataSource:'Crypto',grouping:'no_group',blockSize:'market_cap_calc',blockColor:'change',locale:'es',symbolUrl:'',colorTheme:'light',hasTopBar:false,isDataSetEnabled:false,isZoomEnabled:true,hasSymbolTooltip:true,isMonoSize:false,width:'100%',height:500},
+    etf:{dataSource:'ETF',grouping:'no_group',blockSize:'volume',blockColor:'change',locale:'es',symbolUrl:'',colorTheme:'light',hasTopBar:false,isDataSetEnabled:false,isZoomEnabled:true,hasSymbolTooltip:true,isMonoSize:false,width:'100%',height:500}
+  };
+  const cfg=configs[type];
+  const script=document.createElement('script');
+  script.src='https://s3.tradingview.com/external-embedding/embed-widget-stock-heatmap.js';
+  script.async=true;
+  script.innerHTML=JSON.stringify(cfg);
+  const wrap=document.createElement('div');
+  wrap.className='tradingview-widget-container';
+  wrap.style.height='500px';
+  const inner=document.createElement('div');
+  inner.className='tradingview-widget-container__widget';
+  inner.style.height='100%';
+  wrap.appendChild(inner);
+  wrap.appendChild(script);
+  container.appendChild(wrap);
+}
 function appQuickLoad(fs,label,btn){document.querySelectorAll('.app-nav-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');document.getElementById('app-sym-input').value='';if(chartInited)buildChart(fs);else{initAppChart();setTimeout(()=>buildChart(fs),800);}}
 function appSearchSym(){const raw=document.getElementById('app-sym-input').value.trim().toUpperCase();if(!raw){showToast('Escribe un símbolo');return;}const ex={AAPL:'NASDAQ',MSFT:'NASDAQ',TSLA:'NASDAQ',GOOGL:'NASDAQ',AMZN:'NASDAQ',NVDA:'NASDAQ',META:'NASDAQ',NFLX:'NASDAQ',DIS:'NYSE',JPM:'NYSE',BTCUSD:'BITSTAMP',ETHUSD:'BITSTAMP',EURUSD:'FX',GOLD:'TVC',USOIL:'TVC'};const fs=raw.includes(':')?raw:(ex[raw]?ex[raw]+':'+raw:'NASDAQ:'+raw);showToast('Cargando: '+raw);if(chartInited)buildChart(fs);else{initAppChart();setTimeout(()=>buildChart(fs),800);}}
 
@@ -1716,6 +1756,24 @@ function answerQ(idx){if(qAnswered)return;qAnswered=true;const q=cQuiz[qIdx];doc
 function nextQ(){if(!qStarted){startQuiz('mixed',document.getElementById('qcat-mixed'));return;}qIdx++;loadQ();}
 function updateQStats(){const total=qCorrect+qWrong;document.getElementById('stat-correct').textContent=qCorrect;document.getElementById('stat-wrong').textContent=qWrong;document.getElementById('stat-pct').textContent=total?Math.round((qCorrect/total)*100)+'%':'0%';document.getElementById('quiz-score-label').textContent=qCorrect+'/'+cQuiz.length;}
 document.getElementById('quiz-next').textContent='Iniciar quiz';
+
+// ═══ HEATMAP ═══
+function switchHeatmap(source, btn){
+  document.querySelectorAll('#heatmap-filters .app-nav-btn').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  const container = document.getElementById('heatmap-container');
+  if(!container) return;
+  let dataSource, grouping, blockSize;
+  if(source==='crypto'){
+    dataSource='Crypto'; grouping='no_group'; blockSize='market_cap_calc';
+  }else if(source==='etf'){
+    dataSource='ETF'; grouping='sector'; blockSize='volume';
+  }else{
+    dataSource='SPX500'; grouping='sector'; blockSize='market_cap_basic';
+  }
+  const config={exchanges:[],dataSource,grouping,blockSize,blockColor:'change',locale:'es',colorTheme:'light',hasTopBar:false,isDataSetEnabled:false,isZoomEnabled:true,hasSymbolTooltip:true,isMonoSize:false,width:'100%',height:'500'};
+  container.innerHTML='<div class="tradingview-widget-container" style="height:100%;"><div class="tradingview-widget-container__widget" style="height:100%;"></div><script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-stock-heatmap.js" async>'+JSON.stringify(config)+'<'+'/script></div>';
+}
 
 // ═══ GLOSARIO ═══
 const glosario=[{term:'Acción',def:'Título que representa una fracción de la propiedad de una empresa.'},{term:'Bull market',def:'Periodo donde los precios suben más del 20%. Asociado a optimismo económico.'},{term:'Bear market',def:'Caída sostenida superior al 20% desde los máximos recientes.'},{term:'Dividendo',def:'Pago periódico que una empresa distribuye entre sus accionistas.'},{term:'ETF',def:'Fondo que agrupa múltiples activos y cotiza en bolsa como una acción.'},{term:'Stop-loss',def:'Orden automática para vender cuando el precio cae a un nivel predefinido.'},{term:'P/E ratio',def:'Ratio precio/beneficio. Compara el precio con las ganancias por acción.'},{term:'Volatilidad',def:'Medida de cuánto varía el precio. Alta volatilidad = mayor riesgo y oportunidad.'},{term:'Spread bid-ask',def:'Diferencia entre precio de compra y venta. Costo implícito de la operación.'},{term:'Apalancamiento',def:'Usar deuda para amplificar la exposición. Multiplica ganancias y pérdidas.'},{term:'Backtesting',def:'Probar una estrategia con datos históricos para evaluar su rentabilidad.'},{term:'Liquidez',def:'Facilidad con la que un activo puede comprarse o venderse sin mover su precio.'}];
