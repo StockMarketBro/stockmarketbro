@@ -1549,8 +1549,22 @@ function isStochUp(d){if(!d?.values||d.values.length<2)return false;return parse
 function isRSIDown(d){if(!d?.values||d.values.length<2)return false;return parseFloat(d.values[0].value)<parseFloat(d.values[1].value);}
 function isMACDDown(d){if(!d?.values||d.values.length<2)return false;return parseFloat(d.values[0].macd)<parseFloat(d.values[1].macd);}
 function isStochDown(d){if(!d?.values||d.values.length<2)return false;return parseFloat(d.values[0].k)<parseFloat(d.values[1].k);}
+function allUp(rsi,macd,stoch){return isRSIUp(rsi)&&isMACDUp(macd)&&isStochUp(stoch);}
+function allDown(rsi,macd,stoch){return isRSIDown(rsi)&&isMACDDown(macd)&&isStochDown(stoch);}
 async function analyzeStock(sym){
-  const[rsi1m,macd1m,stoch1m,rsi2m,macd2m,stoch2m]=await Promise.all([
+  // Fetch all timeframes in parallel: daily, weekly, monthly, 2month
+  const[
+    rsi1d,macd1d,stoch1d,
+    rsi1w,macd1w,stoch1w,
+    rsi1m,macd1m,stoch1m,
+    rsi2m,macd2m,stoch2m
+  ]=await Promise.all([
+    fetchTD(`rsi?symbol=${sym}&interval=1day&time_period=14&outputsize=3`),
+    fetchTD(`macd?symbol=${sym}&interval=1day&fast_period=12&slow_period=26&signal_period=9&outputsize=3`),
+    fetchTD(`stochrsi?symbol=${sym}&interval=1day&time_period=14&fast_k_period=3&fast_d_period=3&outputsize=3`),
+    fetchTD(`rsi?symbol=${sym}&interval=1week&time_period=14&outputsize=3`),
+    fetchTD(`macd?symbol=${sym}&interval=1week&fast_period=12&slow_period=26&signal_period=9&outputsize=3`),
+    fetchTD(`stochrsi?symbol=${sym}&interval=1week&time_period=14&fast_k_period=3&fast_d_period=3&outputsize=3`),
     fetchTD(`rsi?symbol=${sym}&interval=1month&time_period=14&outputsize=3`),
     fetchTD(`macd?symbol=${sym}&interval=1month&fast_period=12&slow_period=26&signal_period=9&outputsize=3`),
     fetchTD(`stochrsi?symbol=${sym}&interval=1month&time_period=14&fast_k_period=3&fast_d_period=3&outputsize=3`),
@@ -1558,14 +1572,21 @@ async function analyzeStock(sym){
     fetchTD(`macd?symbol=${sym}&interval=2month&fast_period=12&slow_period=26&signal_period=9&outputsize=3`),
     fetchTD(`stochrsi?symbol=${sym}&interval=2month&time_period=14&fast_k_period=3&fast_d_period=3&outputsize=3`),
   ]);
-  const monthlyUp=isRSIUp(rsi1m)&&isMACDUp(macd1m)&&isStochUp(stoch1m);
-  const bimonthlyUp=isRSIUp(rsi2m)&&isMACDUp(macd2m)&&isStochUp(stoch2m);
-  const monthlyDown=isRSIDown(rsi1m)&&isMACDDown(macd1m)&&isStochDown(stoch1m);
-  const bimonthlyDown=isRSIDown(rsi2m)&&isMACDDown(macd2m)&&isStochDown(stoch2m);
-  if(bimonthlyUp) return{sym,level:'very-high',dir:'buy'};
-  if(monthlyUp) return{sym,level:'high',dir:'buy'};
-  if(bimonthlyDown) return{sym,level:'very-high',dir:'sell'};
-  if(monthlyDown) return{sym,level:'high',dir:'sell'};
+
+  // Alta BUY: daily + weekly + monthly all pointing up
+  const highBuy = allUp(rsi1d,macd1d,stoch1d) && allUp(rsi1w,macd1w,stoch1w) && allUp(rsi1m,macd1m,stoch1m);
+  // Muy Alta BUY: Alta conditions + 2month also pointing up
+  const veryHighBuy = highBuy && allUp(rsi2m,macd2m,stoch2m);
+
+  // Alta SELL: daily + weekly + monthly all pointing down
+  const highSell = allDown(rsi1d,macd1d,stoch1d) && allDown(rsi1w,macd1w,stoch1w) && allDown(rsi1m,macd1m,stoch1m);
+  // Muy Alta SELL: Alta conditions + 2month also pointing down
+  const veryHighSell = highSell && allDown(rsi2m,macd2m,stoch2m);
+
+  if(veryHighBuy)  return{sym,level:'very-high',dir:'buy'};
+  if(highBuy)      return{sym,level:'high',dir:'buy'};
+  if(veryHighSell) return{sym,level:'very-high',dir:'sell'};
+  if(highSell)     return{sym,level:'high',dir:'sell'};
   return{sym,level:'none',dir:'none'};
 }
 function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
@@ -1577,13 +1598,15 @@ async function runScan(){
   document.getElementById('auto-list').innerHTML='<div class="loading-state">Analizando indicadores técnicos...</div>';
   await Promise.all(WATCHLIST.map(s=>fetchP(s.sym)));
   autoResults=[];
-  const BATCH=4;
+  // 12 API calls per stock × 24 stocks = 288 total
+  // Twelve Data free: 800 calls/day, 8/min → batch of 1 with 1.5s delay
+  const BATCH=1;
   for(let i=0;i<WATCHLIST.length;i+=BATCH){
     const batch=WATCHLIST.slice(i,i+BATCH);
     const results=await Promise.all(batch.map(s=>analyzeStock(s.sym)));
     autoResults.push(...results);
     if(pf)pf.style.width=Math.round(((i+BATCH)/WATCHLIST.length)*100)+'%';
-    if(i+BATCH<WATCHLIST.length)await sleep(800);
+    if(i+BATCH<WATCHLIST.length)await sleep(1500);
   }
   if(pb)setTimeout(()=>{pb.style.display='none';},500);
   renderAutoSignals();
