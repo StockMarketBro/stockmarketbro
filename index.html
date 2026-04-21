@@ -1343,6 +1343,13 @@ function authMsg(code){
 </script>
 
 <script>
+// ═══ GLOBAL STATE — declared here before any use ═══
+window.allRecs = window.allRecs || [];
+var authorFilter = 'all';
+var autoFilter = 'all';
+var autoResults = [];
+const WATCHLIST=[{sym:'AAPL',name:'Apple'},{sym:'MSFT',name:'Microsoft'},{sym:'NVDA',name:'NVIDIA'},{sym:'TSLA',name:'Tesla'},{sym:'GOOGL',name:'Alphabet'},{sym:'AMZN',name:'Amazon'},{sym:'META',name:'Meta'},{sym:'NFLX',name:'Netflix'},{sym:'AMD',name:'AMD'},{sym:'INTC',name:'Intel'},{sym:'JPM',name:'JPMorgan'},{sym:'BAC',name:'Bank of America'},{sym:'V',name:'Visa'},{sym:'MA',name:'Mastercard'},{sym:'DIS',name:'Disney'},{sym:'PYPL',name:'PayPal'},{sym:'UBER',name:'Uber'},{sym:'COIN',name:'Coinbase'},{sym:'PLTR',name:'Palantir'},{sym:'SNAP',name:'Snap'},{sym:'NKE',name:'Nike'},{sym:'SBUX',name:'Starbucks'},{sym:'WMT',name:'Walmart'},{sym:'KO',name:'Coca-Cola'}];
+
 // ═══ MODAL ═══
 function openModal(tab){document.getElementById('modal-bg').classList.add('open');switchM(tab);}
 function closeModal(){document.getElementById('modal-bg').classList.remove('open');}
@@ -1380,13 +1387,6 @@ setTimeout(()=>{
 
 // ═══ APP TABS ═══
 const APP_TABS=['mercado','senales','educacion','simulador','autor'];
-
-// ── EARLY DECLARATIONS — must exist before Firebase fires ──
-window.allRecs = window.allRecs || [];
-let authorFilter = 'all';
-let autoFilter = 'all';
-let autoResults = [];
-const WATCHLIST=[{sym:'AAPL',name:'Apple'},{sym:'MSFT',name:'Microsoft'},{sym:'NVDA',name:'NVIDIA'},{sym:'TSLA',name:'Tesla'},{sym:'GOOGL',name:'Alphabet'},{sym:'AMZN',name:'Amazon'},{sym:'META',name:'Meta'},{sym:'NFLX',name:'Netflix'},{sym:'AMD',name:'AMD'},{sym:'INTC',name:'Intel'},{sym:'JPM',name:'JPMorgan'},{sym:'BAC',name:'Bank of America'},{sym:'V',name:'Visa'},{sym:'MA',name:'Mastercard'},{sym:'DIS',name:'Disney'},{sym:'PYPL',name:'PayPal'},{sym:'UBER',name:'Uber'},{sym:'COIN',name:'Coinbase'},{sym:'PLTR',name:'Palantir'},{sym:'SNAP',name:'Snap'},{sym:'NKE',name:'Nike'},{sym:'SBUX',name:'Starbucks'},{sym:'WMT',name:'Walmart'},{sym:'KO',name:'Coca-Cola'}];
 function showAppTab(t){
   APP_TABS.forEach(id=>{
     const el=document.getElementById('tab-'+id);
@@ -1684,7 +1684,6 @@ setInterval(aRefreshPrices,30000);
 // ═══ AUTO SIGNALS
 // ═══ AUTO SIGNALS (Twelve Data) ═══
 
-// autoResults and autoFilter declared early above
 async function fetchTD(ep){try{const r=await fetch(`https://api.twelvedata.com/${ep}&apikey=${TD_KEY}`);const d=await r.json();if(d.status==='error')return null;return d;}catch(e){return null;}}
 function isRSIUp(d){if(!d?.values||d.values.length<2)return false;return parseFloat(d.values[0].value)>parseFloat(d.values[1].value);}
 function isMACDUp(d){if(!d?.values||d.values.length<2)return false;return parseFloat(d.values[0].macd)>parseFloat(d.values[1].macd);}
@@ -1818,7 +1817,6 @@ function renderAutoSignals(){
 function filterAuto(f,btn){autoFilter=f;document.querySelectorAll('#auto-ftabs .ftab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderAutoSignals();}
 
 // ═══ AUTHOR SIGNALS ═══
-let authorFilter='all';
 function renderAuthorSignals(){if(typeof authorFilter==='undefined')return;
   const recs=window.allRecs||[];const el=document.getElementById('author-list');
   const filtered=authorFilter==='all'?recs:recs.filter(r=>r.type===authorFilter);
