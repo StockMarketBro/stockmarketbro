@@ -1361,11 +1361,13 @@ function goToModuleOrLogin(tab){
 // ═══ TICKER ═══
 const ticks=[{s:'S&P 500',p:'5,284',d:'+1.23%',u:true},{s:'NASDAQ',p:'16,421',d:'+0.87%',u:true},{s:'AAPL',p:'$189.30',d:'+2.10%',u:true},{s:'MSFT',p:'$412.70',d:'+1.40%',u:true},{s:'TSLA',p:'$172.40',d:'-3.20%',u:false},{s:'NVDA',p:'$880',d:'+4.50%',u:true},{s:'BTC',p:'$70,421',d:'+2.87%',u:true},{s:'ETH',p:'$3,210',d:'+1.54%',u:true},{s:'META',p:'$524.60',d:'+1.20%',u:true},{s:'EUR/USD',p:'1.0842',d:'+0.12%',u:true},{s:'ORO',p:'$2,345',d:'+0.55%',u:true},{s:'DJI',p:'38,912',d:'-0.31%',u:false}];
 const doubled=[...ticks,...ticks];
-document.getElementById('ticker-inner').innerHTML=doubled.map(t=>`<div class="tick-item"><span class="tick-sym">${t.s}</span><span>${t.p}</span><span class="${t.u?'up':'dn'}">${t.d}</span></div>`).join('');
+const tickerEl=document.getElementById('ticker-inner');
+if(tickerEl)tickerEl.innerHTML=doubled.map(t=>`<div class="tick-item"><span class="tick-sym">${t.s}</span><span>${t.p}</span><span class="${t.u?'up':'dn'}">${t.d}</span></div>`).join('');
 
 // ═══ LIVE PRICES (landing) ═══
 const liveRows=[{sym:'AAPL',name:'Apple',p:'$189.30',d:'+2.10%',u:true,b:[4,5,6,5,7,8,9]},{sym:'MSFT',name:'Microsoft',p:'$412.70',d:'+1.40%',u:true,b:[5,4,6,7,6,8,9]},{sym:'TSLA',name:'Tesla',p:'$172.40',d:'-3.20%',u:false,b:[9,8,6,7,5,4,3]},{sym:'NVDA',name:'NVIDIA',p:'$880.00',d:'+4.50%',u:true,b:[3,5,6,5,7,9,10]},{sym:'BTC',name:'Bitcoin',p:'$70,421',d:'+2.87%',u:true,b:[4,6,5,8,7,9,10]}];
-document.getElementById('live-row').innerHTML=liveRows.map(r=>{const c=r.u?'var(--g)':'var(--r)';const bc=r.u?'var(--gl)':'var(--rl)';return`<div class="live-card"><div class="lc-sym">${r.sym}</div><div class="lc-name">${r.name}</div><div class="lc-price">${r.p}</div><div style="font-size:12px;font-weight:600;color:${c};">${r.d}</div><div class="mini-bars">${r.b.map(v=>`<div class="mini-bar" style="height:${v*10}%;background:${bc};"></div>`).join('')}</div></div>`;}).join('');
+const liveRowEl=document.getElementById('live-row');
+if(liveRowEl)liveRowEl.innerHTML=liveRows.map(r=>{const c=r.u?'var(--g)':'var(--r)';const bc=r.u?'var(--gl)':'var(--rl)';return`<div class="live-card"><div class="lc-sym">${r.sym}</div><div class="lc-name">${r.name}</div><div class="lc-price">${r.p}</div><div style="font-size:12px;font-weight:600;color:${c};">${r.d}</div><div class="mini-bars">${r.b.map(v=>`<div class="mini-bar" style="height:${v*10}%;background:${bc};"></div>`).join('')}</div></div>`;}).join('');
 
 // ═══ HERO COUNTERS ═══
 function count(el,target,pre,suf,ms){let v=0,s=target/50;const iv=setInterval(()=>{v=Math.min(v+s,target);el.textContent=pre+Math.floor(v)+suf;if(v>=target)clearInterval(iv);},ms/50);}
@@ -1378,6 +1380,13 @@ setTimeout(()=>{
 
 // ═══ APP TABS ═══
 const APP_TABS=['mercado','senales','educacion','simulador','autor'];
+
+// ── EARLY DECLARATIONS — must exist before Firebase fires ──
+window.allRecs = window.allRecs || [];
+let authorFilter = 'all';
+let autoFilter = 'all';
+let autoResults = [];
+const WATCHLIST=[{sym:'AAPL',name:'Apple'},{sym:'MSFT',name:'Microsoft'},{sym:'NVDA',name:'NVIDIA'},{sym:'TSLA',name:'Tesla'},{sym:'GOOGL',name:'Alphabet'},{sym:'AMZN',name:'Amazon'},{sym:'META',name:'Meta'},{sym:'NFLX',name:'Netflix'},{sym:'AMD',name:'AMD'},{sym:'INTC',name:'Intel'},{sym:'JPM',name:'JPMorgan'},{sym:'BAC',name:'Bank of America'},{sym:'V',name:'Visa'},{sym:'MA',name:'Mastercard'},{sym:'DIS',name:'Disney'},{sym:'PYPL',name:'PayPal'},{sym:'UBER',name:'Uber'},{sym:'COIN',name:'Coinbase'},{sym:'PLTR',name:'Palantir'},{sym:'SNAP',name:'Snap'},{sym:'NKE',name:'Nike'},{sym:'SBUX',name:'Starbucks'},{sym:'WMT',name:'Walmart'},{sym:'KO',name:'Coca-Cola'}];
 function showAppTab(t){
   APP_TABS.forEach(id=>{
     const el=document.getElementById('tab-'+id);
@@ -1674,8 +1683,8 @@ setInterval(aRefreshPrices,30000);
 
 // ═══ AUTO SIGNALS
 // ═══ AUTO SIGNALS (Twelve Data) ═══
-const WATCHLIST=[{sym:'AAPL',name:'Apple'},{sym:'MSFT',name:'Microsoft'},{sym:'NVDA',name:'NVIDIA'},{sym:'TSLA',name:'Tesla'},{sym:'GOOGL',name:'Alphabet'},{sym:'AMZN',name:'Amazon'},{sym:'META',name:'Meta'},{sym:'NFLX',name:'Netflix'},{sym:'AMD',name:'AMD'},{sym:'INTC',name:'Intel'},{sym:'JPM',name:'JPMorgan'},{sym:'BAC',name:'Bank of America'},{sym:'V',name:'Visa'},{sym:'MA',name:'Mastercard'},{sym:'DIS',name:'Disney'},{sym:'PYPL',name:'PayPal'},{sym:'UBER',name:'Uber'},{sym:'COIN',name:'Coinbase'},{sym:'PLTR',name:'Palantir'},{sym:'SNAP',name:'Snap'},{sym:'NKE',name:'Nike'},{sym:'SBUX',name:'Starbucks'},{sym:'WMT',name:'Walmart'},{sym:'KO',name:'Coca-Cola'}];
-let autoResults=[],autoFilter='all';
+
+// autoResults and autoFilter declared early above
 async function fetchTD(ep){try{const r=await fetch(`https://api.twelvedata.com/${ep}&apikey=${TD_KEY}`);const d=await r.json();if(d.status==='error')return null;return d;}catch(e){return null;}}
 function isRSIUp(d){if(!d?.values||d.values.length<2)return false;return parseFloat(d.values[0].value)>parseFloat(d.values[1].value);}
 function isMACDUp(d){if(!d?.values||d.values.length<2)return false;return parseFloat(d.values[0].macd)>parseFloat(d.values[1].macd);}
@@ -1724,7 +1733,7 @@ async function analyzeStock(sym){
   return{sym,level:'none',dir:'none'};
 }
 function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
-async function runScan(){
+async function runScan(){if(typeof WATCHLIST==='undefined')return;
   const btn=document.getElementById('scan-btn');
   if(btn)btn.disabled=true;
   const pb=document.getElementById('scan-pb');const pf=document.getElementById('scan-pf');
@@ -1810,7 +1819,7 @@ function filterAuto(f,btn){autoFilter=f;document.querySelectorAll('#auto-ftabs .
 
 // ═══ AUTHOR SIGNALS ═══
 let authorFilter='all';
-function renderAuthorSignals(){
+function renderAuthorSignals(){if(typeof authorFilter==='undefined')return;
   const recs=window.allRecs||[];const el=document.getElementById('author-list');
   const filtered=authorFilter==='all'?recs:recs.filter(r=>r.type===authorFilter);
   const ordered=[...filtered.filter(r=>r.pinned),...filtered.filter(r=>!r.pinned)];
