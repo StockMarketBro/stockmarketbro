@@ -723,6 +723,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
       <button class="app-nav-btn" onclick="showAppTab('senales')">Señales <span class="notif-dot" id="rec-dot" style="display:none;"></span></button>
       <button class="app-nav-btn" onclick="showAppTab('educacion')">Educación</button>
       <button class="app-nav-btn" onclick="showAppTab('simulador')">Simulador</button>
+      <button class="app-nav-btn" onclick="showAppTab('calculadora')">🧮 Impuestos</button>
+      <button class="app-nav-btn" id="analytics-btn" onclick="showAppTab('analytics')" style="border:0.5px solid var(--br);display:none;">📊 Analytics</button>
       <button class="app-nav-btn" id="autor-btn" onclick="showAppTab('autor')" style="border:0.5px solid var(--br);display:none;">Panel autor</button>
     </div>
     <div style="position:relative;">
@@ -1030,6 +1032,256 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
     </div>
   </div>
 
+  <!-- CALCULADORA DE IMPUESTOS -->
+  <div id="tab-calculadora" class="app-section-content">
+    <style>
+    .tax-section{max-width:800px;margin:0 auto;width:100%;}
+    .tax-header{margin-bottom:28px;}
+    .tax-header .eyebrow{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--g);margin-bottom:8px;display:flex;align-items:center;gap:8px;}
+    .tax-header .eyebrow::before{content:'';display:inline-block;width:20px;height:2px;background:var(--g);border-radius:2px;}
+    .tax-header h2{font-size:26px;font-weight:700;color:var(--tx);line-height:1.2;margin-bottom:8px;letter-spacing:-.02em;}
+    .tax-header p{color:var(--tx2);font-size:13px;max-width:520px;}
+    .route-picker{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:28px;}
+    .route-card{background:var(--bg);border:1.5px solid var(--br);border-radius:var(--rad-lg);padding:16px;cursor:pointer;transition:border-color .2s,background .2s,transform .15s;text-align:left;position:relative;overflow:hidden;font-family:inherit;}
+    .route-card:hover{border-color:var(--br2);transform:translateY(-1px);}
+    .route-card.active{border-color:var(--g);background:var(--gl);}
+    .route-card.active-amber{border-color:var(--ad);background:var(--al);}
+    .route-card.active-blue{border-color:#185FA5;background:#E6F1FB;}
+    .route-card .rc-icon{font-size:20px;margin-bottom:8px;display:block;}
+    .route-card .rc-title{font-size:13px;font-weight:600;color:var(--tx);margin-bottom:3px;}
+    .route-card .rc-sub{font-size:11px;color:var(--tx2);line-height:1.4;}
+    .route-card .rc-tag{position:absolute;top:10px;right:10px;font-size:9px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;padding:3px 7px;border-radius:20px;}
+    .tag-green{background:var(--gl);color:var(--gd);}
+    .tag-amber{background:var(--al);color:var(--ad);}
+    .tag-blue{background:#E6F1FB;color:#185FA5;}
+    .tax-panel{display:none;}
+    .tax-panel.active{display:block;animation:fadeUp .25s ease;}
+    .explainer{background:var(--bg2);border-radius:var(--rad);padding:14px 16px;margin-bottom:20px;font-size:13px;color:var(--tx2);line-height:1.7;border-left:3px solid var(--g);display:flex;gap:12px;align-items:flex-start;}
+    .explainer.amber{border-left-color:var(--ad);}
+    .explainer.blue{border-left-color:#185FA5;}
+    .exp-icon{font-size:18px;flex-shrink:0;margin-top:2px;}
+    .tax-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+    .tax-field{display:flex;flex-direction:column;gap:5px;}
+    .tax-field label{font-size:11px;font-weight:500;color:var(--tx2);text-transform:uppercase;letter-spacing:.06em;}
+    .tax-field .hint{font-size:11px;color:var(--tx2);margin-top:-2px;line-height:1.4;opacity:.7;}
+    .tax-field input,.tax-field select{background:var(--bg2);border:0.5px solid var(--br);border-radius:var(--rad);color:var(--tx);font-family:inherit;font-size:13px;padding:8px 12px;transition:border-color .2s;outline:none;width:100%;}
+    .tax-field input:focus,.tax-field select:focus{border-color:var(--g);}
+    .tax-field input::placeholder{color:var(--tx2);}
+    .currency-wrap{position:relative;}
+    .currency-wrap .prefix{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:12px;color:var(--tx2);pointer-events:none;}
+    .currency-wrap input{padding-left:28px;}
+    .section-sep{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--tx2);margin:20px 0 14px;display:flex;align-items:center;gap:10px;}
+    .section-sep::after{content:'';flex:1;height:1px;background:var(--br);}
+    .result-block{margin-top:24px;animation:fadeUp .3s ease;}
+    .result-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;}
+    .t-metric{background:var(--bg);border:0.5px solid var(--br);border-radius:var(--rad-lg);padding:14px;}
+    .t-metric .m-label{font-size:10px;color:var(--tx2);font-weight:500;text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;}
+    .t-metric .m-value{font-size:20px;font-weight:700;color:var(--tx);}
+    .t-metric.highlight{border-color:var(--g);background:var(--gl);}
+    .t-metric.highlight .m-value{color:var(--gd);}
+    .breakdown{background:var(--bg);border:0.5px solid var(--br);border-radius:var(--rad-lg);overflow:hidden;margin-bottom:14px;}
+    .brow{display:flex;justify-content:space-between;align-items:center;padding:9px 14px;font-size:13px;border-bottom:0.5px solid var(--br);}
+    .brow:last-child{border-bottom:none;}
+    .brow .bl{color:var(--tx2);}
+    .brow .br{font-weight:500;}
+    .brow.total{background:var(--bg2);font-size:13px;font-weight:600;}
+    .brow.total .bl{color:var(--tx);}
+    .brow.total .br{color:var(--gd);}
+    .brow.deduct .br{color:var(--rd);}
+    .brow.credit .br{color:var(--ad);}
+    .tramos-wrap{margin-bottom:14px;overflow-x:auto;}
+    table.tramos{width:100%;border-collapse:collapse;font-size:12px;}
+    table.tramos th{text-align:left;padding:7px 12px;background:var(--bg2);color:var(--tx2);font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;}
+    table.tramos td{padding:8px 12px;border-top:0.5px solid var(--br);color:var(--tx2);}
+    table.tramos tr.hit td{color:var(--tx);background:var(--gl);}
+    table.tramos tr.hit td:last-child{color:var(--gd);font-weight:600;}
+    .footer-note{font-size:11px;color:var(--tx2);line-height:1.6;padding-top:14px;border-top:0.5px solid var(--br);margin-top:16px;}
+    .footer-note strong{color:var(--tx);}
+    @media(max-width:640px){.route-picker,.tax-form-grid,.result-metrics{grid-template-columns:1fr;}.tax-header h2{font-size:20px;}}
+    </style>
+
+    <div class="tax-section">
+      <div class="tax-header">
+        <p class="eyebrow">SUNAT · Personas naturales domiciliadas</p>
+        <h2>Calculadora de impuestos<br>a la renta de fuente extranjera</h2>
+        <p>Descubre cuánto impuesto pagas por tus inversiones o ingresos del exterior según las reglas vigentes de la SUNAT.</p>
+        <div style="display:flex;align-items:center;gap:12px;margin-top:14px;flex-wrap:wrap;">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <label style="font-size:12px;font-weight:600;color:var(--tx2);text-transform:uppercase;letter-spacing:.06em;">Año fiscal</label>
+            <select id="uit-year" onchange="onUitYearChange()" style="padding:7px 10px;border:0.5px solid var(--br);border-radius:var(--rad);font-size:13px;background:var(--bg2);color:var(--tx);font-family:inherit;outline:none;cursor:pointer;">
+              <option value="2020">2020</option>
+              <option value="2021">2021</option>
+              <option value="2022">2022</option>
+              <option value="2023">2023</option>
+              <option value="2024">2024</option>
+              <option value="2025">2025</option>
+              <option value="2026" selected>2026</option>
+            </select>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <label style="font-size:12px;font-weight:600;color:var(--tx2);text-transform:uppercase;letter-spacing:.06em;">UIT</label>
+            <div style="position:relative;">
+              <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:12px;color:var(--tx2);pointer-events:none;">S/</span>
+              <input type="number" id="uit-value" value="5500" min="1000" max="20000" step="100"
+                oninput="onUitManualChange()"
+                style="padding:7px 10px 7px 28px;border:0.5px solid var(--br);border-radius:var(--rad);font-size:13px;background:var(--bg2);color:var(--tx);font-family:inherit;outline:none;width:110px;">
+            </div>
+          </div>
+          <div style="background:var(--gl);color:var(--gd);padding:5px 12px;border-radius:999px;font-size:12px;font-weight:600;" id="uit-badge">
+            UIT 2026 = S/ 5,500
+          </div>
+        </div>
+      </div>
+
+      <div class="section-sep">¿Cómo obtienes tus ingresos del exterior?</div>
+
+      <div class="route-picker">
+        <button class="route-card active" onclick="taxSelectRoute('bolsa',this)">
+          <span class="rc-icon">🏛️</span>
+          <span class="rc-tag tag-green">5% efectivo</span>
+          <div class="rc-title">Bolsa de Lima o MILA</div>
+          <div class="rc-sub">Acciones vía BVL, o bolsas de Chile, Colombia y México</div>
+        </button>
+        <button class="route-card" onclick="taxSelectRoute('broker',this)">
+          <span class="rc-icon">🌐</span>
+          <span class="rc-tag tag-amber">8%–30%</span>
+          <div class="rc-title">Broker extranjero</div>
+          <div class="rc-sub">Interactive Brokers, Robinhood, eToro u otro broker</div>
+        </button>
+        <button class="route-card" onclick="taxSelectRoute('otros',this)">
+          <span class="rc-icon">💼</span>
+          <span class="rc-tag tag-blue">8%–30%</span>
+          <div class="rc-title">Otros ingresos</div>
+          <div class="rc-sub">Alquileres, intereses, dividendos, servicios del exterior</div>
+        </button>
+      </div>
+
+      <!-- PANEL BVL -->
+      <div class="tax-panel active" id="tax-panel-bolsa">
+        <div class="explainer">
+          <span class="exp-icon">💡</span>
+          <span>Si vendes acciones usando la <strong>BVL o bolsas del MILA</strong>, pagas una tasa fija del <strong>5% sobre tu ganancia</strong> (equivale al 6.25% sobre la ganancia neta tras descontar un 20% fijo). La opción más conveniente tributariamente.</span>
+        </div>
+        <div class="section-sep">Datos de tu operación</div>
+        <div class="tax-form-grid">
+          <div class="tax-field"><label>Precio total de venta</label><div class="currency-wrap"><span class="prefix">S/</span><input type="number" id="b-venta" placeholder="ej. 50,000" min="0" oninput="calcBolsa()"></div></div>
+          <div class="tax-field"><label>Costo de adquisición</label><div class="currency-wrap"><span class="prefix">S/</span><input type="number" id="b-costo" placeholder="ej. 35,000" min="0" oninput="calcBolsa()"></div></div>
+        </div>
+        <div class="tax-form-grid">
+          <div class="tax-field"><label>Gastos de compra (comisiones)</label><div class="currency-wrap"><span class="prefix">S/</span><input type="number" id="b-gastos" placeholder="0" min="0" value="0" oninput="calcBolsa()"></div></div>
+          <div class="tax-field"><label>Pérdidas de capital del año anterior</label><div class="currency-wrap"><span class="prefix">S/</span><input type="number" id="b-perdidas" placeholder="0" min="0" value="0" oninput="calcBolsa()"></div></div>
+        </div>
+        <div class="tax-form-grid">
+          <div class="tax-field"><label>Impuesto pagado en el exterior</label><div class="currency-wrap"><span class="prefix">S/</span><input type="number" id="b-impext" placeholder="0" min="0" value="0" oninput="calcBolsa()"></div></div>
+          <div class="tax-field"><label>Retenciones CAVALI / agente</label><div class="currency-wrap"><span class="prefix">S/</span><input type="number" id="b-ret" placeholder="0" min="0" value="0" oninput="calcBolsa()"></div></div>
+        </div>
+        <div id="res-bolsa"></div>
+      </div>
+
+      <!-- PANEL BROKER -->
+      <div class="tax-panel" id="tax-panel-broker">
+        <div class="explainer amber">
+          <span class="exp-icon">⚠️</span>
+          <span>Con un broker como <strong>Interactive Brokers o Robinhood</strong>, las ganancias <strong>se suman a tus ingresos de trabajo</strong> y pagan tasas del 8% al 30%. No puedes aplicar el 5% de la BVL.</span>
+        </div>
+        <div class="section-sep">Tus ingresos anuales</div>
+        <div class="tax-form-grid">
+          <div class="tax-field"><label>Renta neta de trabajo (4ta/5ta cat.)</label><div class="currency-wrap"><span class="prefix">S/</span><input type="number" id="k-trabajo" placeholder="ej. 80,000" min="0" value="0" oninput="calcBroker()"></div><span class="hint">Ingresos laborales menos 7 UIT (S/ 38,500)</span></div>
+          <div class="tax-field"><label>Ganancia neta del broker extranjero</label><div class="currency-wrap"><span class="prefix">S/</span><input type="number" id="k-ganancia" placeholder="ej. 20,000" min="0" value="0" oninput="calcBroker()"></div><span class="hint">Precio de venta − costo, convertido a soles</span></div>
+        </div>
+        <div class="tax-form-grid">
+          <div class="tax-field"><label>Pérdidas compensables (fuente ext.)</label><div class="currency-wrap"><span class="prefix">S/</span><input type="number" id="k-perdidas" placeholder="0" min="0" value="0" oninput="calcBroker()"></div></div>
+          <div class="tax-field"><label>Impuesto pagado en el exterior</label><div class="currency-wrap"><span class="prefix">S/</span><input type="number" id="k-impext" placeholder="0" min="0" value="0" oninput="calcBroker()"></div><span class="hint">Crédito deducible con límite</span></div>
+        </div>
+        <div id="res-broker"></div>
+      </div>
+
+      <!-- PANEL OTROS -->
+      <div class="tax-panel" id="tax-panel-otros">
+        <div class="explainer blue">
+          <span class="exp-icon">📋</span>
+          <span>Alquileres, intereses, dividendos o servicios del exterior se suman a tus ingresos con tasas progresivas. <strong>Sin pagos mensuales</strong> — se regulariza en la declaración anual (Formulario 709).</span>
+        </div>
+        <div class="section-sep">Ingresos en Perú</div>
+        <div class="tax-form-grid">
+          <div class="tax-field"><label>Renta neta de trabajo (4ta/5ta cat.)</label><div class="currency-wrap"><span class="prefix">S/</span><input type="number" id="o-trabajo" placeholder="ej. 60,000" min="0" value="0" oninput="calcOtros()"></div><span class="hint">Ingresos laborales menos 7 UIT</span></div>
+        </div>
+        <div class="section-sep">Ingresos del exterior (anuales en soles)</div>
+        <div class="tax-form-grid">
+          <div class="tax-field"><label>Alquiler de inmueble en el exterior</label><div class="currency-wrap"><span class="prefix">S/</span><input type="number" id="o-alquiler" placeholder="0" min="0" value="0" oninput="calcOtros()"></div></div>
+          <div class="tax-field"><label>Intereses de cuentas en el exterior</label><div class="currency-wrap"><span class="prefix">S/</span><input type="number" id="o-intereses" placeholder="0" min="0" value="0" oninput="calcOtros()"></div></div>
+        </div>
+        <div class="tax-form-grid">
+          <div class="tax-field"><label>Dividendos de empresas extranjeras</label><div class="currency-wrap"><span class="prefix">S/</span><input type="number" id="o-dividendos" placeholder="0" min="0" value="0" oninput="calcOtros()"></div></div>
+          <div class="tax-field"><label>Servicios / honorarios en el exterior</label><div class="currency-wrap"><span class="prefix">S/</span><input type="number" id="o-servicios" placeholder="0" min="0" value="0" oninput="calcOtros()"></div></div>
+        </div>
+        <div class="tax-form-grid">
+          <div class="tax-field"><label>Otros ingresos del exterior</label><div class="currency-wrap"><span class="prefix">S/</span><input type="number" id="o-otros" placeholder="0" min="0" value="0" oninput="calcOtros()"></div></div>
+          <div class="tax-field"><label>Impuesto pagado en el exterior</label><div class="currency-wrap"><span class="prefix">S/</span><input type="number" id="o-impext" placeholder="0" min="0" value="0" oninput="calcOtros()"></div><span class="hint">Crédito deducible con límite de tasa media</span></div>
+        </div>
+        <div id="res-otros"></div>
+      </div>
+
+      <div style="margin-top:20px;padding:12px 14px;background:var(--rl);border-radius:var(--rad);font-size:11px;color:var(--rd);line-height:1.6;">
+        ⚠️ <strong>Aviso:</strong> Esta calculadora es solo orientativa con fines educativos. Consulta siempre a un contador o asesor tributario certificado para tu declaración real. StockMarketBro no se responsabiliza por decisiones tomadas en base a estos cálculos.
+      </div>
+    </div>
+  </div>
+
+  <!-- ANALYTICS -->
+  <div id="tab-analytics" class="app-section-content">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:4px;">
+      <div>
+        <div style="font-size:16px;font-weight:700;">Panel de Analytics</div>
+        <div style="font-size:12px;color:var(--tx2);">Solo visible para el autor · cryptoguitar1@gmail.com</div>
+      </div>
+      <button onclick="loadAnalytics()" style="padding:8px 16px;border-radius:var(--rad);border:0.5px solid var(--br);background:var(--bg);font-size:12px;cursor:pointer;font-family:inherit;">↻ Actualizar datos</button>
+    </div>
+
+    <!-- STATS ROW -->
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;">
+      <div class="section-card" style="text-align:center;">
+        <div style="font-size:28px;font-weight:800;color:var(--g);" id="anl-visits">—</div>
+        <div style="font-size:11px;color:var(--tx2);margin-top:3px;text-transform:uppercase;letter-spacing:.05em;">Visitas totales</div>
+      </div>
+      <div class="section-card" style="text-align:center;">
+        <div style="font-size:28px;font-weight:800;color:var(--bd);" id="anl-users">—</div>
+        <div style="font-size:11px;color:var(--tx2);margin-top:3px;text-transform:uppercase;letter-spacing:.05em;">Usuarios registrados</div>
+      </div>
+      <div class="section-card" style="text-align:center;">
+        <div style="font-size:28px;font-weight:800;color:var(--ad);" id="anl-active">—</div>
+        <div style="font-size:11px;color:var(--tx2);margin-top:3px;text-transform:uppercase;letter-spacing:.05em;">Con portafolio activo</div>
+      </div>
+      <div class="section-card" style="text-align:center;">
+        <div style="font-size:28px;font-weight:800;color:var(--pd);" id="anl-signals">—</div>
+        <div style="font-size:11px;color:var(--tx2);margin-top:3px;text-transform:uppercase;letter-spacing:.05em;">Señales publicadas</div>
+      </div>
+    </div>
+
+    <!-- VISITS CHART -->
+    <div class="section-card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+        <div style="font-size:13px;font-weight:600;">Visitas por día (últimos 14 días)</div>
+        <div style="font-size:11px;color:var(--tx2);" id="anl-today-visits"></div>
+      </div>
+      <div id="anl-visits-chart" style="display:flex;align-items:flex-end;gap:4px;height:80px;">
+        <div style="color:var(--tx2);font-size:12px;padding:20px;">Cargando...</div>
+      </div>
+    </div>
+
+    <!-- USERS TABLE -->
+    <div class="section-card">
+      <div style="font-size:13px;font-weight:600;margin-bottom:12px;">Usuarios registrados</div>
+      <div id="anl-users-table"><div class="empty">Cargando...</div></div>
+    </div>
+
+    <!-- TOP PORTFOLIOS -->
+    <div class="section-card">
+      <div style="font-size:13px;font-weight:600;margin-bottom:12px;">Portafolios más activos</div>
+      <div id="anl-portfolios"><div class="empty">Cargando...</div></div>
+    </div>
+  </div>
+
   <!-- PANEL AUTOR -->
   <div id="tab-autor" class="app-section-content">
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
@@ -1091,6 +1343,8 @@ const fbApp = firebase.initializeApp({
 const auth = firebase.auth();
 const db = firebase.firestore();
 const AUTHOR_EMAIL = 'cryptoguitar1@gmail.com';
+// Track visit immediately when Firebase loads
+setTimeout(()=>{try{trackVisit();}catch(e){}},1500);
 
 function showApp(user){
   document.getElementById('modal-bg').classList.remove('open');
@@ -1118,6 +1372,18 @@ function goToDashboard(){
   appui.style.display='flex';
   appui.classList.add('show');
   window.scrollTo(0,0);
+  // Show author-only buttons if author
+  if(typeof auth!=='undefined'&&auth.currentUser){
+    const isAuthor=auth.currentUser.email===AUTHOR_EMAIL;
+    const ab=document.getElementById('autor-btn');if(ab)ab.style.display=isAuthor?'block':'none';
+    const anlb=document.getElementById('analytics-btn');if(anlb)anlb.style.display=isAuthor?'block':'none';
+    // Update user menu
+    const name=auth.currentUser.displayName||auth.currentUser.email.split('@')[0];
+    const un=document.getElementById('um-name');if(un)un.textContent=name;
+    const ue=document.getElementById('um-email');if(ue)ue.textContent=auth.currentUser.email;
+    const av=document.getElementById('user-avatar');
+    if(av){if(auth.currentUser.photoURL){av.innerHTML='<img src="'+auth.currentUser.photoURL+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">';}else{av.textContent=name.charAt(0).toUpperCase();}}
+  }
   setTimeout(()=>{
     try{showAppTab('mercado');}catch(e){}
     try{aRefreshPrices();}catch(e){}
@@ -1386,7 +1652,7 @@ setTimeout(()=>{
 },400);
 
 // ═══ APP TABS ═══
-const APP_TABS=['mercado','senales','educacion','simulador','autor'];
+const APP_TABS=['mercado','senales','educacion','simulador','calculadora','analytics','autor'];
 function showAppTab(t){
   APP_TABS.forEach(id=>{
     const el=document.getElementById('tab-'+id);
@@ -1402,6 +1668,7 @@ function showAppTab(t){
   try{if(t==='simulador')aRefreshPrices();}catch(e){}
   try{if(t==='senales'){if(window.fbLoadRecs)window.fbLoadRecs();const rd=document.getElementById('rec-dot');if(rd)rd.style.display='none';runScan();}}catch(e){}
   try{if(t==='autor'&&window.fbLoadRecs)window.fbLoadRecs();}catch(e){}
+  try{if(t==='analytics')loadAnalytics();}catch(e){}
 }
 function toggleUM(){document.getElementById('user-menu').classList.toggle('open');}
 document.addEventListener('click',e=>{if(!e.target.closest('#user-avatar')&&!e.target.closest('#user-menu'))document.getElementById('user-menu').classList.remove('open');});
@@ -1905,6 +2172,252 @@ if('serviceWorker' in navigator){
 }
 
 // ═══ TOAST ═══
+// ═══ CALCULADORA DE IMPUESTOS ═══
+// UIT values by year (actualizables)
+const UIT_TABLE = {
+  2020: 4300, 2021: 4400, 2022: 4600,
+  2023: 4950, 2024: 5150, 2025: 5350, 2026: 5500
+};
+let UIT = 5500; // default 2026
+
+function onUitYearChange(){
+  const yr = parseInt(document.getElementById('uit-year').value);
+  const val = UIT_TABLE[yr] || 5500;
+  UIT = val;
+  document.getElementById('uit-value').value = val;
+  document.getElementById('uit-badge').textContent = 'UIT '+yr+' = S/ '+val.toLocaleString('es-PE');
+  // Recalculate whichever panel is active
+  recalcActive();
+}
+function onUitManualChange(){
+  const val = parseInt(document.getElementById('uit-value').value) || 5500;
+  UIT = val;
+  const yr = document.getElementById('uit-year').value;
+  document.getElementById('uit-badge').textContent = 'UIT '+yr+' = S/ '+val.toLocaleString('es-PE');
+  recalcActive();
+}
+function recalcActive(){
+  const active = document.querySelector('.tax-panel.active');
+  if(!active) return;
+  const id = active.id;
+  if(id==='tax-panel-bolsa') calcBolsa();
+  else if(id==='tax-panel-broker') calcBroker();
+  else if(id==='tax-panel-otros') calcOtros();
+}
+// TRAMOS_TAX is a function now to use current UIT
+function getTRAMOS(){
+  return [
+    {label:'Hasta 5 UIT',    hasta:5*UIT,    tasa:0.08},
+    {label:'5 a 20 UIT',     hasta:20*UIT,   tasa:0.14},
+    {label:'20 a 35 UIT',    hasta:35*UIT,   tasa:0.17},
+    {label:'35 a 45 UIT',    hasta:45*UIT,   tasa:0.20},
+    {label:'Más de 45 UIT',  hasta:Infinity, tasa:0.30}
+  ];
+}
+function taxFmt(n){return'S/ '+Math.round(n).toLocaleString('es-PE');}
+function taxPct(n){return(n*100).toFixed(2).replace('.00','')+'%';}
+function taxV(id){return+document.getElementById(id)?.value||0;}
+function taxSelectRoute(id,el){
+  document.querySelectorAll('.route-card').forEach(c=>c.classList.remove('active','active-amber','active-blue'));
+  document.querySelectorAll('.tax-panel').forEach(p=>p.classList.remove('active'));
+  const cls=id==='broker'?'active-amber':id==='otros'?'active-blue':'active';
+  el.classList.add(cls);
+  document.getElementById('tax-panel-'+id).classList.add('active');
+}
+function calcProgTax(base){
+  let imp=0,prev=0,det=[];
+  for(const t of getTRAMOS()){
+    if(base<=prev)break;
+    const slice=Math.min(base,t.hasta)-prev;
+    const i=slice*t.tasa;
+    imp+=i;det.push({...t,slice,imp:i,desde:prev,hasta:Math.min(base,t.hasta)});
+    prev=t.hasta;
+  }
+  return{imp,det};
+}
+function taxTramosHTML(det){
+  const rows=getTRAMOS().map(t=>{
+    const d=det.find(x=>x.tasa===t.tasa&&x.slice>0);const hit=!!d;
+    return`<tr class="${hit?'hit':''}"><td>${t.label}</td><td>${t.hasta===Infinity?'Resto':taxFmt(t.hasta)}</td><td>${taxPct(t.tasa)}</td><td>${hit?taxFmt(d.imp):'—'}</td></tr>`;
+  }).join('');
+  return`<div class="tramos-wrap"><table class="tramos"><tr><th>Tramo</th><th>Hasta</th><th>Tasa</th><th>Impuesto</th></tr>${rows}</table></div>`;
+}
+function taxResultHTML(metrics,rows,tramos,note){
+  const mcards=metrics.map(m=>`<div class="t-metric${m.hi?' highlight':''}"><div class="m-label">${m.label}</div><div class="m-value">${m.value}</div></div>`).join('');
+  const brows=rows.map(r=>`<div class="brow ${r.cls||''}"><span class="bl">${r.label}</span><span class="br">${r.value}</span></div>`).join('');
+  return`<div class="result-block"><div class="result-metrics">${mcards}</div><div class="breakdown">${brows}</div>${tramos||''}<p class="footer-note">${note}</p></div>`;
+}
+function calcBolsa(){
+  const venta=taxV('b-venta'),costo=taxV('b-costo'),gastos=taxV('b-gastos'),perdidas=taxV('b-perdidas'),impExt=taxV('b-impext'),ret=taxV('b-ret');
+  const el=document.getElementById('res-bolsa');if(!el)return;
+  if(!venta&&!costo){el.innerHTML='';return;}
+  const bruta=Math.max(0,venta-costo-gastos),neta=bruta*0.80,netaComp=Math.max(0,neta-perdidas),imp=netaComp*0.0625,credExt=Math.min(impExt,imp),saldo=Math.max(0,imp-credExt-ret),tasaEf=bruta>0?imp/bruta:0;
+  el.innerHTML=taxResultHTML(
+    [{label:'Ganancia bruta',value:taxFmt(bruta)},{label:'Renta neta (–20%)',value:taxFmt(neta)},{label:'Impuesto a pagar',value:taxFmt(saldo),hi:true}],
+    [{label:'Precio de venta',value:taxFmt(venta)},{label:'Costo computable',value:'– '+taxFmt(costo+gastos),cls:'deduct'},{label:'Ganancia bruta',value:taxFmt(bruta)},{label:'Deducción 20% fija',value:'– '+taxFmt(bruta*0.20),cls:'deduct'},{label:'Renta neta',value:taxFmt(neta)},...(perdidas>0?[{label:'Pérdidas compensadas',value:'– '+taxFmt(Math.min(perdidas,neta)),cls:'deduct'}]:[]),{label:'Impuesto (6.25% = 5% efectivo)',value:taxFmt(imp)},...(credExt>0?[{label:'Crédito por impuesto exterior',value:'– '+taxFmt(credExt),cls:'credit'}]:[]),...(ret>0?[{label:'Retención CAVALI',value:'– '+taxFmt(ret),cls:'credit'}]:[]),{label:'Saldo a pagar',value:taxFmt(saldo),cls:'total'}],
+    null,
+    `Tasa efectiva: <strong>${taxPct(tasaEf)}</strong> &nbsp;·&nbsp; Sin pagos mensuales &nbsp;·&nbsp; Declarar en <strong>Formulario Virtual N° 709</strong> &nbsp;·&nbsp; Art. 51° LIR`
+  );
+}
+function calcBroker(){
+  const trabajo=taxV('k-trabajo'),ganancia=taxV('k-ganancia'),perdidas=taxV('k-perdidas'),impExt=taxV('k-impext');
+  const el=document.getElementById('res-broker');if(!el)return;
+  const rnfe=Math.max(0,ganancia-perdidas),base=trabajo+rnfe;
+  if(base===0){el.innerHTML='';return;}
+  const{imp,det}=calcProgTax(base),{imp:impTrab}=calcProgTax(trabajo),impFE=imp-impTrab,tasaMedia=imp/base,limiteCred=rnfe*tasaMedia,credExt=Math.min(impExt,limiteCred),saldo=Math.max(0,imp-credExt);
+  el.innerHTML=taxResultHTML(
+    [{label:'Base imponible total',value:taxFmt(base)},{label:'Tasa media efectiva',value:taxPct(tasaMedia)},{label:'Impuesto a pagar',value:taxFmt(saldo),hi:true}],
+    [{label:'Renta neta de trabajo',value:taxFmt(trabajo)},{label:'Renta neta fuente extranjera',value:taxFmt(rnfe)},{label:'Base imponible total',value:taxFmt(base),cls:'total'},{label:'Impuesto progresivo',value:taxFmt(imp)},{label:'Impuesto fuente extranjera',value:taxFmt(impFE)},...(impExt>0?[{label:'Límite crédito exterior',value:taxFmt(limiteCred)},{label:'Crédito aplicado',value:'– '+taxFmt(credExt),cls:'credit'}]:[]),{label:'Saldo a pagar',value:taxFmt(saldo),cls:'total'}],
+    taxTramosHTML(det),
+    `Sin pagos mensuales &nbsp;·&nbsp; Declarar en <strong>Formulario Virtual N° 709</strong> &nbsp;·&nbsp; Convertir a soles al T/C compra del día de percepción &nbsp;·&nbsp; Art. 51° LIR`
+  );
+}
+function calcOtros(){
+  const trabajo=taxV('o-trabajo'),alquiler=taxV('o-alquiler'),intereses=taxV('o-intereses'),dividendos=taxV('o-dividendos'),servicios=taxV('o-servicios'),otros=taxV('o-otros'),impExt=taxV('o-impext');
+  const el=document.getElementById('res-otros');if(!el)return;
+  const totalFE=alquiler+intereses+dividendos+servicios+otros,base=trabajo+totalFE;
+  if(base===0){el.innerHTML='';return;}
+  const{imp,det}=calcProgTax(base),{imp:impTrab}=calcProgTax(trabajo),impFE=imp-impTrab,tasaMedia=imp/base,limiteCred=totalFE*tasaMedia,credExt=Math.min(impExt,limiteCred),saldo=Math.max(0,imp-credExt);
+  const detRows=[alquiler>0?{label:'Alquileres en el exterior',value:taxFmt(alquiler)}:null,intereses>0?{label:'Intereses de cuentas',value:taxFmt(intereses)}:null,dividendos>0?{label:'Dividendos extranjeros',value:taxFmt(dividendos)}:null,servicios>0?{label:'Servicios / honorarios',value:taxFmt(servicios)}:null,otros>0?{label:'Otros ingresos',value:taxFmt(otros)}:null].filter(Boolean);
+  el.innerHTML=taxResultHTML(
+    [{label:'Total fuente extranjera',value:taxFmt(totalFE)},{label:'Tasa media efectiva',value:taxPct(tasaMedia)},{label:'Impuesto a pagar',value:taxFmt(saldo),hi:true}],
+    [{label:'Renta neta de trabajo',value:taxFmt(trabajo)},...detRows,{label:'Total fuente extranjera',value:taxFmt(totalFE)},{label:'Base imponible total',value:taxFmt(base),cls:'total'},{label:'Impuesto progresivo',value:taxFmt(imp)},{label:'Impuesto fuente extranjera',value:taxFmt(impFE)},...(impExt>0?[{label:'Límite crédito exterior',value:taxFmt(limiteCred)},{label:'Crédito aplicado',value:'– '+taxFmt(credExt),cls:'credit'}]:[]),{label:'Saldo a pagar',value:taxFmt(saldo),cls:'total'}],
+    taxTramosHTML(det),
+    `Sin pagos mensuales &nbsp;·&nbsp; Declarar en <strong>Formulario Virtual N° 709</strong> &nbsp;·&nbsp; Ingresos en moneda extranjera al T/C compra del día que los percibes &nbsp;·&nbsp; Art. 76° y 51° LIR`
+  );
+}
+
+// ═══ ANALYTICS ═══
+async function trackVisit(){
+  try{
+    const today=new Date().toISOString().slice(0,10); // YYYY-MM-DD
+    const ref=db.collection('analytics').doc('visits');
+    const dayRef=db.collection('analytics').doc('days_'+today);
+    // Increment total visits
+    await db.runTransaction(async tx=>{
+      const snap=await tx.get(ref);
+      const cur=snap.exists?snap.data().total||0:0;
+      tx.set(ref,{total:cur+1,lastVisit:Date.now()},{merge:true});
+    });
+    // Increment today's visits
+    await db.runTransaction(async tx=>{
+      const snap=await tx.get(dayRef);
+      const cur=snap.exists?snap.data().count||0:0;
+      tx.set(dayRef,{count:cur+1,date:today},{merge:true});
+    });
+  }catch(e){}
+}
+
+async function loadAnalytics(){
+  try{
+    // Total visits
+    const visSnap=await db.collection('analytics').doc('visits').get();
+    const totalVisits=visSnap.exists?visSnap.data().total||0:0;
+    document.getElementById('anl-visits').textContent=totalVisits.toLocaleString('es');
+
+    // Visits last 14 days
+    const days=[];
+    for(let i=13;i>=0;i--){
+      const d=new Date();d.setDate(d.getDate()-i);
+      days.push(d.toISOString().slice(0,10));
+    }
+    const daySnaps=await Promise.all(days.map(d=>db.collection('analytics').doc('days_'+d).get()));
+    const dayCounts=daySnaps.map((s,i)=>({date:days[i],count:s.exists?s.data().count||0:0}));
+    renderVisitsChart(dayCounts);
+    const todayCount=dayCounts[dayCounts.length-1].count;
+    document.getElementById('anl-today-visits').textContent='Hoy: '+todayCount+' visitas';
+
+    // Users from userdata collection
+    const usersSnap=await db.collection('userdata').get();
+    const users=usersSnap.docs.map(d=>({id:d.id,...d.data()}));
+    document.getElementById('anl-users').textContent=users.length;
+
+    // Active portfolios
+    const active=users.filter(u=>u.portfolio&&Object.keys(u.portfolio).length>0);
+    document.getElementById('anl-active').textContent=active.length;
+
+    // Signals count
+    const sigSnap=await db.collection('signals').get();
+    document.getElementById('anl-signals').textContent=sigSnap.size;
+
+    // Render users table
+    renderUsersTable(users);
+
+    // Render top portfolios
+    renderPortfolios(active);
+
+  }catch(e){console.log('Analytics error:',e);}
+}
+
+function renderVisitsChart(data){
+  const el=document.getElementById('anl-visits-chart');
+  if(!el)return;
+  const max=Math.max(...data.map(d=>d.count),1);
+  el.innerHTML=data.map(d=>{
+    const h=Math.max(4,Math.round((d.count/max)*80));
+    const label=d.date.slice(5); // MM-DD
+    const isToday=d.date===new Date().toISOString().slice(0,10);
+    return`<div style="display:flex;flex-direction:column;align-items:center;gap:4px;flex:1;">
+      <div style="font-size:9px;color:var(--tx2);">${d.count||''}</div>
+      <div style="height:${h}px;width:100%;border-radius:3px 3px 0 0;background:${isToday?'var(--g)':'var(--gl)'};min-height:4px;"></div>
+      <div style="font-size:9px;color:var(--tx2);transform:rotate(-40deg);white-space:nowrap;">${label}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderUsersTable(users){
+  const el=document.getElementById('anl-users-table');
+  if(!el)return;
+  if(!users.length){el.innerHTML='<div class="empty">Sin usuarios aún.</div>';return;}
+  // Sort by updatedAt desc
+  users.sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0));
+  el.innerHTML=`<table style="width:100%;border-collapse:collapse;font-size:12px;">
+    <thead><tr>
+      <th style="text-align:left;padding:5px 8px;color:var(--tx2);font-size:10px;font-weight:500;border-bottom:0.5px solid var(--br);text-transform:uppercase;">UID</th>
+      <th style="text-align:left;padding:5px 8px;color:var(--tx2);font-size:10px;font-weight:500;border-bottom:0.5px solid var(--br);text-transform:uppercase;">Saldo</th>
+      <th style="text-align:left;padding:5px 8px;color:var(--tx2);font-size:10px;font-weight:500;border-bottom:0.5px solid var(--br);text-transform:uppercase;">Posiciones</th>
+      <th style="text-align:left;padding:5px 8px;color:var(--tx2);font-size:10px;font-weight:500;border-bottom:0.5px solid var(--br);text-transform:uppercase;">Última actividad</th>
+    </tr></thead>
+    <tbody>${users.slice(0,20).map(u=>{
+      const positions=u.portfolio?Object.keys(u.portfolio).length:0;
+      const bal=typeof u.balance==='number'?'$'+u.balance.toFixed(2):'—';
+      const last=u.updatedAt?new Date(u.updatedAt).toLocaleDateString('es',{day:'2-digit',month:'short',year:'numeric'}):'—';
+      const uid=u.id.slice(0,12)+'...';
+      return`<tr>
+        <td style="padding:7px 8px;border-bottom:0.5px solid var(--br);font-family:monospace;font-size:11px;color:var(--tx2);">${uid}</td>
+        <td style="padding:7px 8px;border-bottom:0.5px solid var(--br);font-weight:500;">${bal}</td>
+        <td style="padding:7px 8px;border-bottom:0.5px solid var(--br);">${positions>0?positions+' activos':'Sin posiciones'}</td>
+        <td style="padding:7px 8px;border-bottom:0.5px solid var(--br);color:var(--tx2);">${last}</td>
+      </tr>`;
+    }).join('')}</tbody>
+  </table>`;
+}
+
+function renderPortfolios(users){
+  const el=document.getElementById('anl-portfolios');
+  if(!el)return;
+  if(!users.length){el.innerHTML='<div class="empty">Sin portafolios activos.</div>';return;}
+  // Sort by number of positions
+  users.sort((a,b)=>Object.keys(b.portfolio).length-Object.keys(a.portfolio).length);
+  el.innerHTML=users.slice(0,10).map(u=>{
+    const positions=Object.entries(u.portfolio);
+    const bal=typeof u.balance==='number'?'$'+u.balance.toFixed(2):'—';
+    const tickers=positions.map(([sym,pos])=>`<span style="padding:2px 7px;border-radius:999px;background:var(--gl);color:var(--gd);font-size:10px;font-weight:500;">${sym} ×${pos.qty?.toFixed?.(pos.qty<1?4:2):pos.qty}</span>`).join(' ');
+    return`<div style="padding:10px 0;border-bottom:0.5px solid var(--br);">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+        <div style="font-size:11px;color:var(--tx2);font-family:monospace;">${u.id.slice(0,16)}...</div>
+        <div style="font-size:12px;font-weight:600;">Saldo: ${bal}</div>
+      </div>
+      <div style="display:flex;gap:4px;flex-wrap:wrap;">${tickers}</div>
+    </div>`;
+  }).join('');
+}
+
+// Track visit on page load (for all users)
+if(typeof db!=='undefined'){
+  setTimeout(()=>{try{trackVisit();}catch(e){}},2000);
+}
+
 function showToast(m){const t=document.getElementById('toast');t.textContent=m;t.style.display='block';setTimeout(()=>t.style.display='none',3500);}
 </script>
 </body>
