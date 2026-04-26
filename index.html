@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- SMB v6.0 -->
+<!-- SMB v6.1 -->
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -1714,6 +1714,10 @@ window.allRecs = window.allRecs || [];
 var authorFilter = 'all';
 var autoFilter = 'all';
 var autoResults = [];
+// UIT declared early — used by calculator oninput handlers in HTML
+var UIT = 5500;
+var lUIT = 5500;
+const UIT_TABLE = {2020:4300,2021:4400,2022:4600,2023:4950,2024:5150,2025:5350,2026:5500};
 const WATCHLIST=[{sym:'AAPL',name:'Apple'},{sym:'MSFT',name:'Microsoft'},{sym:'NVDA',name:'NVIDIA'},{sym:'TSLA',name:'Tesla'},{sym:'GOOGL',name:'Alphabet'},{sym:'AMZN',name:'Amazon'},{sym:'META',name:'Meta'},{sym:'NFLX',name:'Netflix'},{sym:'AMD',name:'AMD'},{sym:'INTC',name:'Intel'},{sym:'JPM',name:'JPMorgan'},{sym:'BAC',name:'Bank of America'},{sym:'V',name:'Visa'},{sym:'MA',name:'Mastercard'},{sym:'DIS',name:'Disney'},{sym:'PYPL',name:'PayPal'},{sym:'UBER',name:'Uber'},{sym:'COIN',name:'Coinbase'},{sym:'PLTR',name:'Palantir'},{sym:'SNAP',name:'Snap'},{sym:'NKE',name:'Nike'},{sym:'SBUX',name:'Starbucks'},{sym:'WMT',name:'Walmart'},{sym:'KO',name:'Coca-Cola'}];
 
 // ═══ MODAL ═══
@@ -2223,7 +2227,7 @@ function loadQ(){if(qIdx>=cQuiz.length){document.getElementById('quiz-q').textCo
 function answerQ(idx){if(qAnswered)return;qAnswered=true;const q=cQuiz[qIdx];document.querySelectorAll('.quiz-opt').forEach((b,i)=>{b.disabled=true;if(i===q.correct)b.classList.add('correct');else if(i===idx&&idx!==q.correct)b.classList.add('wrong');});if(idx===q.correct)qCorrect++;else qWrong++;const fb=document.getElementById('quiz-fb');fb.style.display='block';fb.style.background=idx===q.correct?'var(--gl)':'var(--rl)';fb.style.color=idx===q.correct?'var(--gd)':'var(--rd)';fb.textContent=(idx===q.correct?'Correcto · ':'Incorrecto · ')+q.exp;document.getElementById('quiz-next').disabled=false;updateQStats();}
 function nextQ(){if(!qStarted){startQuiz('mixed',document.getElementById('qcat-mixed'));return;}qIdx++;loadQ();}
 function updateQStats(){const total=qCorrect+qWrong;document.getElementById('stat-correct').textContent=qCorrect;document.getElementById('stat-wrong').textContent=qWrong;document.getElementById('stat-pct').textContent=total?Math.round((qCorrect/total)*100)+'%':'0%';document.getElementById('quiz-score-label').textContent=qCorrect+'/'+cQuiz.length;}
-document.getElementById('quiz-next').textContent='Iniciar quiz';
+const qnext=document.getElementById('quiz-next');if(qnext)qnext.textContent='Iniciar quiz';
 
 // ═══ HEATMAP ═══
 // TradingView heatmap via iframe — scripts injected via innerHTML don't execute
@@ -2274,11 +2278,7 @@ if('serviceWorker' in navigator){
 // ═══ TOAST ═══
 // ═══ CALCULADORA DE IMPUESTOS ═══
 // UIT values by year (actualizables)
-const UIT_TABLE = {
-  2020: 4300, 2021: 4400, 2022: 4600,
-  2023: 4950, 2024: 5150, 2025: 5350, 2026: 5500
-};
-let UIT = 5500; // default 2026
+// UIT_TABLE and UIT declared early in GLOBAL STATE above
 
 function onUitYearChange(){
   const yr = parseInt(document.getElementById('uit-year').value);
@@ -2368,7 +2368,6 @@ function calcBroker(){
   const rnfe=Math.max(0,ganancia-perdidas),base=trabajo+rnfe;
   const brokerHasInput=document.getElementById('k-trabajo').value!==''||document.getElementById('k-ganancia').value!=='';
   if(!brokerHasInput){el.innerHTML='<div style="text-align:center;padding:24px;color:var(--tx2);font-size:13px;">Ingresa tus datos para ver el cálculo</div>';calcGlobal();return;}
-  if(base===0){el.innerHTML='<div style="text-align:center;padding:24px;color:var(--tx2);font-size:13px;">La base imponible es 0 — sin impuesto a pagar</div>';calcGlobal();return;}
   const{imp,det}=calcProgTax(base),{imp:impTrab}=calcProgTax(trabajo),impFE=imp-impTrab,tasaMedia=imp/base,limiteCred=rnfe*tasaMedia,credExt=Math.min(impExt,limiteCred),saldo=Math.max(0,imp-credExt);
   el.innerHTML=taxResultHTML(
     [{label:'Base imponible total',value:taxFmt(base)},{label:'Tasa media efectiva',value:taxPct(tasaMedia)},{label:'Impuesto a pagar',value:taxFmt(saldo),hi:true}],
@@ -2384,7 +2383,6 @@ function calcOtros(){
   const totalFE=alquiler+intereses+dividendos+servicios+otros,base=trabajo+totalFE;
   const otrosHasInput=['o-trabajo','o-alquiler','o-intereses','o-dividendos','o-servicios','o-otros'].some(id=>document.getElementById(id)?.value!=='');
   if(!otrosHasInput){el.innerHTML='<div style="text-align:center;padding:24px;color:var(--tx2);font-size:13px;">Ingresa tus datos para ver el cálculo</div>';calcGlobal();return;}
-  if(base===0){el.innerHTML='<div style="text-align:center;padding:24px;color:var(--tx2);font-size:13px;">La base imponible es 0 — sin impuesto a pagar</div>';calcGlobal();return;}
   const{imp,det}=calcProgTax(base),{imp:impTrab}=calcProgTax(trabajo),impFE=imp-impTrab,tasaMedia=imp/base,limiteCred=totalFE*tasaMedia,credExt=Math.min(impExt,limiteCred),saldo=Math.max(0,imp-credExt);
   const detRows=[alquiler>0?{label:'Alquileres en el exterior',value:taxFmt(alquiler)}:null,intereses>0?{label:'Intereses de cuentas',value:taxFmt(intereses)}:null,dividendos>0?{label:'Dividendos extranjeros',value:taxFmt(dividendos)}:null,servicios>0?{label:'Servicios / honorarios',value:taxFmt(servicios)}:null,otros>0?{label:'Otros ingresos',value:taxFmt(otros)}:null].filter(Boolean);
   el.innerHTML=taxResultHTML(
@@ -2570,7 +2568,7 @@ function renderPortfolios(users){
 
 
 // ═══ LANDING CALCULADORA (uses same engine, different IDs) ═══
-let lUIT = 5500;
+// lUIT declared early in GLOBAL STATE above
 function lOnUitYearChange(){
   const yr=parseInt(document.getElementById('l-uit-year').value);
   const val={2020:4300,2021:4400,2022:4600,2023:4950,2024:5150,2025:5350,2026:5500}[yr]||5500;
