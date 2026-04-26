@@ -629,6 +629,97 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
     </div>
   </div>
 
+  <!-- CALCULADORA EN LANDING -->
+  <div style="background:var(--bg);border-top:0.5px solid var(--br);padding:52px 28px;">
+    <div style="max-width:1020px;margin:0 auto;">
+      <div class="sec-label a1">SUNAT · Personas naturales domiciliadas</div>
+      <div class="sec-title a2" style="margin-bottom:6px;">Calculadora de impuestos</div>
+      <div class="sec-sub a3" style="margin-bottom:32px;">Descubre cuánto pagas por tus inversiones del exterior · UIT 2026 = S/ 5,500</div>
+
+      <!-- UIT SELECTOR -->
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:24px;flex-wrap:wrap;">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <label style="font-size:12px;font-weight:600;color:var(--tx2);text-transform:uppercase;letter-spacing:.06em;">Año fiscal</label>
+          <select id="l-uit-year" onchange="lOnUitYearChange()" style="padding:7px 10px;border:0.5px solid var(--br);border-radius:var(--rad);font-size:13px;background:var(--bg2);color:var(--tx);font-family:inherit;outline:none;cursor:pointer;">
+            <option value="2020">2020</option><option value="2021">2021</option><option value="2022">2022</option>
+            <option value="2023">2023</option><option value="2024">2024</option><option value="2025">2025</option>
+            <option value="2026" selected>2026</option>
+          </select>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <label style="font-size:12px;font-weight:600;color:var(--tx2);text-transform:uppercase;letter-spacing:.06em;">UIT</label>
+          <div style="position:relative;">
+            <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:12px;color:var(--tx2);pointer-events:none;">S/</span>
+            <input type="number" id="l-uit-value" value="5500" min="1000" max="20000" step="100" oninput="lOnUitManualChange()"
+              style="padding:7px 10px 7px 28px;border:0.5px solid var(--br);border-radius:var(--rad);font-size:13px;background:var(--bg2);color:var(--tx);font-family:inherit;outline:none;width:110px;">
+          </div>
+        </div>
+        <div style="background:var(--gl);color:var(--gd);padding:5px 12px;border-radius:999px;font-size:12px;font-weight:600;" id="l-uit-badge">UIT 2026 = S/ 5,500</div>
+      </div>
+
+      <!-- ROUTE PICKER -->
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:24px;">
+        <button class="route-card active" onclick="lTaxSelectRoute('bolsa',this)" style="background:var(--bg);">
+          <span class="rc-icon">🏛️</span><span class="rc-tag tag-green">5% efectivo</span>
+          <div class="rc-title">Bolsa de Lima o MILA</div>
+          <div class="rc-sub">Acciones vía BVL, Chile, Colombia, México</div>
+        </button>
+        <button class="route-card" onclick="lTaxSelectRoute('broker',this)" style="background:var(--bg);">
+          <span class="rc-icon">🌐</span><span class="rc-tag tag-amber">8%–30%</span>
+          <div class="rc-title">Broker extranjero</div>
+          <div class="rc-sub">Interactive Brokers, Robinhood, eToro</div>
+        </button>
+        <button class="route-card" onclick="lTaxSelectRoute('otros',this)" style="background:var(--bg);">
+          <span class="rc-icon">💼</span><span class="rc-tag tag-blue">8%–30%</span>
+          <div class="rc-title">Otros ingresos</div>
+          <div class="rc-sub">Alquileres, intereses, dividendos</div>
+        </button>
+      </div>
+
+      <!-- PANELS -->
+      <div class="tax-panel active" id="l-tax-panel-bolsa">
+        <div class="explainer"><span class="exp-icon">💡</span><span>Tasa fija del <strong>5% sobre tu ganancia</strong> (6.25% sobre renta neta tras deducir 20%). Sin pagos mensuales — declaras una vez al año.</span></div>
+        <div class="tax-form-grid">
+          <div class="tax-field"><label>Precio total de venta</label><div class="currency-wrap"><span class="prefix">S/</span><input type="number" id="lb-venta" placeholder="ej. 50,000" min="0" oninput="lCalcBolsa()"></div></div>
+          <div class="tax-field"><label>Costo de adquisición</label><div class="currency-wrap"><span class="prefix">S/</span><input type="number" id="lb-costo" placeholder="ej. 35,000" min="0" oninput="lCalcBolsa()"></div></div>
+          <div class="tax-field"><label>Gastos (comisiones)</label><div class="currency-wrap"><span class="prefix">S/</span><input type="number" id="lb-gastos" value="0" min="0" oninput="lCalcBolsa()"></div></div>
+          <div class="tax-field"><label>Pérdidas año anterior</label><div class="currency-wrap"><span class="prefix">S/</span><input type="number" id="lb-perdidas" value="0" min="0" oninput="lCalcBolsa()"></div></div>
+          <div class="tax-field"><label>Impuesto pagado exterior</label><div class="currency-wrap"><span class="prefix">S/</span><input type="number" id="lb-impext" value="0" min="0" oninput="lCalcBolsa()"></div></div>
+          <div class="tax-field"><label>Retenciones CAVALI</label><div class="currency-wrap"><span class="prefix">S/</span><input type="number" id="lb-ret" value="0" min="0" oninput="lCalcBolsa()"></div></div>
+        </div>
+        <div id="l-res-bolsa"></div>
+      </div>
+
+      <div class="tax-panel" id="l-tax-panel-broker">
+        <div class="explainer amber"><span class="exp-icon">⚠️</span><span>Las ganancias de brokers como <strong>Interactive Brokers o Robinhood</strong> se suman a tus ingresos de trabajo con tasas del 8% al 30%.</span></div>
+        <div class="tax-form-grid">
+          <div class="tax-field"><label>Renta neta de trabajo (4ta/5ta cat.)</label><div class="currency-wrap"><span class="prefix">S/</span><input type="number" id="lk-trabajo" value="0" min="0" oninput="lCalcBroker()"></div><span class="hint">Ingresos laborales menos 7 UIT</span></div>
+          <div class="tax-field"><label>Ganancia neta del broker</label><div class="currency-wrap"><span class="prefix">S/</span><input type="number" id="lk-ganancia" value="0" min="0" oninput="lCalcBroker()"></div><span class="hint">Venta − costo, en soles</span></div>
+          <div class="tax-field"><label>Pérdidas compensables</label><div class="currency-wrap"><span class="prefix">S/</span><input type="number" id="lk-perdidas" value="0" min="0" oninput="lCalcBroker()"></div></div>
+          <div class="tax-field"><label>Impuesto pagado exterior</label><div class="currency-wrap"><span class="prefix">S/</span><input type="number" id="lk-impext" value="0" min="0" oninput="lCalcBroker()"></div></div>
+        </div>
+        <div id="l-res-broker"></div>
+      </div>
+
+      <div class="tax-panel" id="l-tax-panel-otros">
+        <div class="explainer blue"><span class="exp-icon">📋</span><span>Alquileres, intereses, dividendos o servicios del exterior se suman con tasas progresivas. <strong>Sin pagos mensuales.</strong></span></div>
+        <div class="tax-form-grid">
+          <div class="tax-field"><label>Renta neta de trabajo</label><div class="currency-wrap"><span class="prefix">S/</span><input type="number" id="lo-trabajo" value="0" min="0" oninput="lCalcOtros()"></div></div>
+          <div class="tax-field"><label>Alquiler inmueble exterior</label><div class="currency-wrap"><span class="prefix">S/</span><input type="number" id="lo-alquiler" value="0" min="0" oninput="lCalcOtros()"></div></div>
+          <div class="tax-field"><label>Intereses cuentas exterior</label><div class="currency-wrap"><span class="prefix">S/</span><input type="number" id="lo-intereses" value="0" min="0" oninput="lCalcOtros()"></div></div>
+          <div class="tax-field"><label>Dividendos extranjeros</label><div class="currency-wrap"><span class="prefix">S/</span><input type="number" id="lo-dividendos" value="0" min="0" oninput="lCalcOtros()"></div></div>
+          <div class="tax-field"><label>Servicios en el exterior</label><div class="currency-wrap"><span class="prefix">S/</span><input type="number" id="lo-servicios" value="0" min="0" oninput="lCalcOtros()"></div></div>
+          <div class="tax-field"><label>Impuesto pagado exterior</label><div class="currency-wrap"><span class="prefix">S/</span><input type="number" id="lo-impext" value="0" min="0" oninput="lCalcOtros()"></div></div>
+        </div>
+        <div id="l-res-otros"></div>
+      </div>
+
+      <div style="margin-top:18px;padding:10px 14px;background:var(--rl);border-radius:var(--rad);font-size:11px;color:var(--rd);">
+        ⚠️ <strong>Aviso:</strong> Solo fines educativos. Consulta a un contador certificado para tu declaración real. Formulario Virtual N° 709 · SUNAT.
+      </div>
+    </div>
+  </div>
+
   <!-- CTA -->
   <div style="background:var(--bg2);border-top:0.5px solid var(--br);padding:56px 28px;text-align:center;">
     <h2 class="a1" style="font-size:30px;font-weight:700;letter-spacing:-.02em;margin-bottom:9px;">Empieza a invertir<br><span style="color:var(--g);">inteligentemente hoy</span></h2>
@@ -1343,8 +1434,11 @@ const fbApp = firebase.initializeApp({
 const auth = firebase.auth();
 const db = firebase.firestore();
 const AUTHOR_EMAIL = 'cryptoguitar1@gmail.com';
-// Track visit immediately when Firebase loads
-setTimeout(()=>{try{trackVisit();}catch(e){}},1500);
+// Track visit after Firebase is ready
+auth.onAuthStateChanged(()=>{}); // ensure firebase is ready
+setTimeout(()=>{
+  try{if(typeof db!=='undefined')trackVisit();}catch(e){}
+},2000);
 
 function showApp(user){
   document.getElementById('modal-bg').classList.remove('open');
@@ -2413,9 +2507,62 @@ function renderPortfolios(users){
   }).join('');
 }
 
-// Track visit on page load (for all users)
-if(typeof db!=='undefined'){
-  setTimeout(()=>{try{trackVisit();}catch(e){}},2000);
+
+
+// ═══ LANDING CALCULADORA (uses same engine, different IDs) ═══
+let lUIT = 5500;
+function lOnUitYearChange(){
+  const yr=parseInt(document.getElementById('l-uit-year').value);
+  const val={2020:4300,2021:4400,2022:4600,2023:4950,2024:5150,2025:5350,2026:5500}[yr]||5500;
+  lUIT=val;
+  document.getElementById('l-uit-value').value=val;
+  document.getElementById('l-uit-badge').textContent='UIT '+yr+' = S/ '+val.toLocaleString('es-PE');
+  lRecalcActive();
+}
+function lOnUitManualChange(){
+  lUIT=parseInt(document.getElementById('l-uit-value').value)||5500;
+  const yr=document.getElementById('l-uit-year').value;
+  document.getElementById('l-uit-badge').textContent='UIT '+yr+' = S/ '+lUIT.toLocaleString('es-PE');
+  lRecalcActive();
+}
+function lRecalcActive(){
+  const a=document.querySelector('.tax-panel.active[id^="l-tax"]');
+  if(!a)return;
+  if(a.id==='l-tax-panel-bolsa')lCalcBolsa();
+  else if(a.id==='l-tax-panel-broker')lCalcBroker();
+  else lCalcOtros();
+}
+function lTaxSelectRoute(id,el){
+  document.querySelectorAll('.route-card').forEach(c=>c.classList.remove('active','active-amber','active-blue'));
+  document.querySelectorAll('.tax-panel[id^="l-tax"]').forEach(p=>p.classList.remove('active'));
+  el.classList.add(id==='broker'?'active-amber':id==='otros'?'active-blue':'active');
+  document.getElementById('l-tax-panel-'+id).classList.add('active');
+}
+function lTaxV(id){return+document.getElementById(id)?.value||0;}
+function lGetTRAMOS(){return[{label:'Hasta 5 UIT',hasta:5*lUIT,tasa:0.08},{label:'5 a 20 UIT',hasta:20*lUIT,tasa:0.14},{label:'20 a 35 UIT',hasta:35*lUIT,tasa:0.17},{label:'35 a 45 UIT',hasta:45*lUIT,tasa:0.20},{label:'Más de 45 UIT',hasta:Infinity,tasa:0.30}];}
+function lCalcProgTax(base){let imp=0,prev=0,det=[];for(const t of lGetTRAMOS()){if(base<=prev)break;const slice=Math.min(base,t.hasta)-prev;const i=slice*t.tasa;imp+=i;det.push({...t,slice,imp:i});prev=t.hasta;}return{imp,det};}
+function lCalcBolsa(){
+  const venta=lTaxV('lb-venta'),costo=lTaxV('lb-costo'),gastos=lTaxV('lb-gastos'),perdidas=lTaxV('lb-perdidas'),impExt=lTaxV('lb-impext'),ret=lTaxV('lb-ret');
+  const el=document.getElementById('l-res-bolsa');if(!el)return;
+  if(!venta&&!costo){el.innerHTML='';return;}
+  const bruta=Math.max(0,venta-costo-gastos),neta=bruta*0.80,netaComp=Math.max(0,neta-perdidas),imp=netaComp*0.0625,credExt=Math.min(impExt,imp),saldo=Math.max(0,imp-credExt-ret),tasaEf=bruta>0?imp/bruta:0;
+  el.innerHTML=taxResultHTML([{label:'Ganancia bruta',value:taxFmt(bruta)},{label:'Renta neta (–20%)',value:taxFmt(neta)},{label:'Impuesto a pagar',value:taxFmt(saldo),hi:true}],[{label:'Precio de venta',value:taxFmt(venta)},{label:'Costo computable',value:'– '+taxFmt(costo+gastos),cls:'deduct'},{label:'Ganancia bruta',value:taxFmt(bruta)},{label:'Deducción 20%',value:'– '+taxFmt(bruta*0.20),cls:'deduct'},{label:'Renta neta',value:taxFmt(neta)},...(perdidas>0?[{label:'Pérdidas compensadas',value:'– '+taxFmt(Math.min(perdidas,neta)),cls:'deduct'}]:[]),{label:'Impuesto (5% efectivo)',value:taxFmt(imp)},...(credExt>0?[{label:'Crédito exterior',value:'– '+taxFmt(credExt),cls:'credit'}]:[]),...(ret>0?[{label:'Retención CAVALI',value:'– '+taxFmt(ret),cls:'credit'}]:[]),{label:'Saldo a pagar',value:taxFmt(saldo),cls:'total'}],null,`Tasa efectiva: <strong>${taxPct(tasaEf)}</strong> · Formulario Virtual N° 709 · Art. 51° LIR`);
+}
+function lCalcBroker(){
+  const trabajo=lTaxV('lk-trabajo'),ganancia=lTaxV('lk-ganancia'),perdidas=lTaxV('lk-perdidas'),impExt=lTaxV('lk-impext');
+  const el=document.getElementById('l-res-broker');if(!el)return;
+  const rnfe=Math.max(0,ganancia-perdidas),base=trabajo+rnfe;
+  if(base===0){el.innerHTML='';return;}
+  const {imp,det}=lCalcProgTax(base),{imp:impTrab}=lCalcProgTax(trabajo),impFE=imp-impTrab,tasaMedia=imp/base,limiteCred=rnfe*tasaMedia,credExt=Math.min(impExt,limiteCred),saldo=Math.max(0,imp-credExt);
+  el.innerHTML=taxResultHTML([{label:'Base imponible',value:taxFmt(base)},{label:'Tasa media',value:taxPct(tasaMedia)},{label:'Impuesto a pagar',value:taxFmt(saldo),hi:true}],[{label:'Renta neta trabajo',value:taxFmt(trabajo)},{label:'Renta neta fuente ext.',value:taxFmt(rnfe)},{label:'Base total',value:taxFmt(base),cls:'total'},{label:'Impuesto progresivo',value:taxFmt(imp)},{label:'Impto. fuente ext.',value:taxFmt(impFE)},...(impExt>0?[{label:'Límite crédito',value:taxFmt(limiteCred)},{label:'Crédito aplicado',value:'– '+taxFmt(credExt),cls:'credit'}]:[]),{label:'Saldo a pagar',value:taxFmt(saldo),cls:'total'}],taxTramosHTML(det),`Formulario Virtual N° 709 · T/C compra del día de percepción · Art. 51° LIR`);
+}
+function lCalcOtros(){
+  const trabajo=lTaxV('lo-trabajo'),alquiler=lTaxV('lo-alquiler'),intereses=lTaxV('lo-intereses'),dividendos=lTaxV('lo-dividendos'),servicios=lTaxV('lo-servicios'),impExt=lTaxV('lo-impext');
+  const el=document.getElementById('l-res-otros');if(!el)return;
+  const totalFE=alquiler+intereses+dividendos+servicios,base=trabajo+totalFE;
+  if(base===0){el.innerHTML='';return;}
+  const {imp,det}=lCalcProgTax(base),{imp:impTrab}=lCalcProgTax(trabajo),impFE=imp-impTrab,tasaMedia=imp/base,limiteCred=totalFE*tasaMedia,credExt=Math.min(impExt,limiteCred),saldo=Math.max(0,imp-credExt);
+  el.innerHTML=taxResultHTML([{label:'Total fuente ext.',value:taxFmt(totalFE)},{label:'Tasa media',value:taxPct(tasaMedia)},{label:'Impuesto a pagar',value:taxFmt(saldo),hi:true}],[{label:'Renta trabajo',value:taxFmt(trabajo)},...[alquiler>0?{label:'Alquileres',value:taxFmt(alquiler)}:null,intereses>0?{label:'Intereses',value:taxFmt(intereses)}:null,dividendos>0?{label:'Dividendos',value:taxFmt(dividendos)}:null,servicios>0?{label:'Servicios',value:taxFmt(servicios)}:null].filter(Boolean),{label:'Base total',value:taxFmt(base),cls:'total'},{label:'Impuesto progresivo',value:taxFmt(imp)},{label:'Impto. fuente ext.',value:taxFmt(impFE)},...(impExt>0?[{label:'Límite crédito',value:taxFmt(limiteCred)},{label:'Crédito aplicado',value:'– '+taxFmt(credExt),cls:'credit'}]:[]),{label:'Saldo a pagar',value:taxFmt(saldo),cls:'total'}],taxTramosHTML(det),`Formulario Virtual N° 709 · T/C compra del día · Art. 76° y 51° LIR`);
 }
 
 function showToast(m){const t=document.getElementById('toast');t.textContent=m;t.style.display='block';setTimeout(()=>t.style.display='none',3500);}
