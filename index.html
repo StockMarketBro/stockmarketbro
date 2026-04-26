@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- SMB v5.0 -->
+<!-- SMB v6.0 -->
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -658,188 +658,665 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
         <div style="background:var(--gl);color:var(--gd);padding:5px 12px;border-radius:999px;font-size:12px;font-weight:600;" id="l-uit-badge">UIT 2026 = S/ 5,500</div>
       </div>
 
-      <!-- STEP 1: ELEGIR RUTA -->
-        <div class="section-sep">¿Cómo obtienes tus ingresos del exterior?</div>
-      
-        <div class="route-picker">
-          <button class="route-card active" onclick="selectRoute('bolsa', this)" id="rc-bolsa">
-            <span class="rc-icon">🏛️</span>
-            <span class="rc-tag tag-green">5% efectivo</span>
-            <div class="rc-title">Bolsa de Lima o MILA</div>
-            <div class="rc-sub">Acciones negociadas via BVL, o bolsas de Chile, Colombia y México</div>
-          </button>
-          <button class="route-card" onclick="selectRoute('broker', this)" id="rc-broker">
-            <span class="rc-icon">🌐</span>
-            <span class="rc-tag tag-amber">8%–30%</span>
-            <div class="rc-title">Broker extranjero</div>
-            <div class="rc-sub">Interactive Brokers, Robinhood, eToro u otro broker sin convenio MILA</div>
-          </button>
-          <button class="route-card" onclick="selectRoute('otros', this)" id="rc-otros">
-            <span class="rc-icon">💼</span>
-            <span class="rc-tag tag-blue">8%–30%</span>
-            <div class="rc-title">Otros ingresos</div>
-            <div class="rc-sub">Alquileres, intereses, dividendos, servicios prestados en el exterior</div>
-          </button>
+      <!-- ROUTE PICKER -->
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:24px;">
+        <button class="route-card active" onclick="lTaxSelectRoute('bolsa',this)" style="background:var(--bg);">
+          <span class="rc-icon">🏛️</span><span class="rc-tag tag-green">5% efectivo</span>
+          <div class="rc-title">Bolsa de Lima o MILA</div>
+          <div class="rc-sub">Acciones vía BVL, Chile, Colombia, México</div>
+        </button>
+        <button class="route-card" onclick="lTaxSelectRoute('broker',this)" style="background:var(--bg);">
+          <span class="rc-icon">🌐</span><span class="rc-tag tag-amber">8%–30%</span>
+          <div class="rc-title">Broker extranjero</div>
+          <div class="rc-sub">Interactive Brokers, Robinhood, eToro</div>
+        </button>
+        <button class="route-card" onclick="lTaxSelectRoute('otros',this)" style="background:var(--bg);">
+          <span class="rc-icon">💼</span><span class="rc-tag tag-blue">8%–30%</span>
+          <div class="rc-title">Otros ingresos</div>
+          <div class="rc-sub">Alquileres, intereses, dividendos</div>
+        </button>
+      </div>
+
+      <!-- PANELS -->
+      <div class="tax-panel active" id="l-tax-panel-bolsa">
+        <div class="explainer"><span class="exp-icon">💡</span><span>Tasa fija del <strong>5% sobre tu ganancia</strong> (6.25% sobre renta neta tras deducir 20%). Sin pagos mensuales — declaras una vez al año.</span></div>
+        <div class="tax-form-grid">
+          <div class="tax-field"><label>Precio total de venta</label><div class="currency-wrap"><span class="prefix">S/</span><input type="number" id="lb-venta" placeholder="ej. 50,000" min="0" oninput="lCalcBolsa()"></div></div>
+          <div class="tax-field"><label>Costo de adquisición</label><div class="currency-wrap"><span class="prefix">S/</span><input type="number" id="lb-costo" placeholder="ej. 35,000" min="0" oninput="lCalcBolsa()"></div></div>
+          <div class="tax-field"><label>Gastos (comisiones)</label><div class="currency-wrap"><span class="prefix">S/</span><input type="number" id="lb-gastos" value="0" min="0" oninput="lCalcBolsa()"></div></div>
+          <div class="tax-field"><label>Pérdidas año anterior</label><div class="currency-wrap"><span class="prefix">S/</span><input type="number" id="lb-perdidas" value="0" min="0" oninput="lCalcBolsa()"></div></div>
+          <div class="tax-field"><label>Impuesto pagado exterior</label><div class="currency-wrap"><span class="prefix">S/</span><input type="number" id="lb-impext" value="0" min="0" oninput="lCalcBolsa()"></div></div>
+          <div class="tax-field"><label>Retenciones CAVALI</label><div class="currency-wrap"><span class="prefix">S/</span><input type="number" id="lb-ret" value="0" min="0" oninput="lCalcBolsa()"></div></div>
         </div>
-      
-        <!-- PANEL A: BVL / MILA -->
-        <div class="panel active" id="panel-bolsa">
-          <div class="explainer">
-            <span class="exp-icon">💡</span>
-            <span>Si vendes acciones de empresas extranjeras <strong>usando la BVL o bolsas del MILA</strong>, pagas una tasa fija del <strong>5% sobre tu ganancia</strong> (equivale al 6.25% sobre la ganancia neta tras descontar un 20% fijo). Es la opción más conveniente tributariamente. No hay pagos mensuales — solo declaras una vez al año.</span>
-          </div>
-      
-          <div class="section-sep">Datos de tu operación</div>
-          <div class="form-grid">
-            <div class="field">
-              <label>Precio total de venta</label>
-              <div class="currency-wrap"><span class="prefix">S/</span><input type="number" id="b-venta" placeholder="ej. 50,000" min="0" oninput="calcBolsa()"></div>
-              <span class="hint">¿Cuánto recibiste por la venta?</span>
-            </div>
-            <div class="field">
-              <label>Costo de adquisición</label>
-              <div class="currency-wrap"><span class="prefix">S/</span><input type="number" id="b-costo" placeholder="ej. 35,000" min="0" oninput="calcBolsa()"></div>
-              <span class="hint">¿Cuánto pagaste originalmente?</span>
-            </div>
-          </div>
-          <div class="form-grid">
-            <div class="field">
-              <label>Gastos de compra (comisiones)</label>
-              <div class="currency-wrap"><span class="prefix">S/</span><input type="number" id="b-gastos" placeholder="ej. 200" min="0" value="0" oninput="calcBolsa()"></div>
-              <span class="hint">Comisiones del broker al comprar</span>
-            </div>
-            <div class="field">
-              <label>Pérdidas de capital del año anterior</label>
-              <div class="currency-wrap"><span class="prefix">S/</span><input type="number" id="b-perdidas" placeholder="ej. 0" min="0" value="0" oninput="calcBolsa()"></div>
-              <span class="hint">Si tuviste pérdidas el año pasado puedes descontarlas</span>
-            </div>
-          </div>
-          <div class="form-grid">
-            <div class="field">
-              <label>Impuesto ya pagado en el exterior</label>
-              <div class="currency-wrap"><span class="prefix">S/</span><input type="number" id="b-impext" placeholder="ej. 0" min="0" value="0" oninput="calcBolsa()"></div>
-              <span class="hint">Si el broker te retuvo impuesto en otro país</span>
-            </div>
-            <div class="field">
-              <label>Retenciones CAVALI / agente</label>
-              <div class="currency-wrap"><span class="prefix">S/</span><input type="number" id="b-ret" placeholder="ej. 0" min="0" value="0" oninput="calcBolsa()"></div>
-              <span class="hint">Retención automática si operaste por CAVALI</span>
-            </div>
-          </div>
-          <div id="res-bolsa"></div>
+        <div id="l-res-bolsa"></div>
+      </div>
+
+      <div class="tax-panel" id="l-tax-panel-broker">
+        <div class="explainer amber"><span class="exp-icon">⚠️</span><span>Las ganancias de brokers como <strong>Interactive Brokers o Robinhood</strong> se suman a tus ingresos de trabajo con tasas del 8% al 30%.</span></div>
+        <div class="tax-form-grid">
+          <div class="tax-field"><label>Renta neta de trabajo (4ta/5ta cat.)</label><div class="currency-wrap"><span class="prefix">S/</span><input type="number" id="lk-trabajo" value="0" min="0" oninput="lCalcBroker()"></div><span class="hint">Ingresos laborales menos 7 UIT</span></div>
+          <div class="tax-field"><label>Ganancia neta del broker</label><div class="currency-wrap"><span class="prefix">S/</span><input type="number" id="lk-ganancia" value="0" min="0" oninput="lCalcBroker()"></div><span class="hint">Venta − costo, en soles</span></div>
+          <div class="tax-field"><label>Pérdidas compensables</label><div class="currency-wrap"><span class="prefix">S/</span><input type="number" id="lk-perdidas" value="0" min="0" oninput="lCalcBroker()"></div></div>
+          <div class="tax-field"><label>Impuesto pagado exterior</label><div class="currency-wrap"><span class="prefix">S/</span><input type="number" id="lk-impext" value="0" min="0" oninput="lCalcBroker()"></div></div>
         </div>
-      
-        <!-- PANEL B: BROKER EXTRANJERO -->
-        <div class="panel" id="panel-broker">
-          <div class="explainer amber">
-            <span class="exp-icon">⚠️</span>
-            <span>Si usas un broker como <strong>Interactive Brokers o Robinhood</strong> para comprar acciones en NYSE o NASDAQ, esas ganancias <strong>se suman a tus ingresos de trabajo</strong> y pagan tasas del 8% al 30%. La deducción de 7 UIT solo aplica sobre tus rentas de trabajo en Perú — <strong>no sobre la ganancia del exterior</strong>.</span>
-          </div>
-      
-          <div class="section-sep">Tus ingresos de trabajo en Perú</div>
-          <div class="form-grid">
-            <div class="field">
-              <label>Tipo de renta de trabajo</label>
-              <select id="k-tipo" onchange="calcBroker()">
-                <option value="quinta">5ta categoría — empleado en planilla</option>
-                <option value="cuarta">4ta categoría — independiente / recibos por honorarios</option>
-                <option value="ninguna">No tengo ingresos de trabajo en Perú</option>
-              </select>
-              <span class="hint">Esto determina qué deducciones aplican</span>
-            </div>
-            <div class="field" id="k-bruto-wrap">
-              <label>Ingreso bruto anual de trabajo (S/)</label>
-              <div class="currency-wrap"><span class="prefix">S/</span><input type="number" id="k-bruto" placeholder="ej. 120,000" min="0" value="0" oninput="calcBroker()"></div>
-              <span class="hint" id="k-bruto-hint">Suma de todos tus sueldos del año (antes de deducciones)</span>
-            </div>
-          </div>
-      
-          <div class="section-sep">Tu ganancia en broker extranjero</div>
-          <div class="form-grid">
-            <div class="field">
-              <label>Precio de venta de acciones (S/)</label>
-              <div class="currency-wrap"><span class="prefix">S/</span><input type="number" id="k-venta" placeholder="ej. 50,000" min="0" value="0" oninput="calcBroker()"></div>
-              <span class="hint">Monto recibido por la venta, convertido a soles</span>
-            </div>
-            <div class="field">
-              <label>Costo de adquisición (S/)</label>
-              <div class="currency-wrap"><span class="prefix">S/</span><input type="number" id="k-costo" placeholder="ej. 30,000" min="0" value="0" oninput="calcBroker()"></div>
-              <span class="hint">Lo que pagaste al comprar las acciones, en soles</span>
-            </div>
-          </div>
-          <div class="form-grid">
-            <div class="field">
-              <label>Pérdidas de otras inversiones extranjeras (S/)</label>
-              <div class="currency-wrap"><span class="prefix">S/</span><input type="number" id="k-perdidas" placeholder="ej. 0" min="0" value="0" oninput="calcBroker()"></div>
-              <span class="hint">Pérdidas de otras ventas en el exterior del mismo año (se compensan entre sí)</span>
-            </div>
-            <div class="field">
-              <label>Impuesto retenido en el exterior (S/)</label>
-              <div class="currency-wrap"><span class="prefix">S/</span><input type="number" id="k-impext" placeholder="ej. 0" min="0" value="0" oninput="calcBroker()"></div>
-              <span class="hint">Si el broker o el país extranjero ya te cobró impuesto (crédito con límite)</span>
-            </div>
-          </div>
-          <div id="res-broker"></div>
+        <div id="l-res-broker"></div>
+      </div>
+
+      <div class="tax-panel" id="l-tax-panel-otros">
+        <div class="explainer blue"><span class="exp-icon">📋</span><span>Alquileres, intereses, dividendos o servicios del exterior se suman con tasas progresivas. <strong>Sin pagos mensuales.</strong></span></div>
+        <div class="tax-form-grid">
+          <div class="tax-field"><label>Renta neta de trabajo</label><div class="currency-wrap"><span class="prefix">S/</span><input type="number" id="lo-trabajo" value="0" min="0" oninput="lCalcOtros()"></div></div>
+          <div class="tax-field"><label>Alquiler inmueble exterior</label><div class="currency-wrap"><span class="prefix">S/</span><input type="number" id="lo-alquiler" value="0" min="0" oninput="lCalcOtros()"></div></div>
+          <div class="tax-field"><label>Intereses cuentas exterior</label><div class="currency-wrap"><span class="prefix">S/</span><input type="number" id="lo-intereses" value="0" min="0" oninput="lCalcOtros()"></div></div>
+          <div class="tax-field"><label>Dividendos extranjeros</label><div class="currency-wrap"><span class="prefix">S/</span><input type="number" id="lo-dividendos" value="0" min="0" oninput="lCalcOtros()"></div></div>
+          <div class="tax-field"><label>Servicios en el exterior</label><div class="currency-wrap"><span class="prefix">S/</span><input type="number" id="lo-servicios" value="0" min="0" oninput="lCalcOtros()"></div></div>
+          <div class="tax-field"><label>Impuesto pagado exterior</label><div class="currency-wrap"><span class="prefix">S/</span><input type="number" id="lo-impext" value="0" min="0" oninput="lCalcOtros()"></div></div>
         </div>
-      
-        <!-- PANEL C: OTROS INGRESOS -->
-        <div class="panel" id="panel-otros">
-          <div class="explainer blue">
-            <span class="exp-icon">📋</span>
-            <span>Alquileres, intereses bancarios en el exterior, dividendos o servicios prestados afuera del Perú — todos se suman a tus ingresos de trabajo. La deducción de 7 UIT solo aplica sobre tu renta de trabajo en Perú. <strong>Los ingresos del exterior se suman directamente a la base</strong>, sin deducción propia.</span>
+        <div id="l-res-otros"></div>
+      </div>
+
+      <div style="margin-top:18px;padding:10px 14px;background:var(--rl);border-radius:var(--rad);font-size:11px;color:var(--rd);">
+        ⚠️ <strong>Aviso:</strong> Solo fines educativos. Consulta a un contador certificado para tu declaración real. Formulario Virtual N° 709 · SUNAT.
+      </div>
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div style="background:var(--bg2);border-top:0.5px solid var(--br);padding:56px 28px;text-align:center;">
+    <h2 class="a1" style="font-size:30px;font-weight:700;letter-spacing:-.02em;margin-bottom:9px;">Empieza a invertir<br><span style="color:var(--g);">inteligentemente hoy</span></h2>
+    <p class="a2" style="font-size:15px;color:var(--tx2);margin-bottom:24px;">Crea tu cuenta gratis y accede a todos los módulos · 100% gratis</p>
+    <div class="hero-btns a3">
+      <button class="btn-primary" onclick="openModal('register')" style="font-size:14px;padding:12px 26px;">Crear cuenta gratis</button>
+      <button class="btn-secondary" onclick="goTo('#sim-section')" style="font-size:14px;padding:12px 26px;">Probar el simulador</button>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div style="background:#111;">
+    <div class="mini-disclaimer">
+      <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="rgba(239,159,39,0.6)" stroke-width="1.2"/><path d="M8 5v4M8 10.5v.5" stroke="rgba(239,159,39,0.8)" stroke-width="1.4" stroke-linecap="round"/></svg>
+      <div class="mini-disclaimer-text"><strong>Aviso importante:</strong> El contenido de StockMarketBro es exclusivamente con fines educativos e informativos. No constituye asesoramiento financiero, ni recomendación de compra o venta de ningún instrumento financiero.</div>
+    </div>
+    <div class="footer">
+      <div class="footer-inner">
+        <div class="footer-top">
+          <div>
+            <div class="footer-brand"><img src="logo.png" onerror="this.style.display='none'" alt="SMB"><div class="footer-brand-name">STOCKMARKET<span>BRO</span></div></div>
+            <div class="footer-desc">Plataforma educativa de trading e inversiones. Aprende, practica y analiza el mercado con herramientas profesionales — sin arriesgar dinero real.</div>
           </div>
-      
-          <div class="section-sep">Tus ingresos de trabajo en Perú</div>
-          <div class="form-grid">
-            <div class="field">
-              <label>Tipo de renta de trabajo</label>
-              <select id="o-tipo" onchange="calcOtros()">
-                <option value="quinta">5ta categoría — empleado en planilla</option>
-                <option value="cuarta">4ta categoría — independiente / recibos por honorarios</option>
-                <option value="ninguna">No tengo ingresos de trabajo en Perú</option>
-              </select>
-            </div>
-            <div class="field" id="o-bruto-wrap">
-              <label>Ingreso bruto anual de trabajo (S/)</label>
-              <div class="currency-wrap"><span class="prefix">S/</span><input type="number" id="o-bruto" placeholder="ej. 80,000" min="0" value="0" oninput="calcOtros()"></div>
-              <span class="hint" id="o-bruto-hint">Suma anual de sueldos / honorarios antes de deducciones</span>
-            </div>
-          </div>
-      
-          <div class="section-sep">Ingresos del exterior (anuales, en soles)</div>
-          <div class="form-grid">
-            <div class="field">
-              <label>Alquiler de inmueble en el extranjero</label>
-              <div class="currency-wrap"><span class="prefix">S/</span><input type="number" id="o-alquiler" placeholder="ej. 0" min="0" value="0" oninput="calcOtros()"></div>
-            </div>
-            <div class="field">
-              <label>Intereses de cuentas bancarias en el exterior</label>
-              <div class="currency-wrap"><span class="prefix">S/</span><input type="number" id="o-intereses" placeholder="ej. 0" min="0" value="0" oninput="calcOtros()"></div>
-            </div>
-          </div>
-          <div class="form-grid">
-            <div class="field">
-              <label>Dividendos de empresas extranjeras</label>
-              <div class="currency-wrap"><span class="prefix">S/</span><input type="number" id="o-dividendos" placeholder="ej. 0" min="0" value="0" oninput="calcOtros()"></div>
-            </div>
-            <div class="field">
-              <label>Servicios / honorarios prestados en el exterior</label>
-              <div class="currency-wrap"><span class="prefix">S/</span><input type="number" id="o-servicios" placeholder="ej. 0" min="0" value="0" oninput="calcOtros()"></div>
+          <div>
+            <div class="footer-col-title">Módulos</div>
+            <div class="footer-links">
+              <span class="footer-link">Mercado en tiempo real</span>
+              <span class="footer-link">Simulador de trading</span>
+              <span class="footer-link">Señales del autor</span>
+              <span class="footer-link">Educación por niveles</span>
+              <span class="footer-link">Quiz interactivo</span>
+              <span class="footer-link">Alertas de precio</span>
+              <span class="footer-link">Glosario financiero</span>
             </div>
           </div>
-          <div class="form-grid">
-            <div class="field">
-              <label>Otros ingresos del exterior</label>
-              <div class="currency-wrap"><span class="prefix">S/</span><input type="number" id="o-otros" placeholder="ej. 0" min="0" value="0" oninput="calcOtros()"></div>
-            </div>
-            <div class="field">
-              <label>Impuesto retenido en el exterior (S/)</label>
-              <div class="currency-wrap"><span class="prefix">S/</span><input type="number" id="o-impext" placeholder="ej. 0" min="0" value="0" oninput="calcOtros()"></div>
-              <span class="hint">Crédito deducible con límite de tasa media</span>
+          <div>
+            <div class="footer-col-title">Legal</div>
+            <div class="footer-links">
+              <span class="footer-link">Aviso de riesgo</span>
+              <span class="footer-link">Política de privacidad</span>
+              <span class="footer-link">Términos de uso</span>
+              <span class="footer-link">Contacto</span>
             </div>
           </div>
-          <div id="res-otros"></div>
         </div>
+        <hr class="footer-divider">
+        <div class="disclaimer-box">
+          <div class="disclaimer-header">
+            <svg width="18" height="18" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="rgba(239,159,39,0.7)" stroke-width="1.2"/><path d="M8 5v4M8 10.5v.5" stroke="rgba(239,159,39,0.9)" stroke-width="1.4" stroke-linecap="round"/></svg>
+            <div class="disclaimer-title">Aviso legal y de riesgo — leer antes de operar</div>
+          </div>
+          <div class="disclaimer-text">
+            <strong>Fines exclusivamente educativos.</strong> Todo el contenido publicado en StockMarketBro — incluyendo análisis técnicos, análisis fundamentales, análisis macroeconómicos, señales, alertas, gráficos, simulaciones y cualquier otra información — tiene carácter <strong>estrictamente educativo e informativo</strong>. No constituye, bajo ninguna circunstancia, asesoramiento financiero, recomendación de inversión, ni sugerencia de compra o venta de ningún instrumento financiero, valor, acción, criptomoneda, divisa, materia prima u otro activo.<br><br>
+            <strong>No somos asesores financieros.</strong> Las opiniones expresadas en esta plataforma representan análisis técnicos, fundamentales y macroeconómicos de carácter personal y educativo. <strong>No estamos registrados como asesores de inversión</strong> ante ninguna autoridad regulatoria. Toda decisión de inversión que el usuario tome es de su exclusiva responsabilidad.<br><br>
+            <strong>Riesgo de pérdida.</strong> Invertir en mercados financieros implica un riesgo significativo de pérdida, incluyendo la pérdida total del capital invertido. El rendimiento pasado no garantiza resultados futuros. Antes de tomar cualquier decisión de inversión, le recomendamos consultar con un asesor financiero certificado y regulado en su jurisdicción.<br><br>
+            <strong>Simulación.</strong> El simulador de trading utiliza dinero ficticio con fines de práctica educativa. Los resultados obtenidos en la simulación no reflejan ni garantizan resultados reales en mercados financieros reales.<br><br>
+            Al acceder y utilizar StockMarketBro, el usuario reconoce haber leído, comprendido y aceptado este aviso legal en su totalidad.
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <div class="footer-copy">© 2026 StockMarketBro. Todos los derechos reservados. Hecho con fines educativos.</div>
+          <div class="footer-badges">
+            <span class="footer-badge">Solo educativo</span>
+            <span class="footer-badge">No asesoramiento financiero</span>
+            <span class="footer-badge">Simulación ficticia</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div><!-- end landing -->
+
+<!-- ═══ APP DASHBOARD ═══ -->
+<div class="app-ui" id="app-ui">
+  <div class="install-banner" id="install-banner">
+    <span>📲 Instala StockMarketBro en tu dispositivo</span>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <button class="install-btn" id="install-btn">Instalar</button>
+      <button style="background:transparent;border:none;color:#fff;font-size:18px;cursor:pointer;" onclick="document.getElementById('install-banner').classList.remove('show')">✕</button>
+    </div>
+  </div>
+  <div class="app-topbar">
+    <div style="display:flex;align-items:center;gap:12px;">
+      <button onclick="goToLanding()" style="padding:5px 10px;border-radius:var(--rad);border:0.5px solid var(--br);background:transparent;font-size:12px;cursor:pointer;color:var(--tx2);font-family:inherit;">← Inicio</button>
+      <div class="logo">
+        <img src="logo.png" onerror="this.style.display='none'" alt="SMB">
+        <div class="logo-name">STOCKMARKET<span>BRO</span></div>
+      </div>
+    </div>
+    <div class="app-nav">
+      <button class="app-nav-btn active" onclick="showAppTab('mercado')">Mercado</button>
+      <button class="app-nav-btn" onclick="showAppTab('senales')">Señales <span class="notif-dot" id="rec-dot" style="display:none;"></span></button>
+      <button class="app-nav-btn" onclick="showAppTab('educacion')">Educación</button>
+      <button class="app-nav-btn" onclick="showAppTab('simulador')">Simulador</button>
+      <button class="app-nav-btn" onclick="showAppTab('calculadora')">🧮 Impuestos</button>
+      <button class="app-nav-btn" id="analytics-btn" onclick="showAppTab('analytics')" style="border:0.5px solid var(--br);display:none;">📊 Analytics</button>
+      <button class="app-nav-btn" id="autor-btn" onclick="showAppTab('autor')" style="border:0.5px solid var(--br);display:none;">Panel autor</button>
+    </div>
+    <div style="position:relative;">
+      <div class="user-avatar" id="user-avatar" onclick="toggleUM()">?</div>
+      <div class="user-menu" id="user-menu">
+        <div class="um-name" id="um-name">—</div>
+        <div class="um-email" id="um-email">—</div>
+        <div class="um-item" onclick="doSignOut()">🚪 Cerrar sesión</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MERCADO -->
+  <div id="tab-mercado" class="app-section-content active">
+    <div class="tv-wrap">
+      <div class="tradingview-widget-container"><div class="tradingview-widget-container__widget"></div>
+        <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
+        {"symbols":[{"proName":"FOREXCOM:SPXUSD","title":"S&P 500"},{"proName":"NASDAQ:AAPL","title":"Apple"},{"proName":"NASDAQ:MSFT","title":"Microsoft"},{"proName":"NASDAQ:TSLA","title":"Tesla"},{"proName":"NASDAQ:GOOGL","title":"Alphabet"},{"proName":"NASDAQ:NVDA","title":"NVIDIA"},{"proName":"BITSTAMP:BTCUSD","title":"Bitcoin"},{"proName":"FOREXCOM:NSXUSD","title":"NASDAQ 100"}],"showSymbolLogo":true,"isTransparent":true,"displayMode":"adaptive","colorTheme":"light","locale":"es"}
+        </script>
+      </div>
+    </div>
+    <div class="section-card" style="padding:0;">
+      <div style="padding:11px 14px 9px;border-bottom:0.5px solid var(--br);">
+        <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px;">
+          <input id="app-sym-input" type="text" placeholder="Busca símbolo..." style="flex:1;min-width:160px;padding:7px 11px;border:0.5px solid var(--br);border-radius:var(--rad);font-size:13px;background:var(--bg2);color:var(--tx);outline:none;font-family:inherit;" onkeydown="if(event.key==='Enter')appSearchSym()" oninput="this.value=this.value.toUpperCase()">
+          <button onclick="appSearchSym()" style="padding:7px 13px;border-radius:var(--rad);border:none;background:var(--g);color:#fff;font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;">Ver gráfico</button>
+        </div>
+        <div style="display:flex;gap:4px;flex-wrap:wrap;">
+          <button class="app-nav-btn active" onclick="appQuickLoad('NASDAQ:AAPL','AAPL',this)">AAPL</button>
+          <button class="app-nav-btn" onclick="appQuickLoad('NASDAQ:MSFT','MSFT',this)">MSFT</button>
+          <button class="app-nav-btn" onclick="appQuickLoad('NASDAQ:TSLA','TSLA',this)">TSLA</button>
+          <button class="app-nav-btn" onclick="appQuickLoad('NASDAQ:NVDA','NVDA',this)">NVDA</button>
+          <button class="app-nav-btn" onclick="appQuickLoad('NASDAQ:GOOGL','GOOGL',this)">GOOGL</button>
+          <button class="app-nav-btn" onclick="appQuickLoad('FOREXCOM:SPXUSD','S&P500',this)">S&P500</button>
+          <button class="app-nav-btn" onclick="appQuickLoad('BITSTAMP:BTCUSD','BTC',this)">BTC</button>
+          <button class="app-nav-btn" onclick="appQuickLoad('TVC:GOLD','ORO',this)">ORO</button>
+        </div>
+      </div>
+      <div id="app-chart" style="height:380px;"></div>
+    </div>
+    <div class="two-col">
+      <div class="section-card"><div class="section-card-title">Acciones</div>
+        <div class="tradingview-widget-container"><div class="tradingview-widget-container__widget"></div>
+          <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-market-quotes.js" async>
+          {"symbols":[["Apple","NASDAQ:AAPL|1D"],["Microsoft","NASDAQ:MSFT|1D"],["Tesla","NASDAQ:TSLA|1D"],["NVIDIA","NASDAQ:NVDA|1D"],["Amazon","NASDAQ:AMZN|1D"],["S&P 500","FOREXCOM:SPXUSD|1D"]],"showSymbolLogo":false,"isTransparent":true,"colorTheme":"light","locale":"es","width":"100%","height":250}
+          </script>
+        </div>
+      </div>
+      <div class="section-card"><div class="section-card-title">Criptomonedas</div>
+        <div class="tradingview-widget-container"><div class="tradingview-widget-container__widget"></div>
+          <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-market-quotes.js" async>
+          {"symbols":[["Bitcoin","BITSTAMP:BTCUSD|1D"],["Ethereum","BITSTAMP:ETHUSD|1D"],["Solana","COINBASE:SOLUSD|1D"],["BNB","BINANCE:BNBUSD|1D"],["XRP","BITSTAMP:XRPUSD|1D"],["Cardano","COINBASE:ADAUSD|1D"]],"showSymbolLogo":false,"isTransparent":true,"colorTheme":"light","locale":"es","width":"100%","height":250}
+          </script>
+        </div>
+      </div>
+    </div>
+
+    <!-- HEATMAP -->
+    <div class="section-card" style="padding:0;overflow:hidden;">
+      <div style="padding:12px 16px 10px;border-bottom:0.5px solid var(--br);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+        <div>
+          <div class="section-card-title" style="margin:0;">Mapa de calor del mercado</div>
+          <div style="font-size:11px;color:var(--tx2);margin-top:2px;">S&P 500 · Rendimiento por sector · TradingView</div>
+        </div>
+        <div style="display:flex;gap:5px;" id="heatmap-filters">
+          <button class="app-nav-btn active" id="hm-sp500" onclick="switchHeatmap('sp500',this)">S&P 500</button>
+          <button class="app-nav-btn" id="hm-crypto" onclick="switchHeatmap('crypto',this)">Cripto</button>
+          <button class="app-nav-btn" id="hm-etf" onclick="switchHeatmap('etf',this)">ETFs</button>
+        </div>
+      </div>
+      <div id="heatmap-container" style="height:500px;">
+        <div class="tradingview-widget-container" style="height:100%;">
+          <div class="tradingview-widget-container__widget" style="height:100%;"></div>
+          <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-stock-heatmap.js" async>
+          {"exchanges":[],"dataSource":"SPX500","grouping":"sector","blockSize":"market_cap_basic","blockColor":"change","locale":"es","colorTheme":"light","hasTopBar":false,"isDataSetEnabled":false,"isZoomEnabled":true,"hasSymbolTooltip":true,"isMonoSize":false,"width":"100%","height":"500"}
+          </script>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SEÑALES -->
+  <div id="tab-senales" class="app-section-content">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+      <div><div style="font-size:15px;font-weight:600;">Centro de Alertas · StockMarketBro</div><div style="font-size:12px;color:var(--tx2);margin-top:2px;">Señales del autor + análisis técnico automático</div></div>
+      <button onclick="runScan()" id="scan-btn" style="padding:7px 14px;border-radius:var(--rad);border:0.5px solid var(--br);background:var(--bg);font-size:12px;cursor:pointer;font-family:inherit;">↻ Actualizar señales</button>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:9px;">
+      <div style="background:var(--bg2);border-radius:var(--rad);padding:11px;text-align:center;"><div style="font-size:20px;font-weight:700;" id="stat-total">—</div><div style="font-size:10px;color:var(--tx2);margin-top:2px;text-transform:uppercase;letter-spacing:.04em;">Analizadas</div></div>
+      <div style="background:var(--gl);border-radius:var(--rad);padding:11px;text-align:center;"><div style="font-size:20px;font-weight:700;color:var(--gd);" id="stat-buy">—</div><div style="font-size:10px;color:var(--gd);margin-top:2px;text-transform:uppercase;letter-spacing:.04em;">Compra</div></div>
+      <div style="background:var(--rl);border-radius:var(--rad);padding:11px;text-align:center;"><div style="font-size:20px;font-weight:700;color:var(--rd);" id="stat-sell">—</div><div style="font-size:10px;color:var(--rd);margin-top:2px;text-transform:uppercase;letter-spacing:.04em;">Venta</div></div>
+      <div style="background:var(--bg2);border-radius:var(--rad);padding:11px;text-align:center;"><div style="font-size:20px;font-weight:700;color:var(--rd);" id="stat-vh">—</div><div style="font-size:10px;color:var(--tx2);margin-top:2px;text-transform:uppercase;letter-spacing:.04em;">Nivel muy alta</div></div>
+      <div style="background:var(--bg2);border-radius:var(--rad);padding:11px;text-align:center;"><div style="font-size:20px;font-weight:700;color:var(--ad);" id="stat-h">—</div><div style="font-size:10px;color:var(--tx2);margin-top:2px;text-transform:uppercase;letter-spacing:.04em;">Nivel alta</div></div>
+      <div style="background:var(--bg2);border-radius:var(--rad);padding:11px;text-align:center;"><div style="font-size:13px;font-weight:600;" id="stat-upd">—</div><div style="font-size:10px;color:var(--tx2);margin-top:2px;text-transform:uppercase;letter-spacing:.04em;">Actualización</div></div>
+    </div>
+    <div class="progress-bar" id="scan-pb"><div class="progress-fill" id="scan-pf" style="width:0%"></div></div>
+    <div class="alerts-grid">
+      <div class="section-card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:6px;">
+          <div class="section-card-title" style="margin:0;"><span class="live-dot"></span>Señales automáticas</div>
+          <div class="filter-tabs" id="auto-ftabs">
+            <button class="ftab active" onclick="filterAuto('all',this)">Todas</button>
+            <button class="ftab" onclick="filterAuto('buy',this)" style="background:var(--gl);color:var(--gd);border-color:var(--gl);">Compra</button>
+            <button class="ftab" onclick="filterAuto('sell',this)" style="background:var(--rl);color:var(--rd);border-color:var(--rl);">Venta</button>
+            <button class="ftab" onclick="filterAuto('very-high',this)">Muy alta</button>
+            <button class="ftab" onclick="filterAuto('high',this)">Alta</button>
+          </div>
+        </div>
+        <div id="auto-list"><div class="loading-state">Cargando análisis técnico...</div></div>
+        <div style="font-size:10px;color:var(--tx2);margin-top:8px;" id="auto-update"></div>
+      </div>
+      <div class="section-card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:6px;">
+          <div class="section-card-title" style="margin:0;">Señales del autor</div>
+          <div class="filter-tabs" id="auth-ftabs">
+            <button class="ftab active" onclick="filterAuthor('all',this)">Todas</button>
+            <button class="ftab" onclick="filterAuthor('compra',this)">Compra</button>
+            <button class="ftab" onclick="filterAuthor('venta',this)">Venta</button>
+            <button class="ftab" onclick="filterAuthor('alerta',this)">Alerta</button>
+          </div>
+        </div>
+        <div id="author-list"><div class="loading-state">Cargando señales...</div></div>
+      </div>
+    </div>
+    <!-- MANUAL PRICE ALERTS -->
+    <div class="section-card">
+      <div class="section-card-title">Alertas de precio personalizadas</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:9px;align-items:end;margin-bottom:12px;">
+        <div><div style="font-size:11px;color:var(--tx2);margin-bottom:3px;">Símbolo</div><select id="al-sym" style="width:100%;padding:7px 9px;border:0.5px solid var(--br);border-radius:var(--rad);font-size:13px;background:var(--bg2);color:var(--tx);font-family:inherit;"><option value="AAPL">AAPL</option><option value="MSFT">MSFT</option><option value="TSLA">TSLA</option><option value="GOOGL">GOOGL</option><option value="NVDA">NVDA</option><option value="AMZN">AMZN</option><option value="META">META</option><option value="NFLX">NFLX</option></select></div>
+        <div><div style="font-size:11px;color:var(--tx2);margin-bottom:3px;">Condición</div><select id="al-type" style="width:100%;padding:7px 9px;border:0.5px solid var(--br);border-radius:var(--rad);font-size:13px;background:var(--bg2);color:var(--tx);font-family:inherit;"><option value="above">Sube encima de</option><option value="below">Cae debajo de</option></select></div>
+        <div><div style="font-size:11px;color:var(--tx2);margin-bottom:3px;">Precio ($)</div><input type="number" id="al-price" placeholder="ej. 200" style="width:100%;padding:7px 9px;border:0.5px solid var(--br);border-radius:var(--rad);font-size:13px;background:var(--bg2);color:var(--tx);outline:none;font-family:inherit;"></div>
+        <button onclick="addAlert()" style="padding:8px 14px;border-radius:var(--rad);border:none;background:var(--g);color:#fff;font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;white-space:nowrap;">+ Agregar</button>
+      </div>
+      <div id="alerts-list"><div class="empty">Sin alertas configuradas.</div></div>
+    </div>
+  </div>
+
+  <!-- EDUCACIÓN -->
+  <div id="tab-educacion" class="app-section-content">
+
+    <!-- CURSO CÓDIGO BOLSA -->
+    <div style="background:linear-gradient(135deg,#0a0a0a 0%,#1a1a2e 50%,#16213e 100%);border-radius:var(--rad-xl);overflow:hidden;position:relative;">
+      <div style="padding:20px 24px 16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+        <div>
+          <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.1);padding:3px 10px;border-radius:999px;margin-bottom:10px;">
+            <span style="width:6px;height:6px;border-radius:50%;background:#ff4444;display:inline-block;animation:pulse 1.5s infinite;"></span>
+            <span style="font-size:10px;font-weight:600;color:rgba(255,255,255,0.8);text-transform:uppercase;letter-spacing:0.08em;">Curso exclusivo</span>
+          </div>
+          <div style="font-size:22px;font-weight:800;color:#fff;letter-spacing:-0.02em;margin-bottom:4px;">
+            📈 CÓDIGO <span style="color:#1D9E75;">BOLSA</span>
+          </div>
+          <div style="font-size:13px;color:rgba(255,255,255,0.6);margin-bottom:12px;">Aprende a invertir desde cero · Por StockMarketBro</div>
+          <div style="display:inline-flex;align-items:center;gap:8px;background:rgba(29,158,117,0.2);border:1px solid rgba(29,158,117,0.4);padding:5px 12px;border-radius:999px;">
+            <span style="font-size:18px;">▶️</span>
+            <span style="font-size:13px;font-weight:600;color:#1D9E75;">Sesión 1 — Introducción al mercado</span>
+          </div>
+        </div>
+        <div style="font-size:48px;opacity:0.15;position:absolute;right:24px;top:50%;transform:translateY(-50%);">📊</div>
+      </div>
+      <div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;">
+        <iframe
+          src="https://www.youtube.com/embed/nSXTPARR5B0?rel=0&modestbranding=1&color=white"
+          style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;"
+          allowfullscreen
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture">
+        </iframe>
+      </div>
+      <div style="padding:12px 24px;display:flex;align-items:center;gap:16px;border-top:1px solid rgba(255,255,255,0.07);">
+        <div style="display:flex;align-items:center;gap:6px;"><span style="font-size:14px;">🎓</span><span style="font-size:12px;color:rgba(255,255,255,0.5);">Nivel: Principiante</span></div>
+        <div style="display:flex;align-items:center;gap:6px;"><span style="font-size:14px;">⏱️</span><span style="font-size:12px;color:rgba(255,255,255,0.5);">Sesión 1 de N</span></div>
+        <div style="display:flex;align-items:center;gap:6px;"><span style="font-size:14px;">📡</span><span style="font-size:12px;color:rgba(255,255,255,0.5);">StockMarketBro</span></div>
+      </div>
+    </div>
+
+    <div style="font-size:13px;color:var(--tx2);">Haz clic en una lección para explorarla</div>
+    <div class="three-col">
+      <div class="feat-card" style="cursor:pointer;" onclick="openLesson('bolsa')"><div class="feat-icon" style="background:var(--gl);">📈</div><div class="feat-title">¿Qué es la bolsa?</div><div class="feat-desc">Conceptos básicos del mercado.</div><span style="display:inline-block;margin-top:6px;padding:2px 7px;border-radius:999px;font-size:10px;font-weight:500;background:var(--gl);color:var(--gd);">Básico</span></div>
+      <div class="feat-card" style="cursor:pointer;" onclick="openLesson('acciones')"><div class="feat-icon" style="background:var(--gl);">💹</div><div class="feat-title">Acciones y dividendos</div><div class="feat-desc">Cómo funcionan y cómo ganar.</div><span style="display:inline-block;margin-top:6px;padding:2px 7px;border-radius:999px;font-size:10px;font-weight:500;background:var(--gl);color:var(--gd);">Básico</span></div>
+      <div class="feat-card" style="cursor:pointer;" onclick="openLesson('etfs')"><div class="feat-icon" style="background:var(--gl);">🗂️</div><div class="feat-title">ETFs e índices</div><div class="feat-desc">Fondos cotizados y diversificación.</div><span style="display:inline-block;margin-top:6px;padding:2px 7px;border-radius:999px;font-size:10px;font-weight:500;background:var(--gl);color:var(--gd);">Básico</span></div>
+      <div class="feat-card" style="cursor:pointer;" onclick="openLesson('tecnico')"><div class="feat-icon" style="background:var(--al);">📊</div><div class="feat-title">Análisis técnico</div><div class="feat-desc">Gráficos, soportes y resistencias.</div><span style="display:inline-block;margin-top:6px;padding:2px 7px;border-radius:999px;font-size:10px;font-weight:500;background:var(--al);color:var(--ad);">Intermedio</span></div>
+      <div class="feat-card" style="cursor:pointer;" onclick="openLesson('fundamental')"><div class="feat-icon" style="background:var(--al);">🔍</div><div class="feat-title">Análisis fundamental</div><div class="feat-desc">P/E, ROE, deuda y balances.</div><span style="display:inline-block;margin-top:6px;padding:2px 7px;border-radius:999px;font-size:10px;font-weight:500;background:var(--al);color:var(--ad);">Intermedio</span></div>
+      <div class="feat-card" style="cursor:pointer;" onclick="openLesson('riesgo')"><div class="feat-icon" style="background:var(--al);">🛡️</div><div class="feat-title">Gestión del riesgo</div><div class="feat-desc">Stop-loss y reglas de capital.</div><span style="display:inline-block;margin-top:6px;padding:2px 7px;border-radius:999px;font-size:10px;font-weight:500;background:var(--al);color:var(--ad);">Intermedio</span></div>
+      <div class="feat-card" style="cursor:pointer;" onclick="openLesson('opciones')"><div class="feat-icon" style="background:var(--pl);">⚙️</div><div class="feat-title">Opciones financieras</div><div class="feat-desc">Calls, puts y derivados.</div><span style="display:inline-block;margin-top:6px;padding:2px 7px;border-radius:999px;font-size:10px;font-weight:500;background:var(--pl);color:var(--pd);">Avanzado</span></div>
+      <div class="feat-card" style="cursor:pointer;" onclick="openLesson('algo')"><div class="feat-icon" style="background:var(--pl);">🤖</div><div class="feat-title">Trading algorítmico</div><div class="feat-desc">Automatización y backtesting.</div><span style="display:inline-block;margin-top:6px;padding:2px 7px;border-radius:999px;font-size:10px;font-weight:500;background:var(--pl);color:var(--pd);">Avanzado</span></div>
+      <div class="feat-card" style="cursor:pointer;" onclick="openLesson('forex')"><div class="feat-icon" style="background:var(--pl);">💱</div><div class="feat-title">Forex y divisas</div><div class="feat-desc">Pares de divisas y apalancamiento.</div><span style="display:inline-block;margin-top:6px;padding:2px 7px;border-radius:999px;font-size:10px;font-weight:500;background:var(--pl);color:var(--pd);">Avanzado</span></div>
+    </div>
+    <div id="lesson-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:500;align-items:center;justify-content:center;padding:20px;">
+      <div style="background:var(--bg);border-radius:var(--rad-xl);max-width:580px;width:100%;max-height:80vh;overflow-y:auto;padding:22px;position:relative;">
+        <button onclick="closeLesson()" style="position:absolute;top:12px;right:12px;border:none;background:var(--bg2);border-radius:50%;width:26px;height:26px;cursor:pointer;font-size:13px;color:var(--tx2);">✕</button>
+        <div id="lesson-content" style="font-size:14px;line-height:1.7;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SIMULADOR -->
+  <div id="tab-simulador" class="app-section-content">
+    <!-- BALANCE ROW -->
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;">
+      <div class="section-card"><div class="sim-label-sm">Saldo disponible</div><div style="font-size:22px;font-weight:700;" id="a-bal">$10,000.00</div></div>
+      <div class="section-card"><div class="sim-label-sm">Valor portafolio</div><div style="font-size:22px;font-weight:700;" id="a-portval">$0.00</div></div>
+      <div class="section-card"><div class="sim-label-sm">Ganancia / pérdida</div><div id="a-pnl" style="font-size:22px;font-weight:700;color:var(--g);">+$0.00</div></div>
+    </div>
+    <div class="two-col">
+      <!-- TRADE PANEL -->
+      <div class="section-card">
+        <div style="font-size:13px;font-weight:600;margin-bottom:12px;">Nueva operación</div>
+        <!-- BUSCADOR -->
+        <div style="font-size:11px;color:var(--tx2);margin-bottom:4px;">Buscar acción</div>
+        <div class="search-wrap" style="margin-bottom:8px;">
+          <input class="inp" id="a-search" type="text" placeholder="ej. Apple, TSLA, NVDA..." autocomplete="off"
+            oninput="aOnSearch(this.value)" onkeydown="if(event.key==='Enter')aSearchEnter()" style="margin-bottom:0;">
+          <div class="search-results" id="a-results"></div>
+        </div>
+        <!-- POPULARES -->
+        <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px;">
+          <button class="pop-btn" onclick="aPick('AAPL','Apple')">AAPL</button>
+          <button class="pop-btn" onclick="aPick('MSFT','Microsoft')">MSFT</button>
+          <button class="pop-btn" onclick="aPick('TSLA','Tesla')">TSLA</button>
+          <button class="pop-btn" onclick="aPick('NVDA','NVIDIA')">NVDA</button>
+          <button class="pop-btn" onclick="aPick('GOOGL','Alphabet')">GOOGL</button>
+          <button class="pop-btn" onclick="aPick('AMZN','Amazon')">AMZN</button>
+          <button class="pop-btn" onclick="aPick('META','Meta')">META</button>
+          <button class="pop-btn" onclick="aPick('NFLX','Netflix')">NFLX</button>
+          <button class="pop-btn" onclick="aPick('AMD','AMD')">AMD</button>
+          <button class="pop-btn" onclick="aPick('COIN','Coinbase')">COIN</button>
+          <button class="pop-btn" onclick="aPick('BTCUSD','Bitcoin')">BTC</button>
+          <button class="pop-btn" onclick="aPick('ETHUSD','Ethereum')">ETH</button>
+        </div>
+        <!-- PRECIO EN VIVO -->
+        <div class="price-box" id="a-pricebox" style="display:none;margin-bottom:10px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;">
+            <div>
+              <div style="font-size:10px;color:var(--tx2);margin-bottom:2px;"><span class="live-dot"></span>Precio real · Finnhub</div>
+              <div style="font-size:22px;font-weight:700;" id="a-price">—</div>
+              <div style="font-size:12px;font-weight:500;" id="a-change">—</div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-size:12px;font-weight:600;" id="a-sym-label">—</div>
+              <div style="font-size:10px;color:var(--tx2);" id="a-name-label">—</div>
+            </div>
+          </div>
+        </div>
+        <!-- MODO: ACCIONES o USD -->
+        <div class="mode-tabs" style="margin-bottom:10px;">
+          <button class="mode-tab active" id="a-mt-s" onclick="aSetMode('shares')">Por acciones</button>
+          <button class="mode-tab" id="a-mt-u" onclick="aSetMode('usd')">Por monto USD</button>
+        </div>
+        <!-- PANEL ACCIONES -->
+        <div id="a-panel-s">
+          <div style="font-size:11px;color:var(--tx2);margin-bottom:4px;">Cantidad de acciones</div>
+          <input class="inp" type="number" id="a-qty-s" value="1" min="0.000001" step="1" oninput="aCalcS()" style="margin-bottom:8px;">
+          <div style="display:flex;justify-content:space-between;padding:6px 0;border-top:0.5px solid var(--br);border-bottom:0.5px solid var(--br);margin-bottom:10px;">
+            <div style="font-size:12px;color:var(--tx2);">Total operación</div>
+            <div style="font-size:13px;font-weight:600;" id="a-tot-s">—</div>
+          </div>
+        </div>
+        <!-- PANEL USD -->
+        <div id="a-panel-u" style="display:none;">
+          <div style="font-size:11px;color:var(--tx2);margin-bottom:4px;">Monto en USD</div>
+          <input class="inp" type="number" id="a-qty-u" value="100" min="1" oninput="aCalcU()" style="margin-bottom:7px;">
+          <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px;">
+            <button class="qa-btn" onclick="aSetU(50)">$50</button>
+            <button class="qa-btn" onclick="aSetU(100)">$100</button>
+            <button class="qa-btn" onclick="aSetU(250)">$250</button>
+            <button class="qa-btn" onclick="aSetU(500)">$500</button>
+            <button class="qa-btn" onclick="aSetU(1000)">$1K</button>
+            <button class="qa-btn" onclick="aSetU(Math.floor(window.aBalance))">Máx</button>
+          </div>
+          <div style="background:var(--gl);border-radius:var(--rad);padding:8px 10px;margin-bottom:8px;display:none;" id="a-calc-box">
+            <div style="display:flex;justify-content:space-between;">
+              <div style="font-size:11px;color:var(--gd);">Recibirás aprox.</div>
+              <div style="font-size:13px;font-weight:600;color:var(--gd);" id="a-frac">— acciones</div>
+            </div>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:6px 0;border-top:0.5px solid var(--br);border-bottom:0.5px solid var(--br);margin-bottom:10px;">
+            <div style="font-size:12px;color:var(--tx2);">Total a pagar</div>
+            <div style="font-size:13px;font-weight:600;" id="a-tot-u">—</div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          <button class="btn-buy" onclick="aTradeNew('buy')">Comprar</button>
+          <button class="btn-sell" onclick="aTradeNew('sell')">Vender</button>
+        </div>
+        <div style="margin-top:9px;padding:7px 9px;background:var(--bg2);border-radius:var(--rad);font-size:10px;color:var(--tx2);">Precios reales vía Finnhub · Simulación sin dinero real · Actualiza cada 30s</div>
+      </div>
+      <!-- PORTFOLIO -->
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div class="section-card">
+          <div class="section-card-title">Mi portafolio</div>
+          <table class="ptable"><thead><tr><th>Activo</th><th>Acciones</th><th>Precio</th><th>Valor</th><th>P&L</th></tr></thead>
+          <tbody id="a-ptbody"><tr><td colspan="5" class="empty">Aún sin posiciones.</td></tr></tbody></table>
+          <div style="margin-top:9px;padding-top:9px;border-top:0.5px solid var(--br);display:flex;justify-content:space-between;">
+            <div style="font-size:11px;color:var(--tx2);">Valor total portafolio</div>
+            <div style="font-size:14px;font-weight:600;" id="a-total-port">$0.00</div>
+          </div>
+        </div>
+        <div class="section-card">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:9px;">
+            <div class="section-card-title" style="margin:0;">Historial</div>
+            <button class="pop-btn" onclick="aResetSim()" style="color:var(--rd);border-color:var(--rl);">↺ Reiniciar</button>
+          </div>
+          <div id="a-history"><div class="empty">Aún sin operaciones.</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CALCULADORA DE IMPUESTOS -->
+  <div id="tab-calculadora" class="app-section-content">
+    <style>
+    .tax-section{max-width:800px;margin:0 auto;width:100%;}
+    .tax-header{margin-bottom:28px;}
+    .tax-header .eyebrow{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--g);margin-bottom:8px;display:flex;align-items:center;gap:8px;}
+    .tax-header .eyebrow::before{content:'';display:inline-block;width:20px;height:2px;background:var(--g);border-radius:2px;}
+    .tax-header h2{font-size:26px;font-weight:700;color:var(--tx);line-height:1.2;margin-bottom:8px;letter-spacing:-.02em;}
+    .tax-header p{color:var(--tx2);font-size:13px;max-width:520px;}
+    .route-picker{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:28px;}
+    .route-card{background:var(--bg);border:1.5px solid var(--br);border-radius:var(--rad-lg);padding:16px;cursor:pointer;transition:border-color .2s,background .2s,transform .15s;text-align:left;position:relative;overflow:hidden;font-family:inherit;}
+    .route-card:hover{border-color:var(--br2);transform:translateY(-1px);}
+    .route-card.active{border-color:var(--g);background:var(--gl);}
+    .route-card.active-amber{border-color:var(--ad);background:var(--al);}
+    .route-card.active-blue{border-color:#185FA5;background:#E6F1FB;}
+    .route-card .rc-icon{font-size:20px;margin-bottom:8px;display:block;}
+    .route-card .rc-title{font-size:13px;font-weight:600;color:var(--tx);margin-bottom:3px;}
+    .route-card .rc-sub{font-size:11px;color:var(--tx2);line-height:1.4;}
+    .route-card .rc-tag{position:absolute;top:10px;right:10px;font-size:9px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;padding:3px 7px;border-radius:20px;}
+    .tag-green{background:var(--gl);color:var(--gd);}
+    .tag-amber{background:var(--al);color:var(--ad);}
+    .tag-blue{background:#E6F1FB;color:#185FA5;}
+    .tax-panel{display:none;}
+    .tax-panel.active{display:block;animation:fadeUp .25s ease;}
+    .explainer{background:var(--bg2);border-radius:var(--rad);padding:14px 16px;margin-bottom:20px;font-size:13px;color:var(--tx2);line-height:1.7;border-left:3px solid var(--g);display:flex;gap:12px;align-items:flex-start;}
+    .explainer.amber{border-left-color:var(--ad);}
+    .explainer.blue{border-left-color:#185FA5;}
+    .exp-icon{font-size:18px;flex-shrink:0;margin-top:2px;}
+    .tax-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+    .tax-field{display:flex;flex-direction:column;gap:5px;}
+    .tax-field label{font-size:11px;font-weight:500;color:var(--tx2);text-transform:uppercase;letter-spacing:.06em;}
+    .tax-field .hint{font-size:11px;color:var(--tx2);margin-top:-2px;line-height:1.4;opacity:.7;}
+    .tax-field input,.tax-field select{background:var(--bg2);border:0.5px solid var(--br);border-radius:var(--rad);color:var(--tx);font-family:inherit;font-size:13px;padding:8px 12px;transition:border-color .2s;outline:none;width:100%;}
+    .tax-field input:focus,.tax-field select:focus{border-color:var(--g);}
+    .tax-field input::placeholder{color:var(--tx2);}
+    .currency-wrap{position:relative;}
+    .currency-wrap .prefix{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:12px;color:var(--tx2);pointer-events:none;}
+    .currency-wrap input{padding-left:28px;}
+    .section-sep{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--tx2);margin:20px 0 14px;display:flex;align-items:center;gap:10px;}
+    .section-sep::after{content:'';flex:1;height:1px;background:var(--br);}
+    .result-block{margin-top:24px;animation:fadeUp .3s ease;}
+    .result-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;}
+    .t-metric{background:var(--bg);border:0.5px solid var(--br);border-radius:var(--rad-lg);padding:14px;}
+    .t-metric .m-label{font-size:10px;color:var(--tx2);font-weight:500;text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;}
+    .t-metric .m-value{font-size:20px;font-weight:700;color:var(--tx);}
+    .t-metric.highlight{border-color:var(--g);background:var(--gl);}
+    .t-metric.highlight .m-value{color:var(--gd);}
+    .breakdown{background:var(--bg);border:0.5px solid var(--br);border-radius:var(--rad-lg);overflow:hidden;margin-bottom:14px;}
+    .brow{display:flex;justify-content:space-between;align-items:center;padding:9px 14px;font-size:13px;border-bottom:0.5px solid var(--br);}
+    .brow:last-child{border-bottom:none;}
+    .brow .bl{color:var(--tx2);}
+    .brow .br{font-weight:500;}
+    .brow.total{background:var(--bg2);font-size:13px;font-weight:600;}
+    .brow.total .bl{color:var(--tx);}
+    .brow.total .br{color:var(--gd);}
+    .brow.deduct .br{color:var(--rd);}
+    .brow.credit .br{color:var(--ad);}
+    .tramos-wrap{margin-bottom:14px;overflow-x:auto;}
+    table.tramos{width:100%;border-collapse:collapse;font-size:12px;}
+    table.tramos th{text-align:left;padding:7px 12px;background:var(--bg2);color:var(--tx2);font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;}
+    table.tramos td{padding:8px 12px;border-top:0.5px solid var(--br);color:var(--tx2);}
+    table.tramos tr.hit td{color:var(--tx);background:var(--gl);}
+    table.tramos tr.hit td:last-child{color:var(--gd);font-weight:600;}
+    .footer-note{font-size:11px;color:var(--tx2);line-height:1.6;padding-top:14px;border-top:0.5px solid var(--br);margin-top:16px;}
+    .footer-note strong{color:var(--tx);}
+    @media(max-width:640px){.route-picker,.tax-form-grid,.result-metrics{grid-template-columns:1fr;}.tax-header h2{font-size:20px;}}
+    </style>
+
+    <div class="tax-section">
+      <div class="tax-header">
+        <p class="eyebrow">SUNAT · Personas naturales domiciliadas</p>
+        <h2>Calculadora de impuestos<br>a la renta de fuente extranjera</h2>
+        <p>Descubre cuánto impuesto pagas por tus inversiones o ingresos del exterior según las reglas vigentes de la SUNAT.</p>
+        <div style="display:flex;align-items:center;gap:12px;margin-top:14px;flex-wrap:wrap;">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <label style="font-size:12px;font-weight:600;color:var(--tx2);text-transform:uppercase;letter-spacing:.06em;">Año fiscal</label>
+            <select id="uit-year" onchange="onUitYearChange()" style="padding:7px 10px;border:0.5px solid var(--br);border-radius:var(--rad);font-size:13px;background:var(--bg2);color:var(--tx);font-family:inherit;outline:none;cursor:pointer;">
+              <option value="2020">2020</option>
+              <option value="2021">2021</option>
+              <option value="2022">2022</option>
+              <option value="2023">2023</option>
+              <option value="2024">2024</option>
+              <option value="2025">2025</option>
+              <option value="2026" selected>2026</option>
+            </select>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <label style="font-size:12px;font-weight:600;color:var(--tx2);text-transform:uppercase;letter-spacing:.06em;">UIT</label>
+            <div style="position:relative;">
+              <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:12px;color:var(--tx2);pointer-events:none;">S/</span>
+              <input type="number" id="uit-value" value="5500" min="1000" max="20000" step="100"
+                oninput="onUitManualChange()"
+                style="padding:7px 10px 7px 28px;border:0.5px solid var(--br);border-radius:var(--rad);font-size:13px;background:var(--bg2);color:var(--tx);font-family:inherit;outline:none;width:110px;">
+            </div>
+          </div>
+          <div style="background:var(--gl);color:var(--gd);padding:5px 12px;border-radius:999px;font-size:12px;font-weight:600;" id="uit-badge">
+            UIT 2026 = S/ 5,500
+          </div>
+        </div>
+      </div>
+
+      <div class="section-sep">¿Cómo obtienes tus ingresos del exterior?</div>
+
+      <div class="route-picker">
+        <button class="route-card active" onclick="taxSelectRoute('bolsa',this)">
+          <span class="rc-icon">🏛️</span>
+          <span class="rc-tag tag-green">5% efectivo</span>
+          <div class="rc-title">Bolsa de Lima o MILA</div>
+          <div class="rc-sub">Acciones vía BVL, o bolsas de Chile, Colombia y México</div>
+        </button>
+        <button class="route-card" onclick="taxSelectRoute('broker',this)">
+          <span class="rc-icon">🌐</span>
+          <span class="rc-tag tag-amber">8%–30%</span>
+          <div class="rc-title">Broker extranjero</div>
+          <div class="rc-sub">Interactive Brokers, Robinhood, eToro u otro broker</div>
+        </button>
+        <button class="route-card" onclick="taxSelectRoute('otros',this)">
+          <span class="rc-icon">💼</span>
+          <span class="rc-tag tag-blue">8%–30%</span>
+          <div class="rc-title">Otros ingresos</div>
+          <div class="rc-sub">Alquileres, intereses, dividendos, servicios del exterior</div>
+        </button>
+      </div>
+
+      <!-- PANEL BVL -->
+      <div class="tax-panel active" id="tax-panel-bolsa">
+        <div class="explainer">
+          <span class="exp-icon">💡</span>
+          <span>Si vendes acciones usando la <strong>BVL o bolsas del MILA</strong>, pagas una tasa fija del <strong>5% sobre tu ganancia</strong> (equivale al 6.25% sobre la ganancia neta tras descontar un 20% fijo). La opción más conveniente tributariamente.</span>
+        </div>
+        <div class="section-sep">Datos de tu operación</div>
+        <div class="tax-form-grid">
+          <div class="tax-field"><label>Precio total de venta</label><div class="currency-wrap"><span class="prefix">S/</span><input type="number" id="b-venta" placeholder="ej. 50,000" min="0" oninput="calcBolsa()"></div></div>
+          <div class="tax-field"><label>Costo de adquisición</label><div class="currency-wrap"><span class="prefix">S/</span><input type="number" id="b-costo" placeholder="ej. 35,000" min="0" oninput="calcBolsa()"></div></div>
+        </div>
+        <div class="tax-form-grid">
+          <div class="tax-field"><label>Gastos de compra (comisiones)</label><div class="currency-wrap"><span class="prefix">S/</span><input type="number" id="b-gastos" placeholder="0" min="0" value="0" oninput="calcBolsa()"></div></div>
+          <div class="tax-field"><label>Pérdidas de capital del año anterior</label><div class="currency-wrap"><span class="prefix">S/</span><input type="number" id="b-perdidas" placeholder="0" min="0" value="0" oninput="calcBolsa()"></div></div>
+        </div>
+        <div class="tax-form-grid">
+          <div class="tax-field"><label>Impuesto pagado en el exterior</label><div class="currency-wrap"><span class="prefix">S/</span><input type="number" id="b-impext" placeholder="0" min="0" value="0" oninput="calcBolsa()"></div></div>
+          <div class="tax-field"><label>Retenciones CAVALI / agente</label><div class="currency-wrap"><span class="prefix">S/</span><input type="number" id="b-ret" placeholder="0" min="0" value="0" oninput="calcBolsa()"></div></div>
+        </div>
+        <div id="res-bolsa"></div>
+      </div>
+
+      <!-- PANEL BROKER -->
+      <div class="tax-panel" id="tax-panel-broker">
+        <div class="explainer amber">
+          <span class="exp-icon">⚠️</span>
+          <span>Con un broker como <strong>Interactive Brokers o Robinhood</strong>, las ganancias <strong>se suman a tus ingresos de trabajo</strong> y pagan tasas del 8% al 30%. No puedes aplicar el 5% de la BVL.</span>
+        </div>
+        <div class="section-sep">Tus ingresos anuales</div>
+        <div class="tax-form-grid">
+          <div class="tax-field"><label>Renta neta de trabajo (4ta/5ta cat.)</label><div class="currency-wrap"><span class="prefix">S/</span><input type="number" id="k-trabajo" placeholder="ej. 80,000" min="0" value="0" oninput="calcBroker()"></div><span class="hint">Ingresos laborales menos 7 UIT (S/ 38,500)</span></div>
+          <div class="tax-field"><label>Ganancia neta del broker extranjero</label><div class="currency-wrap"><span class="prefix">S/</span><input type="number" id="k-ganancia" placeholder="ej. 20,000" min="0" value="0" oninput="calcBroker()"></div><span class="hint">Precio de venta − costo, convertido a soles</span></div>
+        </div>
+        <div class="tax-form-grid">
+          <div class="tax-field"><label>Pérdidas compensables (fuente ext.)</label><div class="currency-wrap"><span class="prefix">S/</span><input type="number" id="k-perdidas" placeholder="0" min="0" value="0" oninput="calcBroker()"></div></div>
+          <div class="tax-field"><label>Impuesto pagado en el exterior</label><div class="currency-wrap"><span class="prefix">S/</span><input type="number" id="k-impext" placeholder="0" min="0" value="0" oninput="calcBroker()"></div><span class="hint">Crédito deducible con límite</span></div>
+        </div>
+        <div id="res-broker"><div style="text-align:center;padding:24px;color:var(--tx2);font-size:13px;">Ingresa tus datos para ver el cálculo</div></div>
+      </div>
+
+      <!-- PANEL OTROS -->
+      <div class="tax-panel" id="tax-panel-otros">
+        <div class="explainer blue">
+          <span class="exp-icon">📋</span>
+          <span>Alquileres, intereses, dividendos o servicios del exterior se suman a tus ingresos con tasas progresivas. <strong>Sin pagos mensuales</strong> — se regulariza en la declaración anual (Formulario 709).</span>
+        </div>
+        <div class="section-sep">Ingresos en Perú</div>
+        <div class="tax-form-grid">
+          <div class="tax-field"><label>Renta neta de trabajo (4ta/5ta cat.)</label><div class="currency-wrap"><span class="prefix">S/</span><input type="number" id="o-trabajo" placeholder="ej. 60,000" min="0" value="0" oninput="calcOtros()"></div><span class="hint">Ingresos laborales menos 7 UIT</span></div>
+        </div>
+        <div class="section-sep">Ingresos del exterior (anuales en soles)</div>
+        <div class="tax-form-grid">
+          <div class="tax-field"><label>Alquiler de inmueble en el exterior</label><div class="currency-wrap"><span class="prefix">S/</span><input type="number" id="o-alquiler" placeholder="0" min="0" value="0" oninput="calcOtros()"></div></div>
+          <div class="tax-field"><label>Intereses de cuentas en el exterior</label><div class="currency-wrap"><span class="prefix">S/</span><input type="number" id="o-intereses" placeholder="0" min="0" value="0" oninput="calcOtros()"></div></div>
+        </div>
+        <div class="tax-form-grid">
+          <div class="tax-field"><label>Dividendos de empresas extranjeras</label><div class="currency-wrap"><span class="prefix">S/</span><input type="number" id="o-dividendos" placeholder="0" min="0" value="0" oninput="calcOtros()"></div></div>
+          <div class="tax-field"><label>Servicios / honorarios en el exterior</label><div class="currency-wrap"><span class="prefix">S/</span><input type="number" id="o-servicios" placeholder="0" min="0" value="0" oninput="calcOtros()"></div></div>
+        </div>
+        <div class="tax-form-grid">
+          <div class="tax-field"><label>Otros ingresos del exterior</label><div class="currency-wrap"><span class="prefix">S/</span><input type="number" id="o-otros" placeholder="0" min="0" value="0" oninput="calcOtros()"></div></div>
+          <div class="tax-field"><label>Impuesto pagado en el exterior</label><div class="currency-wrap"><span class="prefix">S/</span><input type="number" id="o-impext" placeholder="0" min="0" value="0" oninput="calcOtros()"></div><span class="hint">Crédito deducible con límite de tasa media</span></div>
+        </div>
+        <div id="res-otros"><div style="text-align:center;padding:24px;color:var(--tx2);font-size:13px;">Ingresa tus datos para ver el cálculo</div></div>
+      </div>
+
+      <div style="margin-top:20px;padding:12px 14px;background:var(--rl);border-radius:var(--rad);font-size:11px;color:var(--rd);line-height:1.6;">
+        ⚠️ <strong>Aviso:</strong> Esta calculadora es solo orientativa con fines educativos. Consulta siempre a un contador o asesor tributario certificado para tu declaración real. StockMarketBro no se responsabiliza por decisiones tomadas en base a estos cálculos.
+      </div>
       <div id="tax-global-result" style="margin-top:16px;">
         <div style="text-align:center;padding:20px;color:var(--tx2);font-size:13px;">Completa al menos una sección para ver el resumen global de impuestos</div>
       </div>
@@ -968,17 +1445,19 @@ setTimeout(()=>{
 },2000);
 
 function showApp(user){
-  document.getElementById('modal-bg').classList.remove('open');
-  // Keep landing visible — update topbar to show user info
-  document.getElementById('landing').style.display='block';
+  const modalBg=document.getElementById('modal-bg');
+  if(modalBg)modalBg.classList.remove('open');
+  const landingEl=document.getElementById('landing');
+  if(landingEl)landingEl.style.display='block';
   const appui=document.getElementById('app-ui');
+  if(!appui)return;
   appui.style.display='none';
   appui.classList.remove('show');
   // Update landing topbar for logged-in state
   const name=user.displayName||user.email.split('@')[0];
-  showLoggedInTopbar(user,name);
+  try{showLoggedInTopbar(user,name);}catch(e){}
   // Show floating dashboard button
-  showDashboardBtn();
+  try{showDashboardBtn();}catch(e){}
   if(window.fbLoadRecs)window.fbLoadRecs();
   setTimeout(()=>{
     try{runScan();}catch(e){}
@@ -1291,8 +1770,8 @@ function showAppTab(t){
   try{if(t==='autor'&&window.fbLoadRecs)window.fbLoadRecs();}catch(e){}
   try{if(t==='analytics')loadAnalytics();}catch(e){}
 }
-function toggleUM(){document.getElementById('user-menu').classList.toggle('open');}
-document.addEventListener('click',e=>{if(!e.target.closest('#user-avatar')&&!e.target.closest('#user-menu'))document.getElementById('user-menu').classList.remove('open');});
+function toggleUM(){const um=document.getElementById('user-menu');if(um)um.classList.toggle('open');}
+document.addEventListener('click',e=>{const um=document.getElementById('user-menu');if(um&&!e.target.closest('#user-avatar')&&!e.target.closest('#user-menu'))um.classList.remove('open');});
 
 // ═══ APP CHART ═══
 let chartInited=false;
@@ -1309,6 +1788,16 @@ function initAppChart(){
 }
 function buildChart(sym){document.getElementById('app-chart').innerHTML='';new TradingView.widget({symbol:sym,interval:'D',container_id:'app-chart',width:'100%',height:380,theme:'light',style:'1',locale:'es',toolbar_bg:'transparent',enable_publishing:false,save_image:false,allow_symbol_change:true,backgroundColor:'rgba(0,0,0,0)',gridColor:'rgba(0,0,0,0.04)'});}
 
+let currentHeatmap='sp500';
+function initHeatmap(){
+  buildHeatmap('sp500');
+}
+function switchHeatmap(type,btn){
+  document.querySelectorAll('#heatmap-filters .app-nav-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  currentHeatmap=type;
+  buildHeatmap(type);
+}
 function buildHeatmap(type){
   const container=document.getElementById('heatmap-container');
   if(!container)return;
@@ -1722,8 +2211,8 @@ setInterval(()=>{if(!window.manualAlerts.length)return;const triggered=[];window
 const allNews=[{cat:'acciones',tag:'AAPL',tc:'#E1F5EE',tt:'#0F6E56',title:'Apple supera expectativas de ingresos en su reporte trimestral',meta:'Reuters · hace 2h',sent:'pos',sentLabel:'Positivo'},{cat:'macro',tag:'FED',tc:'#EEEDFE',tt:'#3C3489',title:'La Reserva Federal mantiene tasas sin cambios',meta:'Bloomberg · hace 3h',sent:'neu',sentLabel:'Neutral'},{cat:'crypto',tag:'BTC',tc:'#FAEEDA',tt:'#854F0B',title:'Bitcoin supera los $70,000 en medio de mayor demanda institucional',meta:'CoinDesk · hace 4h',sent:'pos',sentLabel:'Positivo'},{cat:'acciones',tag:'TSLA',tc:'#FCEBEB',tt:'#A32D2D',title:'Tesla reporta caída en entregas del primer trimestre',meta:'WSJ · hace 5h',sent:'neg',sentLabel:'Negativo'},{cat:'latam',tag:'LATAM',tc:'#E6F1FB',tt:'#185FA5',title:'Bolsas latinoamericanas registran alza impulsadas por commodities',meta:'El Financiero · hace 6h',sent:'pos',sentLabel:'Positivo'},{cat:'macro',tag:'MACRO',tc:'#EEEDFE',tt:'#3C3489',title:'Inflación en EE.UU. cede levemente, abre puerta a recortes',meta:'FT · hace 7h',sent:'pos',sentLabel:'Positivo'},{cat:'acciones',tag:'NVDA',tc:'#E1F5EE',tt:'#0F6E56',title:'NVIDIA alcanza nuevo máximo histórico tras boom de IA generativa',meta:'CNBC · hace 8h',sent:'pos',sentLabel:'Positivo'},{cat:'crypto',tag:'ETH',tc:'#EEEDFE',tt:'#3C3489',title:'Ethereum consolida soporte en $3,200 tras semanas de volatilidad',meta:'The Block · hace 9h',sent:'neu',sentLabel:'Neutral'},{cat:'latam',tag:'MXN',tc:'#E6F1FB',tt:'#185FA5',title:'Peso mexicano se fortalece frente al dólar por datos de empleo',meta:'El Economista · hace 10h',sent:'pos',sentLabel:'Positivo'},{cat:'acciones',tag:'META',tc:'#E1F5EE',tt:'#0F6E56',title:'Meta Platforms anuncia dividendo por primera vez en su historia',meta:'MarketWatch · hace 11h',sent:'pos',sentLabel:'Positivo'}];
 let currentNewsCat='all';
 function filterNews(cat,btn){currentNewsCat=cat;document.querySelectorAll('#news-filters .ftab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderNews();}
-function renderNews(){const f=currentNewsCat==='all'?allNews:allNews.filter(n=>n.cat===currentNewsCat),mid=Math.ceil(f.length/2);const ri=n=>`<div class="news-item"><div><span class="news-tag" style="background:${n.tc};color:${n.tt};">${n.tag}</span> <span class="sent-${n.sent}" style="padding:1px 6px;border-radius:999px;font-size:10px;font-weight:500;">${n.sentLabel}</span></div><div class="news-title">${n.title}</div><div class="news-meta">${n.meta}</div></div>`;document.getElementById('news-col1').innerHTML=f.slice(0,mid).map(ri).join('');document.getElementById('news-col2').innerHTML=f.slice(mid).map(ri).join('');}
-renderNews();
+function renderNews(){const f=currentNewsCat==='all'?allNews:allNews.filter(n=>n.cat===currentNewsCat),mid=Math.ceil(f.length/2);const ri=n=>`<div class="news-item"><div><span class="news-tag" style="background:${n.tc};color:${n.tt};">${n.tag}</span> <span class="sent-${n.sent}" style="padding:1px 6px;border-radius:999px;font-size:10px;font-weight:500;">${n.sentLabel}</span></div><div class="news-title">${n.title}</div><div class="news-meta">${n.meta}</div></div>`;const nc1=document.getElementById('news-col1');const nc2=document.getElementById('news-col2');if(nc1)nc1.innerHTML=f.slice(0,mid).map(ri).join('');if(nc2)nc2.innerHTML=f.slice(mid).map(ri).join('');}
+if(document.getElementById('news-col1'))renderNews();
 
 // ═══ QUIZ ═══
 const quizData={basic:[{q:'¿Qué representa una acción de una empresa?',opts:['Un préstamo a la empresa','Una fracción de propiedad','Un bono de deuda','Un contrato de compra futura'],correct:1,exp:'Una acción representa una fracción de la propiedad de la empresa.'},{q:'¿Qué es un dividendo?',opts:['Un impuesto','El precio de compra','Un pago periódico a accionistas','Una comisión'],correct:2,exp:'El dividendo es un reparto de beneficios que la empresa hace a sus accionistas.'},{q:'¿Qué mide el S&P 500?',opts:['El precio del dólar','Las 500 empresas más grandes de EE.UU.','El volumen de Bitcoin','Bonos del gobierno'],correct:1,exp:'El S&P 500 mide el rendimiento de las 500 empresas más grandes de EE.UU.'},{q:'¿Qué significa "bear market"?',opts:['Precios subiendo +20%','Mercado nocturno','Precios cayendo -20% desde máximos','Más dividendos'],correct:2,exp:'Un bear market es una caída sostenida de más del 20% desde los máximos.'}],adv:[{q:'¿Qué indica un "golden cross"?',opts:['Precio en máximo','Media móvil corta cruza hacia arriba la larga','Volumen cae','RSI supera 70'],correct:1,exp:'El golden cross: media corta cruza hacia arriba la larga. Señal alcista.'},{q:'¿Qué mide el ratio P/E?',opts:['Diferencia compra-venta','Cuántas veces el precio son las ganancias anuales','Volatilidad','Porcentaje de dividendo'],correct:1,exp:'El P/E indica cuánto pagan los inversores por cada unidad de beneficio.'},{q:'¿Qué es una opción put?',opts:['Derecho a comprar','Orden de mercado','Derecho a vender a precio fijo','Contrato de futuros'],correct:2,exp:'Una put da el derecho de vender un activo a un precio determinado.'},{q:'¿Qué describe el apalancamiento?',opts:['Diversificar activos','Usar capital prestado para amplificar exposición','Reinvertir dividendos','Invertir a largo plazo'],correct:1,exp:'El apalancamiento usa deuda para controlar una posición mayor al capital.'}]};
@@ -1784,284 +2273,125 @@ if('serviceWorker' in navigator){
 
 // ═══ TOAST ═══
 // ═══ CALCULADORA DE IMPUESTOS ═══
-const UIT = 5500;
+// UIT values by year (actualizables)
+const UIT_TABLE = {
+  2020: 4300, 2021: 4400, 2022: 4600,
+  2023: 4950, 2024: 5150, 2025: 5350, 2026: 5500
+};
+let UIT = 5500; // default 2026
 
-function taxFmt(n) {
-  return 'S/ ' + Math.round(n).toLocaleString('es-PE');
+function onUitYearChange(){
+  const yr = parseInt(document.getElementById('uit-year').value);
+  const val = UIT_TABLE[yr] || 5500;
+  UIT = val;
+  const uitValEl = document.getElementById('uit-value');
+  if(uitValEl) uitValEl.value = val;
+  const uitBadge = document.getElementById('uit-badge');
+  if(uitBadge) uitBadge.textContent = 'UIT '+yr+' = S/ '+val.toLocaleString('es-PE');
+  recalcActive();
 }
-function taxPct(n) { return (n*100).toFixed(2).replace('.00','') + '%'; }
-function taxV(id) { return +document.getElementById(id).value || 0; }
-
-/* Route selector */
-function taxSelectRoute(id, el) {
-  document.querySelectorAll('.route-card').forEach(c => {
-    c.classList.remove('active','active-amber','active-blue');
-  });
-  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-  const cls = id === 'broker' ? 'active-amber' : id === 'otros' ? 'active-blue' : 'active';
-  el.classList.add(cls);
-  document.getElementById('panel-' + id).classList.add('active');
+function onUitManualChange(){
+  const val = parseInt(document.getElementById('uit-value').value) || 5500;
+  UIT = val;
+  const yr = document.getElementById('uit-year')?.value || 2026;
+  const uitBadge = document.getElementById('uit-badge');
+  if(uitBadge) uitBadge.textContent = 'UIT '+yr+' = S/ '+val.toLocaleString('es-PE');
+  recalcActive();
 }
-
-/* Progressive tax engine */
-function calcProgTax(base) {
-  let imp = 0, prev = 0, det = [];
-  for (const t of getTRAMOS()) {
-    if (base <= prev) break;
-    const slice = Math.min(base, t.hasta) - prev;
-    const i = slice * t.tasa;
-    imp += i;
-    det.push({ ...t, slice, imp: i, desde: prev, hasta: Math.min(base, t.hasta) });
-    prev = t.hasta;
-  }
-  return { imp, det };
+function recalcActive(){
+  const active = document.querySelector('.tax-panel.active');
+  if(!active) return;
+  const id = active.id;
+  if(id==='tax-panel-bolsa') calcBolsa();
+  else if(id==='tax-panel-broker') calcBroker();
+  else if(id==='tax-panel-otros') calcOtros();
 }
-
-function taxTramosHTML(det, base) {
-  const rows = getTRAMOS().map(t => {
-    const d = det.find(x => x.tasa === t.tasa && x.slice > 0);
-    const hit = !!d;
-    return `<tr class="${hit ? 'hit' : ''}">
-      <td>${t.label}</td>
-      <td>${t.hasta === Infinity ? 'Resto' : taxFmt(t.hasta)}</td>
-      <td>${taxPct(t.tasa)}</td>
-      <td>${hit ? taxFmt(d.imp) : '—'}</td>
-    </tr>`;
-  }).join('');
-  return `<div class="tramos-wrap"><table class="tramos">
-    <tr><th>Tramo</th><th>Hasta</th><th>Tasa</th><th>Impuesto del tramo</th></tr>
-    ${rows}
-  </table></div>`;
-}
-
-function taxResultHTML(metrics, rows, tramos, note) {
-  const mcards = metrics.map(m =>
-    `<div class="metric${m.hi ? ' highlight' : ''}">
-       <div class="m-label">${m.label}</div>
-       <div class="m-value">${m.value}</div>
-     </div>`).join('');
-
-  const brows = rows.map(r =>
-    `<div class="brow ${r.cls||''}"><span class="bl">${r.label}</span><span class="br">${r.value}</span></div>`
-  ).join('');
-
-  return `<div class="result-block">
-    <div class="result-metrics">${mcards}</div>
-    <div class="breakdown">${brows}</div>
-    ${tramos || ''}
-    <p class="footer-note">${note}</p>
-  </div>`;
-}
-
-/* ── CALCULADORA BVL ────────────────────────────────────────────── */
-function calcBolsa() {
-  const venta    = taxV('b-venta');
-  const costo    = taxV('b-costo');
-  const gastos   = taxV('b-gastos');
-  const perdidas = taxV('b-perdidas');
-  const impExt   = taxV('b-impext');
-  const ret      = taxV('b-ret');
-  if (!venta && !costo) { document.getElementById('res-bolsa').innerHTML = ''; return; }
-
-  const bruta    = Math.max(0, venta - costo - gastos);
-  const neta     = bruta * 0.80;
-  const netaComp = Math.max(0, neta - perdidas);
-  const imp      = netaComp * 0.0625;
-  const credExt  = Math.min(impExt, imp);
-  const saldo    = Math.max(0, imp - credExt - ret);
-  const tasaEf   = bruta > 0 ? imp / bruta : 0;
-
-  document.getElementById('res-bolsa').innerHTML = taxResultHTML(
-    [
-      { label: 'Ganancia bruta',        value: taxFmt(bruta) },
-      { label: 'Renta neta (–20%)',     value: taxFmt(neta) },
-      { label: 'Impuesto a pagar',      value: taxFmt(saldo), hi: true }
-    ],
-    [
-      { label: 'Precio de venta',                  value: taxFmt(venta) },
-      { label: 'Costo computable (adquisición + gastos)', value: '– ' + taxFmt(costo+gastos), cls: 'deduct' },
-      { label: 'Ganancia bruta',                   value: taxFmt(bruta) },
-      { label: 'Deducción 20% fija por ley',       value: '– ' + taxFmt(bruta*0.20), cls: 'deduct' },
-      { label: 'Renta neta',                       value: taxFmt(neta) },
-      ...(perdidas > 0 ? [{ label: 'Pérdidas compensadas', value: '– ' + taxFmt(Math.min(perdidas,neta)), cls: 'deduct' }] : []),
-      { label: 'Impuesto (6.25% sobre renta neta = 5% efectivo)', value: taxFmt(imp) },
-      ...(credExt > 0 ? [{ label: 'Crédito por impuesto pagado en exterior', value: '– ' + taxFmt(credExt), cls: 'credit' }] : []),
-      ...(ret > 0     ? [{ label: 'Retención CAVALI aplicada', value: '– ' + taxFmt(ret), cls: 'credit' }] : []),
-      { label: 'Saldo a pagar en declaración anual', value: taxFmt(saldo), cls: 'total' }
-    ],
-    null,
-    `Tasa efectiva sobre ganancia bruta: <strong>${taxPct(tasaEf)}</strong> &nbsp;·&nbsp; Sin pagos mensuales &nbsp;·&nbsp; Declarar en <strong>Formulario Virtual N° 709</strong> anualmente &nbsp;·&nbsp; Base legal: Art. 51° LIR`
-  );
-  calcGlobal();
-}
-
-/* ── HELPERS DE DEDUCCIÓN ───────────────────────────────────────── */
-function rentaNetaTrabajo(tipo, bruto) {
-  const SIETE_UIT = 7 * UIT;   // S/ 38,500
-  if (tipo === 'ninguna' || bruto <= 0) return 0;
-  if (tipo === 'quinta') {
-    // 5ta: descuenta 7 UIT directamente del bruto
-    return Math.max(0, bruto - SIETE_UIT);
-  }
-  if (tipo === 'cuarta') {
-    // 4ta: primero 20% de deducción, luego 7 UIT
-    const neta20 = bruto * 0.80;
-    return Math.max(0, neta20 - SIETE_UIT);
-  }
-  return 0;
-}
-
-function updateHint(tipoId, hintId) {
-  const tipo = document.getElementById(tipoId).value;
-  const hint = document.getElementById(hintId);
-  if (!hint) return;
-  if (tipo === 'quinta') hint.textContent = 'Total de sueldos del año (antes de descuentos). La calculadora restará 7 UIT (S/ 38,500) automáticamente.';
-  else if (tipo === 'cuarta') hint.textContent = 'Total de honorarios emitidos en el año. La calculadora restará 20% y luego 7 UIT automáticamente.';
-  else hint.textContent = '';
-}
-
-/* ── CALCULADORA BROKER ─────────────────────────────────────────── */
-function calcBroker() {
-  const tipo     = document.getElementById('k-tipo').value;
-  const bruto    = taxV('k-bruto');
-  const ventaFE  = taxV('k-venta');
-  const costoFE  = taxV('k-costo');
-  const perdidas = taxV('k-perdidas');
-  const impExt   = taxV('k-impext');
-
-  updateHint('k-tipo', 'k-bruto-hint');
-
-  // Renta neta de trabajo (con deducciones correctas)
-  const rnt   = rentaNetaTrabajo(tipo, bruto);
-
-  // Renta neta fuente extranjera (ganancia bruta − pérdidas compensables)
-  const gananciaBruta = Math.max(0, ventaFE - costoFE);
-  const rnfe  = Math.max(0, gananciaBruta - perdidas);
-
-  const base  = rnt + rnfe;
-  if (base === 0 && bruto === 0 && ventaFE === 0) {
-    document.getElementById('res-broker').innerHTML = ''; return;
-  }
-
-  const SIETE_UIT   = 7 * UIT;
-  const ded20       = tipo === 'cuarta' ? bruto * 0.20 : 0;
-  const dedUIT      = tipo !== 'ninguna' ? Math.min(SIETE_UIT, bruto * (tipo === 'cuarta' ? 0.80 : 1)) : 0;
-
-  const { imp, det }     = calcProgTax(base);
-  const { imp: impTrab } = calcProgTax(rnt);
-  const impFE            = imp - impTrab;
-  const tasaMedia        = base > 0 ? imp / base : 0;
-  const limiteCred       = rnfe * tasaMedia;
-  const credExt          = Math.min(impExt, limiteCred);
-  const saldo            = Math.max(0, imp - credExt);
-
-  const filasTrabajo = tipo !== 'ninguna' ? [
-    { label: 'Ingreso bruto de trabajo',                    value: taxFmt(bruto) },
-    ...(ded20 > 0 ? [{ label: 'Deducción 20% (4ta categoría)', value: '– ' + taxFmt(ded20), cls: 'deduct' }] : []),
-    { label: 'Deducción 7 UIT',                             value: '– ' + taxFmt(dedUIT), cls: 'deduct' },
-    { label: 'Renta neta de trabajo',                       value: taxFmt(rnt) },
-  ] : [];
-
-  const filasFE = [
-    { label: 'Precio de venta (fuente extranjera)',         value: taxFmt(ventaFE) },
-    { label: 'Costo de adquisición',                        value: '– ' + taxFmt(costoFE), cls: 'deduct' },
-    { label: 'Ganancia bruta fuente extranjera',            value: taxFmt(gananciaBruta) },
-    ...(perdidas > 0 ? [{ label: 'Pérdidas compensadas', value: '– ' + taxFmt(Math.min(perdidas, gananciaBruta)), cls: 'deduct' }] : []),
-    { label: 'Renta neta fuente extranjera',                value: taxFmt(rnfe),
-      note: '⚠ Sin deducción adicional — se suma directamente a la base' },
+// TRAMOS_TAX is a function now to use current UIT
+function getTRAMOS(){
+  return [
+    {label:'Hasta 5 UIT',    hasta:5*UIT,    tasa:0.08},
+    {label:'5 a 20 UIT',     hasta:20*UIT,   tasa:0.14},
+    {label:'20 a 35 UIT',    hasta:35*UIT,   tasa:0.17},
+    {label:'35 a 45 UIT',    hasta:45*UIT,   tasa:0.20},
+    {label:'Más de 45 UIT',  hasta:Infinity, tasa:0.30}
   ];
-
-  document.getElementById('res-broker').innerHTML = taxResultHTML(
-    [
-      { label: 'Base imponible total', value: taxFmt(base) },
-      { label: 'Tasa media efectiva',  value: taxPct(tasaMedia) },
-      { label: 'Impuesto a pagar',     value: taxFmt(saldo), hi: true }
-    ],
-    [
-      ...filasTrabajo,
-      ...filasFE,
-      { label: 'Base imponible total (trabajo + fuente ext.)', value: taxFmt(base), cls: 'total' },
-      { label: 'Impuesto progresivo total',                    value: taxFmt(imp) },
-      { label: 'Impuesto atribuible a fuente extranjera',      value: taxFmt(impFE) },
-      ...(impExt > 0 ? [
-        { label: 'Límite crédito exterior (tasa media × RNFE)', value: taxFmt(limiteCred) },
-        { label: 'Crédito aplicado',                           value: '– ' + taxFmt(credExt), cls: 'credit' }
-      ] : []),
-      { label: 'Saldo a pagar', value: taxFmt(saldo), cls: 'total' }
-    ],
-    taxTramosHTML(det, base),
-    `La deducción de 7 UIT aplica <strong>solo</strong> sobre rentas de trabajo en Perú, no sobre la fuente extranjera &nbsp;·&nbsp; Declarar en <strong>Formulario Virtual N° 709</strong> &nbsp;·&nbsp; Convertir a soles al tipo de cambio <strong>compra</strong> del día de percepción &nbsp;·&nbsp; Art. 46° y 51° LIR`
+}
+function taxFmt(n){return'S/ '+Math.round(n).toLocaleString('es-PE');}
+function taxPct(n){return(n*100).toFixed(2).replace('.00','')+'%';}
+function taxV(id){return+document.getElementById(id)?.value||0;}
+function taxSelectRoute(id,el){
+  document.querySelectorAll('.route-card').forEach(c=>c.classList.remove('active','active-amber','active-blue'));
+  document.querySelectorAll('.tax-panel').forEach(p=>p.classList.remove('active'));
+  const cls=id==='broker'?'active-amber':id==='otros'?'active-blue':'active';
+  el.classList.add(cls);
+  document.getElementById('tax-panel-'+id).classList.add('active');
+}
+function calcProgTax(base){
+  let imp=0,prev=0,det=[];
+  for(const t of getTRAMOS()){
+    if(base<=prev)break;
+    const slice=Math.min(base,t.hasta)-prev;
+    const i=slice*t.tasa;
+    imp+=i;det.push({...t,slice,imp:i,desde:prev,hasta:Math.min(base,t.hasta)});
+    prev=t.hasta;
+  }
+  return{imp,det};
+}
+function taxTramosHTML(det){
+  const rows=getTRAMOS().map(t=>{
+    const d=det.find(x=>x.tasa===t.tasa&&x.slice>0);const hit=!!d;
+    return`<tr class="${hit?'hit':''}"><td>${t.label}</td><td>${t.hasta===Infinity?'Resto':taxFmt(t.hasta)}</td><td>${taxPct(t.tasa)}</td><td>${hit?taxFmt(d.imp):'—'}</td></tr>`;
+  }).join('');
+  return`<div class="tramos-wrap"><table class="tramos"><tr><th>Tramo</th><th>Hasta</th><th>Tasa</th><th>Impuesto</th></tr>${rows}</table></div>`;
+}
+function taxResultHTML(metrics,rows,tramos,note){
+  const mcards=metrics.map(m=>`<div class="t-metric${m.hi?' highlight':''}"><div class="m-label">${m.label}</div><div class="m-value">${m.value}</div></div>`).join('');
+  const brows=rows.map(r=>`<div class="brow ${r.cls||''}"><span class="bl">${r.label}</span><span class="br">${r.value}</span></div>`).join('');
+  return`<div class="result-block"><div class="result-metrics">${mcards}</div><div class="breakdown">${brows}</div>${tramos||''}<p class="footer-note">${note}</p></div>`;
+}
+function calcBolsa(){
+  const venta=taxV('b-venta'),costo=taxV('b-costo'),gastos=taxV('b-gastos'),perdidas=taxV('b-perdidas'),impExt=taxV('b-impext'),ret=taxV('b-ret');
+  const el=document.getElementById('res-bolsa');if(!el)return;
+  if(!venta&&!costo){el.innerHTML='<div style="text-align:center;padding:24px;color:var(--tx2);font-size:13px;">Ingresa tus datos para ver el cálculo</div>';return;}
+  const bruta=Math.max(0,venta-costo-gastos),neta=bruta*0.80,netaComp=Math.max(0,neta-perdidas),imp=netaComp*0.0625,credExt=Math.min(impExt,imp),saldo=Math.max(0,imp-credExt-ret),tasaEf=bruta>0?imp/bruta:0;
+  el.innerHTML=taxResultHTML(
+    [{label:'Ganancia bruta',value:taxFmt(bruta)},{label:'Renta neta (–20%)',value:taxFmt(neta)},{label:'Impuesto a pagar',value:taxFmt(saldo),hi:true}],
+    [{label:'Precio de venta',value:taxFmt(venta)},{label:'Costo computable',value:'– '+taxFmt(costo+gastos),cls:'deduct'},{label:'Ganancia bruta',value:taxFmt(bruta)},{label:'Deducción 20% fija',value:'– '+taxFmt(bruta*0.20),cls:'deduct'},{label:'Renta neta',value:taxFmt(neta)},...(perdidas>0?[{label:'Pérdidas compensadas',value:'– '+taxFmt(Math.min(perdidas,neta)),cls:'deduct'}]:[]),{label:'Impuesto (6.25% = 5% efectivo)',value:taxFmt(imp)},...(credExt>0?[{label:'Crédito por impuesto exterior',value:'– '+taxFmt(credExt),cls:'credit'}]:[]),...(ret>0?[{label:'Retención CAVALI',value:'– '+taxFmt(ret),cls:'credit'}]:[]),{label:'Saldo a pagar',value:taxFmt(saldo),cls:'total'}],
+    null,
+    `Tasa efectiva: <strong>${taxPct(tasaEf)}</strong> &nbsp;·&nbsp; Sin pagos mensuales &nbsp;·&nbsp; Declarar en <strong>Formulario Virtual N° 709</strong> &nbsp;·&nbsp; Art. 51° LIR`
   );
   calcGlobal();
 }
-
-/* ── CALCULADORA OTROS ──────────────────────────────────────────── */
-function calcOtros() {
-  const tipo       = document.getElementById('o-tipo').value;
-  const bruto      = taxV('o-bruto');
-  const alquiler   = taxV('o-alquiler');
-  const intereses  = taxV('o-intereses');
-  const dividendos = taxV('o-dividendos');
-  const servicios  = taxV('o-servicios');
-  const otros      = taxV('o-otros');
-  const impExt     = taxV('o-impext');
-
-  updateHint('o-tipo', 'o-bruto-hint');
-
-  const rnt     = rentaNetaTrabajo(tipo, bruto);
-  const totalFE = alquiler + intereses + dividendos + servicios + otros;
-  const base    = rnt + totalFE;
-
-  if (base === 0) { document.getElementById('res-otros').innerHTML = ''; return; }
-
-  const SIETE_UIT = 7 * UIT;
-  const ded20     = tipo === 'cuarta' ? bruto * 0.20 : 0;
-  const dedUIT    = tipo !== 'ninguna' ? Math.min(SIETE_UIT, bruto * (tipo === 'cuarta' ? 0.80 : 1)) : 0;
-
-  const { imp, det }     = calcProgTax(base);
-  const { imp: impTrab } = calcProgTax(rnt);
-  const impFE            = imp - impTrab;
-  const tasaMedia        = base > 0 ? imp / base : 0;
-  const limiteCred       = totalFE * tasaMedia;
-  const credExt          = Math.min(impExt, limiteCred);
-  const saldo            = Math.max(0, imp - credExt);
-
-  const filasTrabajo = tipo !== 'ninguna' ? [
-    { label: 'Ingreso bruto de trabajo',                    value: taxFmt(bruto) },
-    ...(ded20 > 0 ? [{ label: 'Deducción 20% (4ta categoría)', value: '– ' + taxFmt(ded20), cls: 'deduct' }] : []),
-    { label: 'Deducción 7 UIT',                             value: '– ' + taxFmt(dedUIT), cls: 'deduct' },
-    { label: 'Renta neta de trabajo',                       value: taxFmt(rnt) },
-  ] : [];
-
-  const detalleRows = [
-    alquiler   > 0 ? { label: 'Alquileres en el exterior',             value: taxFmt(alquiler) } : null,
-    intereses  > 0 ? { label: 'Intereses de cuentas en el exterior',   value: taxFmt(intereses) } : null,
-    dividendos > 0 ? { label: 'Dividendos de empresas extranjeras',    value: taxFmt(dividendos) } : null,
-    servicios  > 0 ? { label: 'Servicios / honorarios en el exterior', value: taxFmt(servicios) } : null,
-    otros      > 0 ? { label: 'Otros ingresos del exterior',           value: taxFmt(otros) } : null,
-  ].filter(Boolean);
-
-  document.getElementById('res-otros').innerHTML = taxResultHTML(
-    [
-      { label: 'Total fuente extranjera', value: taxFmt(totalFE) },
-      { label: 'Tasa media efectiva',     value: taxPct(tasaMedia) },
-      { label: 'Impuesto a pagar',        value: taxFmt(saldo), hi: true }
-    ],
-    [
-      ...filasTrabajo,
-      ...detalleRows,
-      { label: 'Renta neta fuente extranjera (sin deducción)', value: taxFmt(totalFE) },
-      { label: 'Base imponible total', value: taxFmt(base), cls: 'total' },
-      { label: 'Impuesto progresivo total',                    value: taxFmt(imp) },
-      { label: 'Impuesto atribuible a fuente extranjera',      value: taxFmt(impFE) },
-      ...(impExt > 0 ? [
-        { label: 'Límite crédito exterior (tasa media × RNFE)', value: taxFmt(limiteCred) },
-        { label: 'Crédito aplicado',                           value: '– ' + taxFmt(credExt), cls: 'credit' }
-      ] : []),
-      { label: 'Saldo a pagar', value: taxFmt(saldo), cls: 'total' }
-    ],
-    taxTramosHTML(det, base),
-    `Los ingresos del exterior se suman directamente a la base sin deducción propia &nbsp;·&nbsp; Declarar en <strong>Formulario Virtual N° 709</strong> &nbsp;·&nbsp; Convertir a soles al tipo de cambio <strong>compra</strong> del día de percepción &nbsp;·&nbsp; Art. 76° y 51° LIR`
+function calcBroker(){
+  const trabajo=taxV('k-trabajo'),ganancia=taxV('k-ganancia'),perdidas=taxV('k-perdidas'),impExt=taxV('k-impext');
+  const el=document.getElementById('res-broker');if(!el)return;
+  const rnfe=Math.max(0,ganancia-perdidas),base=trabajo+rnfe;
+  const brokerHasInput=document.getElementById('k-trabajo').value!==''||document.getElementById('k-ganancia').value!=='';
+  if(!brokerHasInput){el.innerHTML='<div style="text-align:center;padding:24px;color:var(--tx2);font-size:13px;">Ingresa tus datos para ver el cálculo</div>';calcGlobal();return;}
+  if(base===0){el.innerHTML='<div style="text-align:center;padding:24px;color:var(--tx2);font-size:13px;">La base imponible es 0 — sin impuesto a pagar</div>';calcGlobal();return;}
+  const{imp,det}=calcProgTax(base),{imp:impTrab}=calcProgTax(trabajo),impFE=imp-impTrab,tasaMedia=imp/base,limiteCred=rnfe*tasaMedia,credExt=Math.min(impExt,limiteCred),saldo=Math.max(0,imp-credExt);
+  el.innerHTML=taxResultHTML(
+    [{label:'Base imponible total',value:taxFmt(base)},{label:'Tasa media efectiva',value:taxPct(tasaMedia)},{label:'Impuesto a pagar',value:taxFmt(saldo),hi:true}],
+    [{label:'Renta neta de trabajo',value:taxFmt(trabajo)},{label:'Renta neta fuente extranjera',value:taxFmt(rnfe)},{label:'Base imponible total',value:taxFmt(base),cls:'total'},{label:'Impuesto progresivo',value:taxFmt(imp)},{label:'Impuesto fuente extranjera',value:taxFmt(impFE)},...(impExt>0?[{label:'Límite crédito exterior',value:taxFmt(limiteCred)},{label:'Crédito aplicado',value:'– '+taxFmt(credExt),cls:'credit'}]:[]),{label:'Saldo a pagar',value:taxFmt(saldo),cls:'total'}],
+    taxTramosHTML(det),
+    `Sin pagos mensuales &nbsp;·&nbsp; Declarar en <strong>Formulario Virtual N° 709</strong> &nbsp;·&nbsp; Convertir a soles al T/C compra del día de percepción &nbsp;·&nbsp; Art. 51° LIR`
+  );
+  calcGlobal();
+}
+function calcOtros(){
+  const trabajo=taxV('o-trabajo'),alquiler=taxV('o-alquiler'),intereses=taxV('o-intereses'),dividendos=taxV('o-dividendos'),servicios=taxV('o-servicios'),otros=taxV('o-otros'),impExt=taxV('o-impext');
+  const el=document.getElementById('res-otros');if(!el)return;
+  const totalFE=alquiler+intereses+dividendos+servicios+otros,base=trabajo+totalFE;
+  const otrosHasInput=['o-trabajo','o-alquiler','o-intereses','o-dividendos','o-servicios','o-otros'].some(id=>document.getElementById(id)?.value!=='');
+  if(!otrosHasInput){el.innerHTML='<div style="text-align:center;padding:24px;color:var(--tx2);font-size:13px;">Ingresa tus datos para ver el cálculo</div>';calcGlobal();return;}
+  if(base===0){el.innerHTML='<div style="text-align:center;padding:24px;color:var(--tx2);font-size:13px;">La base imponible es 0 — sin impuesto a pagar</div>';calcGlobal();return;}
+  const{imp,det}=calcProgTax(base),{imp:impTrab}=calcProgTax(trabajo),impFE=imp-impTrab,tasaMedia=imp/base,limiteCred=totalFE*tasaMedia,credExt=Math.min(impExt,limiteCred),saldo=Math.max(0,imp-credExt);
+  const detRows=[alquiler>0?{label:'Alquileres en el exterior',value:taxFmt(alquiler)}:null,intereses>0?{label:'Intereses de cuentas',value:taxFmt(intereses)}:null,dividendos>0?{label:'Dividendos extranjeros',value:taxFmt(dividendos)}:null,servicios>0?{label:'Servicios / honorarios',value:taxFmt(servicios)}:null,otros>0?{label:'Otros ingresos',value:taxFmt(otros)}:null].filter(Boolean);
+  el.innerHTML=taxResultHTML(
+    [{label:'Total fuente extranjera',value:taxFmt(totalFE)},{label:'Tasa media efectiva',value:taxPct(tasaMedia)},{label:'Impuesto a pagar',value:taxFmt(saldo),hi:true}],
+    [{label:'Renta neta de trabajo',value:taxFmt(trabajo)},...detRows,{label:'Total fuente extranjera',value:taxFmt(totalFE)},{label:'Base imponible total',value:taxFmt(base),cls:'total'},{label:'Impuesto progresivo',value:taxFmt(imp)},{label:'Impuesto fuente extranjera',value:taxFmt(impFE)},...(impExt>0?[{label:'Límite crédito exterior',value:taxFmt(limiteCred)},{label:'Crédito aplicado',value:'– '+taxFmt(credExt),cls:'credit'}]:[]),{label:'Saldo a pagar',value:taxFmt(saldo),cls:'total'}],
+    taxTramosHTML(det),
+    `Sin pagos mensuales &nbsp;·&nbsp; Declarar en <strong>Formulario Virtual N° 709</strong> &nbsp;·&nbsp; Ingresos en moneda extranjera al T/C compra del día que los percibes &nbsp;·&nbsp; Art. 76° y 51° LIR`
   );
   calcGlobal();
 }
@@ -2069,6 +2399,7 @@ function calcOtros() {
 // ── RESUMEN GLOBAL ──
 function calcGlobal(){
   const el=document.getElementById('tax-global-result');if(!el)return;
+  // Get saldo from each section
   function getSaldo(resultId){
     const el=document.getElementById(resultId);if(!el)return 0;
     const totals=el.querySelectorAll('.brow.total .br');
@@ -2082,22 +2413,47 @@ function calcGlobal(){
   const saldoBroker=getSaldo('res-broker');
   const saldoOtros=getSaldo('res-otros');
   const total=saldoBolsa+saldoBroker+saldoOtros;
-  if(total===0){el.innerHTML='<div style="text-align:center;padding:20px;color:var(--tx2);font-size:13px;">Completa al menos una sección para ver el resumen global de impuestos</div>';return;}
-  const yr=document.getElementById('uit-year')?.value||2026;
-  el.innerHTML='<div style="background:linear-gradient(135deg,#0a0a1a,#1a1a2e);border-radius:var(--rad-xl);padding:24px;margin-top:8px;"><div style="font-size:12px;font-weight:600;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:.08em;margin-bottom:16px;">Resumen global de impuestos · '+yr+'</div><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;"><div style="background:rgba(255,255,255,0.06);border-radius:var(--rad-lg);padding:14px;"><div style="font-size:10px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;">BVL / MILA</div><div style="font-size:18px;font-weight:700;color:'+(saldoBolsa>0?'"#63d68a"':'"rgba(255,255,255,0.25)"')+';">'+(saldoBolsa>0?'S/ '+saldoBolsa.toLocaleString("es-PE"):'—')+'</div></div><div style="background:rgba(255,255,255,0.06);border-radius:var(--rad-lg);padding:14px;"><div style="font-size:10px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;">Broker extranjero</div><div style="font-size:18px;font-weight:700;color:'+(saldoBroker>0?'"#e8a542"':'"rgba(255,255,255,0.25)"')+';">'+(saldoBroker>0?'S/ '+saldoBroker.toLocaleString("es-PE"):'—')+'</div></div><div style="background:rgba(255,255,255,0.06);border-radius:var(--rad-lg);padding:14px;"><div style="font-size:10px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;">Otros ingresos</div><div style="font-size:18px;font-weight:700;color:'+(saldoOtros>0?'"#4d9de0"':'"rgba(255,255,255,0.25)"')+';">'+(saldoOtros>0?'S/ '+saldoOtros.toLocaleString("es-PE"):'—')+'</div></div><div style="background:rgba(29,158,117,0.25);border:1px solid rgba(29,158,117,0.5);border-radius:var(--rad-lg);padding:14px;"><div style="font-size:10px;color:rgba(255,255,255,0.6);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;">TOTAL A PAGAR</div><div style="font-size:22px;font-weight:800;color:#1D9E75;">S/ '+total.toLocaleString('es-PE')+'</div></div></div><div style="font-size:11px;color:rgba(255,255,255,0.3);border-top:1px solid rgba(255,255,255,0.08);padding-top:12px;">⚠️ Suma orientativa. Declara por separado en el <strong style="color:rgba(255,255,255,0.5);">Formulario Virtual N° 709</strong> de SUNAT. Consulta a un contador certificado.</div></div>';
+  if(total===0){el.innerHTML='<div style="text-align:center;padding:20px;color:var(--tx2);font-size:13px;">Completa al menos una sección para ver el resumen global</div>';return;}
+  el.innerHTML=`
+    <div style="background:linear-gradient(135deg,#0a0a1a,#1a1a2e);border-radius:var(--rad-xl);padding:24px;margin-top:8px;">
+      <div style="font-size:12px;font-weight:600;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:.08em;margin-bottom:16px;">Resumen global de impuestos · ${document.getElementById('uit-year')?.value||2026}</div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;">
+        <div style="background:rgba(255,255,255,0.06);border-radius:var(--rad-lg);padding:14px;">
+          <div style="font-size:10px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;">BVL / MILA</div>
+          <div style="font-size:18px;font-weight:700;color:${saldoBolsa>0?'#63d68a':'rgba(255,255,255,0.25)'};">${saldoBolsa>0?'S/ '+saldoBolsa.toLocaleString('es-PE'):'—'}</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.06);border-radius:var(--rad-lg);padding:14px;">
+          <div style="font-size:10px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;">Broker extranjero</div>
+          <div style="font-size:18px;font-weight:700;color:${saldoBroker>0?'#e8a542':'rgba(255,255,255,0.25)'};">${saldoBroker>0?'S/ '+saldoBroker.toLocaleString('es-PE'):'—'}</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.06);border-radius:var(--rad-lg);padding:14px;">
+          <div style="font-size:10px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;">Otros ingresos</div>
+          <div style="font-size:18px;font-weight:700;color:${saldoOtros>0?'#4d9de0':'rgba(255,255,255,0.25)'};">${saldoOtros>0?'S/ '+saldoOtros.toLocaleString('es-PE'):'—'}</div>
+        </div>
+        <div style="background:rgba(29,158,117,0.25);border:1px solid rgba(29,158,117,0.5);border-radius:var(--rad-lg);padding:14px;">
+          <div style="font-size:10px;color:rgba(255,255,255,0.6);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;">TOTAL A PAGAR</div>
+          <div style="font-size:22px;font-weight:800;color:#1D9E75;">S/ ${total.toLocaleString('es-PE')}</div>
+        </div>
+      </div>
+      <div style="font-size:11px;color:rgba(255,255,255,0.3);border-top:1px solid rgba(255,255,255,0.08);padding-top:12px;">
+        ⚠️ Suma orientativa de los tres regímenes. Estos montos se declaran por separado en el <strong style="color:rgba(255,255,255,0.5);">Formulario Virtual N° 709</strong> de SUNAT. Consulta a un contador certificado.
+      </div>
+    </div>`;
 }
 
 // ═══ ANALYTICS ═══
 async function trackVisit(){
   try{
-    const today=new Date().toISOString().slice(0,10);
+    const today=new Date().toISOString().slice(0,10); // YYYY-MM-DD
     const ref=db.collection('analytics').doc('visits');
     const dayRef=db.collection('analytics').doc('days_'+today);
+    // Increment total visits
     await db.runTransaction(async tx=>{
       const snap=await tx.get(ref);
       const cur=snap.exists?snap.data().total||0:0;
       tx.set(ref,{total:cur+1,lastVisit:Date.now()},{merge:true});
     });
+    // Increment today's visits
     await db.runTransaction(async tx=>{
       const snap=await tx.get(dayRef);
       const cur=snap.exists?snap.data().count||0:0;
@@ -2106,807 +2462,112 @@ async function trackVisit(){
   }catch(e){}
 }
 
-// ═══ LANDING CALCULADORA (uses same engine, different IDs) ═══
-let lUIT = 5500;
-function lOnUitYearChange(){
-  const yr=parseInt(document.getElementById('l-uit-year').value);
-  const val={2020:4300,2021:4400,2022:4600,2023:4950,2024:5150,2025:5350,2026:5500}[yr]||5500;
-  lUIT=val;
-  const luitValEl=document.getElementById('l-uit-value');
-  if(luitValEl)luitValEl.value=val;
-  const luitBadge=document.getElementById('l-uit-badge');
-  if(luitBadge)luitBadge.textContent='UIT '+yr+' = S/ '+val.toLocaleString('es-PE');
-  lRecalcActive();
-}
-function lOnUitManualChange(){
-  lUIT=parseInt(document.getElementById('l-uit-value').value)||5500;
-  const yr=document.getElementById('l-uit-year')?.value||2026;
-  const luitBadge=document.getElementById('l-uit-badge');
-  if(luitBadge)luitBadge.textContent='UIT '+yr+' = S/ '+lUIT.toLocaleString('es-PE');
-  lRecalcActive();
-}
-function lRecalcActive(){
-  const a=document.querySelector('.tax-panel.active[id^="l-tax"]');
-  if(!a)return;
-  if(a.id==='l-tax-panel-bolsa')lCalcBolsa();
-  else if(a.id==='l-tax-panel-broker')lCalcBroker();
-  else lCalcOtros();
-}
-function lTaxSelectRoute(id,el){
-  document.querySelectorAll('.route-card').forEach(c=>c.classList.remove('active','active-amber','active-blue'));
-  document.querySelectorAll('.tax-panel[id^="l-tax"]').forEach(p=>p.classList.remove('active'));
-  el.classList.add(id==='broker'?'active-amber':id==='otros'?'active-blue':'active');
-  document.getElementById('l-tax-panel-'+id).classList.add('active');
-}
-function lTaxV(id){return+document.getElementById(id)?.value||0;}
-function lGetTRAMOS(){return[{label:'Hasta 5 UIT',hasta:5*lUIT,tasa:0.08},{label:'5 a 20 UIT',hasta:20*lUIT,tasa:0.14},{label:'20 a 35 UIT',hasta:35*lUIT,tasa:0.17},{label:'35 a 45 UIT',hasta:45*lUIT,tasa:0.20},{label:'Más de 45 UIT',hasta:Infinity,tasa:0.30}];}
-function lCalcProgTax(base){let imp=0,prev=0,det=[];for(const t of lGetTRAMOS()){if(base<=prev)break;const slice=Math.min(base,t.hasta)-prev;const i=slice*t.tasa;imp+=i;det.push({...t,slice,imp:i});prev=t.hasta;}return{imp,det};}
-function lCalcBolsa(){
-  const venta=lTaxV('lb-venta'),costo=lTaxV('lb-costo'),gastos=lTaxV('lb-gastos'),perdidas=lTaxV('lb-perdidas'),impExt=lTaxV('lb-impext'),ret=lTaxV('lb-ret');
-  const el=document.getElementById('l-res-bolsa');if(!el)return;
-  if(!venta&&!costo){el.innerHTML='<div style="text-align:center;padding:24px;color:var(--tx2);font-size:13px;">Ingresa tus datos para ver el cálculo</div>';return;}
-  const bruta=Math.max(0,venta-costo-gastos),neta=bruta*0.80,netaComp=Math.max(0,neta-perdidas),imp=netaComp*0.0625,credExt=Math.min(impExt,imp),saldo=Math.max(0,imp-credExt-ret),tasaEf=bruta>0?imp/bruta:0;
-  el.innerHTML=taxResultHTML([{label:'Ganancia bruta',value:taxFmt(bruta)},{label:'Renta neta (–20%)',value:taxFmt(neta)},{label:'Impuesto a pagar',value:taxFmt(saldo),hi:true}],[{label:'Precio de venta',value:taxFmt(venta)},{label:'Costo computable',value:'– '+taxFmt(costo+gastos),cls:'deduct'},{label:'Ganancia bruta',value:taxFmt(bruta)},{label:'Deducción 20%',value:'– '+taxFmt(bruta*0.20),cls:'deduct'},{label:'Renta neta',value:taxFmt(neta)},...(perdidas>0?[{label:'Pérdidas compensadas',value:'– '+taxFmt(Math.min(perdidas,neta)),cls:'deduct'}]:[]),{label:'Impuesto (5% efectivo)',value:taxFmt(imp)},...(credExt>0?[{label:'Crédito exterior',value:'– '+taxFmt(credExt),cls:'credit'}]:[]),...(ret>0?[{label:'Retención CAVALI',value:'– '+taxFmt(ret),cls:'credit'}]:[]),{label:'Saldo a pagar',value:taxFmt(saldo),cls:'total'}],null,`Tasa efectiva: <strong>${taxPct(tasaEf)}</strong> · Formulario Virtual N° 709 · Art. 51° LIR`);
-}
-function lCalcBroker(){
-  const trabajo=lTaxV('lk-trabajo'),ganancia=lTaxV('lk-ganancia'),perdidas=lTaxV('lk-perdidas'),impExt=lTaxV('lk-impext');
-  const el=document.getElementById('l-res-broker');if(!el)return;
-  const rnfe=Math.max(0,ganancia-perdidas),base=trabajo+rnfe;
-  if(base===0){el.innerHTML='';return;}
-  const {imp,det}=lCalcProgTax(base),{imp:impTrab}=lCalcProgTax(trabajo),impFE=imp-impTrab,tasaMedia=imp/base,limiteCred=rnfe*tasaMedia,credExt=Math.min(impExt,limiteCred),saldo=Math.max(0,imp-credExt);
-  el.innerHTML=taxResultHTML([{label:'Base imponible',value:taxFmt(base)},{label:'Tasa media',value:taxPct(tasaMedia)},{label:'Impuesto a pagar',value:taxFmt(saldo),hi:true}],[{label:'Renta neta trabajo',value:taxFmt(trabajo)},{label:'Renta neta fuente ext.',value:taxFmt(rnfe)},{label:'Base total',value:taxFmt(base),cls:'total'},{label:'Impuesto progresivo',value:taxFmt(imp)},{label:'Impto. fuente ext.',value:taxFmt(impFE)},...(impExt>0?[{label:'Límite crédito',value:taxFmt(limiteCred)},{label:'Crédito aplicado',value:'– '+taxFmt(credExt),cls:'credit'}]:[]),{label:'Saldo a pagar',value:taxFmt(saldo),cls:'total'}],taxTramosHTML(det),`Formulario Virtual N° 709 · T/C compra del día de percepción · Art. 51° LIR`);
-}
-function lCalcOtros(){
-  const trabajo=lTaxV('lo-trabajo'),alquiler=lTaxV('lo-alquiler'),intereses=lTaxV('lo-intereses'),dividendos=lTaxV('lo-dividendos'),servicios=lTaxV('lo-servicios'),impExt=lTaxV('lo-impext');
-  const el=document.getElementById('l-res-otros');if(!el)return;
-  const totalFE=alquiler+intereses+dividendos+servicios,base=trabajo+totalFE;
-  if(base===0){el.innerHTML='';return;}
-  const {imp,det}=lCalcProgTax(base),{imp:impTrab}=lCalcProgTax(trabajo),impFE=imp-impTrab,tasaMedia=imp/base,limiteCred=totalFE*tasaMedia,credExt=Math.min(impExt,limiteCred),saldo=Math.max(0,imp-credExt);
-  el.innerHTML=taxResultHTML([{label:'Total fuente ext.',value:taxFmt(totalFE)},{label:'Tasa media',value:taxPct(tasaMedia)},{label:'Impuesto a pagar',value:taxFmt(saldo),hi:true}],[{label:'Renta trabajo',value:taxFmt(trabajo)},...[alquiler>0?{label:'Alquileres',value:taxFmt(alquiler)}:null,intereses>0?{label:'Intereses',value:taxFmt(intereses)}:null,dividendos>0?{label:'Dividendos',value:taxFmt(dividendos)}:null,servicios>0?{label:'Servicios',value:taxFmt(servicios)}:null].filter(Boolean),{label:'Base total',value:taxFmt(base),cls:'total'},{label:'Impuesto progresivo',value:taxFmt(imp)},{label:'Impto. fuente ext.',value:taxFmt(impFE)},...(impExt>0?[{label:'Límite crédito',value:taxFmt(limiteCred)},{label:'Crédito aplicado',value:'– '+taxFmt(credExt),cls:'credit'}]:[]),{label:'Saldo a pagar',value:taxFmt(saldo),cls:'total'}],taxTramosHTML(det),`Formulario Virtual N° 709 · T/C compra del día · Art. 76° y 51° LIR`);
-}
-
-function showToast(m){const t=document.getElementById('toast');t.textContent=m;t.style.display='block';setTimeout(()=>t.style.display='none',3500);}
-</script>
-</body>
-</html>function buildHeatmap(type){
-  const container=document.getElementById('heatmap-container');
-  if(!container)return;
-  container.innerHTML='';
-  const configs={
-    sp500:{dataSource:'SPX500',grouping:'sector',blockSize:'market_cap_basic',blockColor:'change',locale:'es',symbolUrl:'',colorTheme:'light',hasTopBar:false,isDataSetEnabled:false,isZoomEnabled:true,hasSymbolTooltip:true,isMonoSize:false,width:'100%',height:500},
-    crypto:{dataSource:'Crypto',grouping:'no_group',blockSize:'market_cap_calc',blockColor:'change',locale:'es',symbolUrl:'',colorTheme:'light',hasTopBar:false,isDataSetEnabled:false,isZoomEnabled:true,hasSymbolTooltip:true,isMonoSize:false,width:'100%',height:500},
-    etf:{dataSource:'ETF',grouping:'no_group',blockSize:'volume',blockColor:'change',locale:'es',symbolUrl:'',colorTheme:'light',hasTopBar:false,isDataSetEnabled:false,isZoomEnabled:true,hasSymbolTooltip:true,isMonoSize:false,width:'100%',height:500}
-  };
-  const cfg=configs[type];
-  const script=document.createElement('script');
-  script.src='https://s3.tradingview.com/external-embedding/embed-widget-stock-heatmap.js';
-  script.async=true;
-  script.innerHTML=JSON.stringify(cfg);
-  const wrap=document.createElement('div');
-  wrap.className='tradingview-widget-container';
-  wrap.style.height='500px';
-  const inner=document.createElement('div');
-  inner.className='tradingview-widget-container__widget';
-  inner.style.height='100%';
-  wrap.appendChild(inner);
-  wrap.appendChild(script);
-  container.appendChild(wrap);
-}
-function appQuickLoad(fs,label,btn){document.querySelectorAll('.app-nav-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');document.getElementById('app-sym-input').value='';if(chartInited)buildChart(fs);else{initAppChart();setTimeout(()=>buildChart(fs),800);}}
-function appSearchSym(){const raw=document.getElementById('app-sym-input').value.trim().toUpperCase();if(!raw){showToast('Escribe un símbolo');return;}const ex={AAPL:'NASDAQ',MSFT:'NASDAQ',TSLA:'NASDAQ',GOOGL:'NASDAQ',AMZN:'NASDAQ',NVDA:'NASDAQ',META:'NASDAQ',NFLX:'NASDAQ',DIS:'NYSE',JPM:'NYSE',BTCUSD:'BITSTAMP',ETHUSD:'BITSTAMP',EURUSD:'FX',GOLD:'TVC',USOIL:'TVC'};const fs=raw.includes(':')?raw:(ex[raw]?ex[raw]+':'+raw:'NASDAQ:'+raw);showToast('Cargando: '+raw);if(chartInited)buildChart(fs);else{initAppChart();setTimeout(()=>buildChart(fs),800);}}
-
-// ═══ FINNHUB ═══
-const FK='d7hq9bpr01qirk40k170d7hq9bpr01qirk40k17g';
-const TD_KEY='30230ec6e79d4866b5ce3609ef6a9e49';
-let lp={};
-const CRYPTO_MAP={'BTCUSD':'BINANCE:BTCUSDT','ETHUSD':'BINANCE:ETHUSDT','SOLUSD':'BINANCE:SOLUSDT'};
-async function fetchP(sym){
+async function loadAnalytics(){
   try{
-    const fsym=CRYPTO_MAP[sym]||sym;
-    const r=await fetch(`https://finnhub.io/api/v1/quote?symbol=${fsym}&token=${FK}`);
-    if(r.status===429){return lp[sym]?.c||null;}
-    if(!r.ok)return lp[sym]?.c||null;
-    const d=await r.json();
-    if(d&&d.c>0){lp[sym]={c:d.c,d:d.d,dp:d.dp,h:d.h,l:d.l};return d.c;}
-  }catch(e){return lp[sym]?.c||null;}
-  return lp[sym]?.c||null;
+    // Total visits
+    const visSnap=await db.collection('analytics').doc('visits').get();
+    const totalVisits=visSnap.exists?visSnap.data().total||0:0;
+    document.getElementById('anl-visits').textContent=totalVisits.toLocaleString('es');
+
+    // Visits last 14 days
+    const days=[];
+    for(let i=13;i>=0;i--){
+      const d=new Date();d.setDate(d.getDate()-i);
+      days.push(d.toISOString().slice(0,10));
+    }
+    const daySnaps=await Promise.all(days.map(d=>db.collection('analytics').doc('days_'+d).get()));
+    const dayCounts=daySnaps.map((s,i)=>({date:days[i],count:s.exists?s.data().count||0:0}));
+    renderVisitsChart(dayCounts);
+    const todayCount=dayCounts[dayCounts.length-1].count;
+    document.getElementById('anl-today-visits').textContent='Hoy: '+todayCount+' visitas';
+
+    // Users from userdata collection
+    const usersSnap=await db.collection('userdata').get();
+    const users=usersSnap.docs.map(d=>({id:d.id,...d.data()}));
+    document.getElementById('anl-users').textContent=users.length;
+
+    // Active portfolios
+    const active=users.filter(u=>u.portfolio&&Object.keys(u.portfolio).length>0);
+    document.getElementById('anl-active').textContent=active.length;
+
+    // Signals count
+    const sigSnap=await db.collection('signals').get();
+    document.getElementById('anl-signals').textContent=sigSnap.size;
+
+    // Render users table
+    renderUsersTable(users);
+
+    // Render top portfolios
+    renderPortfolios(active);
+
+  }catch(e){console.log('Analytics error:',e);}
 }
 
-// ═══ LANDING SIMULATOR ═══
-const CATALOG=[{sym:'AAPL',name:'Apple Inc.'},{sym:'MSFT',name:'Microsoft'},{sym:'GOOGL',name:'Alphabet'},{sym:'AMZN',name:'Amazon'},{sym:'TSLA',name:'Tesla'},{sym:'NVDA',name:'NVIDIA'},{sym:'META',name:'Meta'},{sym:'NFLX',name:'Netflix'},{sym:'AMD',name:'AMD'},{sym:'INTC',name:'Intel'},{sym:'DIS',name:'Disney'},{sym:'JPM',name:'JPMorgan'},{sym:'BAC',name:'Bank of America'},{sym:'PYPL',name:'PayPal'},{sym:'UBER',name:'Uber'},{sym:'SPOT',name:'Spotify'},{sym:'COIN',name:'Coinbase'},{sym:'PLTR',name:'Palantir'},{sym:'SNAP',name:'Snap'},{sym:'NKE',name:'Nike'},{sym:'SBUX',name:'Starbucks'},{sym:'WMT',name:'Walmart'},{sym:'KO',name:'Coca-Cola'},{sym:'V',name:'Visa'},{sym:'MA',name:'Mastercard'},{sym:'PFE',name:'Pfizer'},{sym:'XOM',name:'ExxonMobil'},{sym:'BA',name:'Boeing'},{sym:'GE',name:'General Electric'},{sym:'HOOD',name:'Robinhood'},{sym:'BTCUSD',name:'Bitcoin'},{sym:'ETHUSD',name:'Ethereum'},{sym:'SOLUSD',name:'Solana'}];
-// UNIFIED SIMULATOR — same state for landing + dashboard
-// All state lives in window.sim* so both panels share it
-window.simBalance = 10000;
-window.simPortfolio = {};
-window.simHistory = [];
-window.simSym = null;
-window.simName = null;
-window.simMode = 'shares';
-// Aliases for landing
-let lBalance=window.simBalance,lPortfolio=window.simPortfolio,lHistory=window.simHistory,lSym=window.simSym,lName=window.simName,lMode=window.simMode;
-function lOnSearch(v){if(!v){document.getElementById('l-results').classList.remove('open');return;}const q=v.toUpperCase();const m=CATALOG.filter(s=>s.sym.includes(q)||s.name.toUpperCase().includes(q)).slice(0,7);if(!m.length){document.getElementById('l-results').classList.remove('open');return;}const el=document.getElementById('l-results');el.innerHTML=m.map(s=>{const p=lp[s.sym];return`<div class="sri" onclick="lPick('${s.sym}','${s.name.replace(/'/g,"\\'")}')"><div><div class="sri-sym">${s.sym}</div><div class="sri-name">${s.name}</div></div>${p?`<span style="font-size:12px;font-weight:600;">$${p.c.toFixed(2)}</span>`:''}</div>`;}).join('');el.classList.add('open');}
-async function lSearchEnter(){const v=document.getElementById('l-search').value.trim().toUpperCase();if(!v)return;const found=CATALOG.find(s=>s.sym===v);if(found){lPick(found.sym,found.name);}else{const pr=await fetchP(v);if(pr)lPick(v,v);else showToast('No encontrado: '+v);}document.getElementById('l-results').classList.remove('open');}
-document.addEventListener('click',e=>{if(!e.target.closest('.search-wrap'))document.querySelectorAll('.search-results').forEach(el=>el.classList.remove('open'));});
-async function lPick(sym,name){window.simSym=sym;window.simName=name;lSym=sym;lName=name;document.getElementById('l-search').value=sym+' — '+name;document.getElementById('l-results').classList.remove('open');document.getElementById('l-pricebox').style.display='block';document.getElementById('l-sym-label').textContent=sym;document.getElementById('l-name-label').textContent=name;document.getElementById('l-price').textContent='Cargando...';await fetchP(sym);const p=lp[sym];if(!p){document.getElementById('l-price').textContent='No disponible';return;}document.getElementById('l-price').textContent='$'+p.c.toFixed(2);const sign=p.dp>=0?'+':'';const ch=document.getElementById('l-change');ch.textContent=sign+p.d.toFixed(2)+' ('+sign+p.dp.toFixed(2)+'%)';ch.style.color=p.dp>=0?'var(--gd)':'var(--rd)';lCalcS();lCalcU();}
-function lSetMode(m){window.simMode=m;lMode=m;document.getElementById('l-mt-s').classList.toggle('active',m==='shares');document.getElementById('l-mt-u').classList.toggle('active',m==='usd');document.getElementById('l-panel-s').style.display=m==='shares'?'block':'none';document.getElementById('l-panel-u').style.display=m==='usd'?'block':'none';}
-function lCalcS(){const q=parseFloat(document.getElementById('l-qty-s').value)||0;const p=lSym?lp[lSym]?.c:null;document.getElementById('l-tot-s').textContent=p&&q?'$'+(p*q).toFixed(2):'—';}
-function lCalcU(){const u=parseFloat(document.getElementById('l-qty-u').value)||0;const p=lSym?lp[lSym]?.c:null;if(!p||!u){document.getElementById('l-tot-u').textContent='—';document.getElementById('l-frac').textContent='— acciones';document.getElementById('l-calc-box').style.display='none';return;}document.getElementById('l-frac').textContent=(u/p).toFixed(6)+' acciones';document.getElementById('l-tot-u').textContent='$'+u.toFixed(2);document.getElementById('l-calc-box').style.display='block';}
-function lSetU(v){document.getElementById('l-qty-u').value=v;lCalcU();}
-function fmtQ(q){return q<1?q.toFixed(6):q.toFixed(4);}
-async function lTrade(type){
-  if(!window.simSym){showToast('Selecciona una acción primero');return;}
-  let price=lp[window.simSym]?.c;
-  if(!price){await fetchP(window.simSym);price=lp[window.simSym]?.c;}
-  if(!price){showToast('No se pudo obtener precio');return;}
-  let qty,cost;
-  if(window.simMode==='shares'){
-    qty=parseFloat(document.getElementById('l-qty-s').value)||0;
-    if(qty<=0){showToast('Ingresa una cantidad válida');return;}
-    cost=+(price*qty).toFixed(6);
-  }else{
-    const u=parseFloat(document.getElementById('l-qty-u').value)||0;
-    if(u<=0){showToast('Ingresa un monto válido');return;}
-    qty=+(u/price).toFixed(6);cost=u;
-  }
-  if(type==='buy'){
-    if(window.simBalance<cost){showToast('Saldo insuficiente ($'+window.simBalance.toFixed(2)+')');return;}
-    window.simBalance=+(window.simBalance-cost).toFixed(6);
-    if(!window.simPortfolio[window.simSym])window.simPortfolio[window.simSym]={qty:0,avgCost:0,name:window.simName};
-    const prev=window.simPortfolio[window.simSym],tq=+(prev.qty+qty).toFixed(6);
-    prev.avgCost=+((prev.avgCost*prev.qty+price*qty)/tq).toFixed(6);prev.qty=tq;
-    window.simHistory.unshift({type:'compra',sym:window.simSym,qty,price,cost,ts:Date.now()});
-    showToast('✓ Compraste '+fmtQ(qty)+' × '+window.simSym+' a $'+price.toFixed(2));
-  }else{
-    if(!window.simPortfolio[window.simSym]||window.simPortfolio[window.simSym].qty<qty-0.000001){showToast('Sin acciones suficientes de '+window.simSym);return;}
-    window.simBalance=+(window.simBalance+cost).toFixed(6);
-    window.simPortfolio[window.simSym].qty=+(window.simPortfolio[window.simSym].qty-qty).toFixed(6);
-    if(window.simPortfolio[window.simSym].qty<0.000001)delete window.simPortfolio[window.simSym];
-    window.simHistory.unshift({type:'venta',sym:window.simSym,qty,price,cost,ts:Date.now()});
-    showToast('✓ Vendiste '+fmtQ(qty)+' × '+window.simSym+' a $'+price.toFixed(2));
-  }
-  updateBothSimUIs();
-  if(window.saveUserData)window.saveUserData();
-}
-
-function updateBothSimUIs(){
-  // Update landing panel
-  const lBal=document.getElementById('l-bal');
-  if(lBal)lBal.textContent='$'+window.simBalance.toLocaleString('es',{minimumFractionDigits:2,maximumFractionDigits:2});
-  const entries=Object.entries(window.simPortfolio).filter(([,v])=>v.qty>0.000001);
-  let tv=0;
-  if(!entries.length){
-    const pb=document.getElementById('l-ptbody');if(pb)pb.innerHTML='<tr><td colspan="5" class="empty">Aún sin posiciones.</td></tr>';
-    const ltp=document.getElementById('l-total-port');if(ltp)ltp.textContent='$0.00';
-    const lpv=document.getElementById('l-portval');if(lpv)lpv.textContent='$0';
-    const tp=+(window.simBalance-10000).toFixed(2);
-    const pel=document.getElementById('l-pnl');if(pel){pel.textContent=(tp>=0?'+$':'-$')+Math.abs(tp).toFixed(2);pel.style.color=tp>=0?'var(--g)':'var(--r)';}
-  }else{
-    const rows=entries.map(([sym,pos])=>{
-      const liveP=lp[sym]?.c||pos.avgCost;const val=+(liveP*pos.qty).toFixed(2);
-      const pl=+((liveP-pos.avgCost)*pos.qty).toFixed(2);const plp=+((liveP-pos.avgCost)/pos.avgCost*100).toFixed(2);
-      tv+=val;const c=pl>=0?'var(--gd)':'var(--rd)';const s=pl>=0?'+':'';
-      return`<tr><td><div style="font-weight:600;font-size:12px;">${sym}</div><div style="font-size:10px;color:var(--tx2);">${pos.name||''}</div></td><td style="font-size:11px;">${fmtQ(pos.qty)}</td><td style="font-size:12px;">$${liveP.toFixed(2)}</td><td style="font-size:12px;">$${val.toFixed(2)}</td><td style="color:${c};font-size:11px;">${s}$${pl.toFixed(2)}<br><span style="font-size:10px;">${s}${plp}%</span></td></tr>`;
-    }).join('');
-    const pb=document.getElementById('l-ptbody');if(pb)pb.innerHTML=rows;
-    const ltp=document.getElementById('l-total-port');if(ltp)ltp.textContent='$'+tv.toFixed(2);
-    const lpv=document.getElementById('l-portval');if(lpv)lpv.textContent='$'+tv.toFixed(0);
-    const tp=+(window.simBalance+tv-10000).toFixed(2);
-    const pel=document.getElementById('l-pnl');if(pel){pel.textContent=(tp>=0?'+$':'-$')+Math.abs(tp).toFixed(2);pel.style.color=tp>=0?'var(--g)':'var(--r)';}
-  }
-  // Landing history
-  const lhist=document.getElementById('l-history');
-  if(lhist){
-    if(!window.simHistory.length){lhist.innerHTML='<div class="empty">Aún sin operaciones.</div>';}
-    else{lhist.innerHTML=window.simHistory.slice(0,10).map(h=>{
-      const dt=new Date(h.ts).toLocaleString('es',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
-      const isC=h.type==='compra';
-      return`<div class="hist-item"><div style="display:flex;align-items:center;gap:7px;"><span class="hist-badge" style="background:${isC?'var(--gl)':'var(--rl)'};color:${isC?'var(--gd)':'var(--rd)'};">${isC?'Compra':'Venta'}</span><div><div style="font-size:12px;font-weight:600;">${h.sym}</div><div style="font-size:10px;color:var(--tx2);">${fmtQ(h.qty)} × $${h.price.toFixed(2)}</div></div></div><div style="text-align:right;"><div style="font-size:12px;font-weight:600;">$${h.cost.toFixed(2)}</div><div style="font-size:10px;color:var(--tx2);">${dt}</div></div></div>`;
-    }).join('');}
-  }
-  // Update dashboard panel (same data)
-  const aBal=document.getElementById('a-bal');if(aBal)aBal.textContent='$'+window.simBalance.toLocaleString('es',{minimumFractionDigits:2,maximumFractionDigits:2});
-  const apv=document.getElementById('a-portval');if(apv)apv.textContent='$'+tv.toFixed(2);
-  const atp2=+(window.simBalance+tv-10000).toFixed(2);
-  const apnl=document.getElementById('a-pnl');if(apnl){apnl.textContent=(atp2>=0?'+$':'-$')+Math.abs(atp2).toFixed(2);apnl.style.color=atp2>=0?'var(--g)':'var(--r)';}
-  const aptbody=document.getElementById('a-ptbody');
-  if(aptbody){
-    if(!entries.length){aptbody.innerHTML='<tr><td colspan="5" class="empty">Aún sin posiciones.</td></tr>';}
-    else{aptbody.innerHTML=entries.map(([sym,pos])=>{
-      const liveP=lp[sym]?.c||pos.avgCost;const val=+(liveP*pos.qty).toFixed(2);
-      const pl=+((liveP-pos.avgCost)*pos.qty).toFixed(2);const plp=+((liveP-pos.avgCost)/pos.avgCost*100).toFixed(2);
-      const c=pl>=0?'var(--gd)':'var(--rd)';const s=pl>=0?'+':'';
-      return`<tr><td><div style="font-weight:600;font-size:12px;">${sym}</div><div style="font-size:10px;color:var(--tx2);">${pos.name||''}</div></td><td style="font-size:11px;">${fmtQ(pos.qty)}</td><td style="font-size:12px;">$${liveP.toFixed(2)}</td><td style="font-size:12px;">$${val.toFixed(2)}</td><td style="color:${c};font-size:11px;">${s}$${pl.toFixed(2)}<br><span style="font-size:10px;">${s}${plp}%</span></td></tr>`;
-    }).join('');}
-    const atotalport=document.getElementById('a-total-port');if(atotalport)atotalport.textContent='$'+tv.toFixed(2);
-  }
-  const ahist=document.getElementById('a-history');
-  if(ahist){
-    if(!window.simHistory.length){ahist.innerHTML='<div class="empty">Aún sin operaciones.</div>';}
-    else{ahist.innerHTML=window.simHistory.slice(0,10).map(h=>{
-      const dt=new Date(h.ts).toLocaleString('es',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
-      const isC=h.type==='compra';
-      return`<div class="hist-item"><div style="display:flex;align-items:center;gap:7px;"><span class="hist-badge" style="background:${isC?'var(--gl)':'var(--rl)'};color:${isC?'var(--gd)':'var(--rd)'};">${isC?'Compra':'Venta'}</span><div><div style="font-size:12px;font-weight:600;">${h.sym}</div><div style="font-size:10px;color:var(--tx2);">${fmtQ(h.qty)} × $${h.price.toFixed(2)}</div></div></div><div style="text-align:right;"><div style="font-size:12px;font-weight:600;">$${h.cost.toFixed(2)}</div><div style="font-size:10px;color:var(--tx2);">${dt}</div></div></div>`;
-    }).join('');}
-  }
-}
-function lUpdateUI(){updateBothSimUIs();}
-
-function lReset(){if(!confirm('¿Reiniciar simulación?'))return;window.simBalance=10000;window.simPortfolio={};window.simHistory=[];updateBothSimUIs();if(window.saveUserData)window.saveUserData();showToast('Simulación reiniciada · $10,000');}
-setInterval(()=>{if(lSym)fetchP(lSym).then(()=>{const p=lp[lSym];if(p){document.getElementById('l-price').textContent='$'+p.c.toFixed(2);lCalcS();lCalcU();}});},30000);
-
-// ═══ APP SIMULATOR (advanced) ═══
-// App simulator aliases — point to unified sim state
-let aSym=null,aName=null,aMode='shares',aTradeHistory=window.simHistory;
-
-function aOnSearch(v){
-  if(!v){document.getElementById('a-results').classList.remove('open');return;}
-  const q=v.toUpperCase();
-  const m=CATALOG.filter(s=>s.sym.includes(q)||s.name.toUpperCase().includes(q)).slice(0,7);
-  if(!m.length){document.getElementById('a-results').classList.remove('open');return;}
-  const el=document.getElementById('a-results');
-  el.innerHTML=m.map(s=>{const p=lp[s.sym];return`<div class="sri" onclick="aPick('${s.sym}','${s.name.replace(/'/g,"\'")}')"><div><div class="sri-sym">${s.sym}</div><div class="sri-name">${s.name}</div></div>${p?`<span style="font-size:12px;font-weight:600;">$${p.c.toFixed(2)}</span>`:''}</div>`;}).join('');
-  el.classList.add('open');
-}
-async function aSearchEnter(){const v=document.getElementById('a-search').value.trim().toUpperCase();if(!v)return;const found=CATALOG.find(s=>s.sym===v);if(found){aPick(found.sym,found.name);}else{const pr=await fetchP(v);if(pr)aPick(v,v);else showToast('No encontrado: '+v);}document.getElementById('a-results').classList.remove('open');}
-async function aPick(sym,name){
-  aSym=sym;aName=name;window.simSym=sym;window.simName=name;
-  document.getElementById('a-search').value=sym+' — '+name;
-  document.getElementById('a-results').classList.remove('open');
-  document.getElementById('a-pricebox').style.display='block';
-  document.getElementById('a-sym-label').textContent=sym;
-  document.getElementById('a-name-label').textContent=name;
-  document.getElementById('a-price').textContent='Cargando...';
-  await fetchP(sym);
-  const p=lp[sym];
-  if(!p){document.getElementById('a-price').textContent='No disponible';return;}
-  document.getElementById('a-price').textContent='$'+p.c.toFixed(2);
-  const sign=p.dp>=0?'+':'';
-  const ch=document.getElementById('a-change');
-  ch.textContent=sign+p.d.toFixed(2)+' ('+sign+p.dp.toFixed(2)+'%)';
-  ch.style.color=p.dp>=0?'var(--gd)':'var(--rd)';
-  aCalcS();aCalcU();
-}
-function aSetMode(m){aMode=m;document.getElementById('a-mt-s').classList.toggle('active',m==='shares');document.getElementById('a-mt-u').classList.toggle('active',m==='usd');document.getElementById('a-panel-s').style.display=m==='shares'?'block':'none';document.getElementById('a-panel-u').style.display=m==='usd'?'block':'none';}
-function aCalcS(){const q=parseFloat(document.getElementById('a-qty-s')?.value)||0;const p=aSym?lp[aSym]?.c:null;const el=document.getElementById('a-tot-s');if(el)el.textContent=p&&q?'$'+(p*q).toFixed(2):'—';}
-function aCalcU(){const u=parseFloat(document.getElementById('a-qty-u')?.value)||0;const p=aSym?lp[aSym]?.c:null;const fu=document.getElementById('a-tot-u');const ff=document.getElementById('a-frac');const fc=document.getElementById('a-calc-box');if(!p||!u){if(fu)fu.textContent='—';if(ff)ff.textContent='— acciones';if(fc)fc.style.display='none';return;}if(ff)ff.textContent=(u/p).toFixed(6)+' acciones';if(fu)fu.textContent='$'+u.toFixed(2);if(fc)fc.style.display='block';}
-function aSetU(v){const el=document.getElementById('a-qty-u');if(el){el.value=v;aCalcU();}}
-async function aTradeNew(type){
-  if(!aSym){showToast('Selecciona una acción primero');return;}
-  let price=lp[aSym]?.c;
-  if(!price){await fetchP(aSym);price=lp[aSym]?.c;}
-  if(!price){showToast('No se pudo obtener precio');return;}
-  let qty,cost;
-  if(aMode==='shares'){qty=parseFloat(document.getElementById('a-qty-s').value)||0;if(qty<=0){showToast('Ingresa una cantidad válida');return;}cost=+(price*qty).toFixed(6);}
-  else{const u=parseFloat(document.getElementById('a-qty-u').value)||0;if(u<=0){showToast('Ingresa un monto válido');return;}qty=+(u/price).toFixed(6);cost=u;}
-  if(type==='buy'){
-    if(window.simBalance<cost){showToast('Saldo insuficiente ($'+window.simBalance.toFixed(2)+')');return;}
-    window.simBalance=+(window.simBalance-cost).toFixed(6);
-    if(!window.simPortfolio[aSym])window.simPortfolio[aSym]={qty:0,avgCost:0,name:aName};
-    const prev=window.simPortfolio[aSym],tq=+(prev.qty+qty).toFixed(6);
-    prev.avgCost=+((prev.avgCost*prev.qty+price*qty)/tq).toFixed(6);prev.qty=tq;
-    window.simHistory.unshift({type:'compra',sym:aSym,qty,price,cost,ts:Date.now()});
-    showToast('✓ Compraste '+fmtQ(qty)+' × '+aSym+' a $'+price.toFixed(2));
-  }else{
-    if(!window.simPortfolio[aSym]||window.simPortfolio[aSym].qty<qty-0.000001){showToast('Sin acciones suficientes de '+aSym);return;}
-    window.simBalance=+(window.simBalance+cost).toFixed(6);
-    window.simPortfolio[aSym].qty=+(window.simPortfolio[aSym].qty-qty).toFixed(6);
-    if(window.simPortfolio[aSym].qty<0.000001)delete window.simPortfolio[aSym];
-    window.simHistory.unshift({type:'venta',sym:aSym,qty,price,cost,ts:Date.now()});
-    showToast('✓ Vendiste '+fmtQ(qty)+' × '+aSym+' a $'+price.toFixed(2));
-  }
-  updateBothSimUIs();if(window.saveUserData)window.saveUserData();
-}
-function aTrade(type){aTradeNew(type);}
-function aOnTickerChange(){}
-function aUpdateTotal(){}
-function aResetSim(){if(!confirm('¿Reiniciar simulación?'))return;window.simBalance=10000;window.simPortfolio={};window.simHistory=[];updateBothSimUIs();if(window.saveUserData)window.saveUserData();showToast('Simulación reiniciada · $10,000');}
-async function aRefreshPrices(){
-  try{
-    const rsym=aSym||window.simSym;
-    if(rsym){await fetchP(rsym);const p=lp[aSym];if(p){const pe=document.getElementById('a-price');if(pe)pe.textContent='$'+p.c.toFixed(2);aCalcS();aCalcU();}}
-    aUpdatePortfolioPnl();
-  }catch(e){}
-}
-function aUpdateSimUI(){updateBothSimUIs();return;//
-  const bal=document.getElementById('a-bal');
-  if(bal)bal.textContent='$'+window.aBalance.toLocaleString('es',{minimumFractionDigits:2,maximumFractionDigits:2});
-  aUpdatePortfolioPnl();
-  const hist=document.getElementById('a-history');
-  if(!hist)return;
-  if(!aTradeHistory.length){hist.innerHTML='<div class="empty">Aún sin operaciones.</div>';return;}
-  hist.innerHTML=aTradeHistory.slice(0,10).map(h=>{const dt=new Date(h.ts).toLocaleString('es',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});const isC=h.type==='compra';return`<div class="hist-item"><div style="display:flex;align-items:center;gap:7px;"><span class="hist-badge" style="background:${isC?'var(--gl)':'var(--rl)'};color:${isC?'var(--gd)':'var(--rd)'};">${isC?'Compra':'Venta'}</span><div><div style="font-size:12px;font-weight:600;">${h.sym}</div><div style="font-size:10px;color:var(--tx2);">${fmtQ(h.qty)} × $${h.price.toFixed(2)}</div></div></div><div style="text-align:right;"><div style="font-size:12px;font-weight:600;">$${h.cost.toFixed(2)}</div><div style="font-size:10px;color:var(--tx2);">${dt}</div></div></div>`;}).join('');
-}
-setInterval(aRefreshPrices,30000);
-
-// ═══ AUTO SIGNALS
-// ═══ AUTO SIGNALS (Twelve Data) ═══
-
-async function fetchTD(ep){try{const r=await fetch(`https://api.twelvedata.com/${ep}&apikey=${TD_KEY}`);const d=await r.json();if(d.status==='error')return null;return d;}catch(e){return null;}}
-function isRSIUp(d){if(!d?.values||d.values.length<2)return false;return parseFloat(d.values[0].value)>parseFloat(d.values[1].value);}
-function isMACDUp(d){if(!d?.values||d.values.length<2)return false;return parseFloat(d.values[0].macd)>parseFloat(d.values[1].macd);}
-function isStochUp(d){if(!d?.values||d.values.length<2)return false;return parseFloat(d.values[0].k)>parseFloat(d.values[1].k);}
-function isRSIDown(d){if(!d?.values||d.values.length<2)return false;return parseFloat(d.values[0].value)<parseFloat(d.values[1].value);}
-function isMACDDown(d){if(!d?.values||d.values.length<2)return false;return parseFloat(d.values[0].macd)<parseFloat(d.values[1].macd);}
-function isStochDown(d){if(!d?.values||d.values.length<2)return false;return parseFloat(d.values[0].k)<parseFloat(d.values[1].k);}
-function allUp(rsi,macd,stoch){return isRSIUp(rsi)&&isMACDUp(macd)&&isStochUp(stoch);}
-function allDown(rsi,macd,stoch){return isRSIDown(rsi)&&isMACDDown(macd)&&isStochDown(stoch);}
-async function analyzeStock(sym){
-  // Fetch all timeframes in parallel: daily, weekly, monthly, 2month
-  const[
-    rsi1d,macd1d,stoch1d,
-    rsi1w,macd1w,stoch1w,
-    rsi1m,macd1m,stoch1m,
-    rsi2m,macd2m,stoch2m
-  ]=await Promise.all([
-    fetchTD(`rsi?symbol=${sym}&interval=1day&time_period=14&outputsize=3`),
-    fetchTD(`macd?symbol=${sym}&interval=1day&fast_period=12&slow_period=26&signal_period=9&outputsize=3`),
-    fetchTD(`stochrsi?symbol=${sym}&interval=1day&time_period=14&fast_k_period=3&fast_d_period=3&outputsize=3`),
-    fetchTD(`rsi?symbol=${sym}&interval=1week&time_period=14&outputsize=3`),
-    fetchTD(`macd?symbol=${sym}&interval=1week&fast_period=12&slow_period=26&signal_period=9&outputsize=3`),
-    fetchTD(`stochrsi?symbol=${sym}&interval=1week&time_period=14&fast_k_period=3&fast_d_period=3&outputsize=3`),
-    fetchTD(`rsi?symbol=${sym}&interval=1month&time_period=14&outputsize=3`),
-    fetchTD(`macd?symbol=${sym}&interval=1month&fast_period=12&slow_period=26&signal_period=9&outputsize=3`),
-    fetchTD(`stochrsi?symbol=${sym}&interval=1month&time_period=14&fast_k_period=3&fast_d_period=3&outputsize=3`),
-    fetchTD(`rsi?symbol=${sym}&interval=2month&time_period=14&outputsize=3`),
-    fetchTD(`macd?symbol=${sym}&interval=2month&fast_period=12&slow_period=26&signal_period=9&outputsize=3`),
-    fetchTD(`stochrsi?symbol=${sym}&interval=2month&time_period=14&fast_k_period=3&fast_d_period=3&outputsize=3`),
-  ]);
-
-  // Alta BUY: daily + weekly + monthly all pointing up
-  const highBuy = allUp(rsi1d,macd1d,stoch1d) && allUp(rsi1w,macd1w,stoch1w) && allUp(rsi1m,macd1m,stoch1m);
-  // Muy Alta BUY: Alta conditions + 2month also pointing up
-  const veryHighBuy = highBuy && allUp(rsi2m,macd2m,stoch2m);
-
-  // Alta SELL: daily + weekly + monthly all pointing down
-  const highSell = allDown(rsi1d,macd1d,stoch1d) && allDown(rsi1w,macd1w,stoch1w) && allDown(rsi1m,macd1m,stoch1m);
-  // Muy Alta SELL: Alta conditions + 2month also pointing down
-  const veryHighSell = highSell && allDown(rsi2m,macd2m,stoch2m);
-
-  if(veryHighBuy)  return{sym,level:'very-high',dir:'buy'};
-  if(highBuy)      return{sym,level:'high',dir:'buy'};
-  if(veryHighSell) return{sym,level:'very-high',dir:'sell'};
-  if(highSell)     return{sym,level:'high',dir:'sell'};
-  return{sym,level:'none',dir:'none'};
-}
-function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
-async function runScan(){if(typeof WATCHLIST==='undefined')return;
-  const btn=document.getElementById('scan-btn');
-  if(btn)btn.disabled=true;
-  const pb=document.getElementById('scan-pb');const pf=document.getElementById('scan-pf');
-  if(pb){pb.style.display='block';pf.style.width='0%';}
-  document.getElementById('auto-list').innerHTML='<div class="loading-state">Analizando indicadores técnicos...</div>';
-  await Promise.all(WATCHLIST.map(s=>fetchP(s.sym)));
-  autoResults=[];
-  // 12 API calls per stock × 24 stocks = 288 total
-  // Twelve Data free: 800 calls/day, 8/min → batch of 1 with 1.5s delay
-  const BATCH=1;
-  for(let i=0;i<WATCHLIST.length;i+=BATCH){
-    const batch=WATCHLIST.slice(i,i+BATCH);
-    const results=await Promise.all(batch.map(s=>analyzeStock(s.sym)));
-    autoResults.push(...results);
-    if(pf)pf.style.width=Math.round(((i+BATCH)/WATCHLIST.length)*100)+'%';
-    if(i+BATCH<WATCHLIST.length)await sleep(1500);
-  }
-  if(pb)setTimeout(()=>{pb.style.display='none';},500);
-  renderAutoSignals();
-  const vhc=autoResults.filter(r=>r.level==='very-high').length;
-  const hc=autoResults.filter(r=>r.level==='high').length;
-  const buyc=autoResults.filter(r=>r.dir==='buy'&&r.level!=='none').length;
-  const sellc=autoResults.filter(r=>r.dir==='sell'&&r.level!=='none').length;
-  document.getElementById('stat-total').textContent=autoResults.length;
-  document.getElementById('stat-vh').textContent=vhc;
-  document.getElementById('stat-h').textContent=hc;
-  const statUpd=document.getElementById('stat-upd');
-  if(statUpd){
-    const buyEl=document.getElementById('stat-buy');
-    const sellEl=document.getElementById('stat-sell');
-    if(buyEl) buyEl.textContent=buyc;
-    if(sellEl) sellEl.textContent=sellc;
-  }
-  const now=new Date().toLocaleTimeString('es',{hour:'2-digit',minute:'2-digit'});
-  document.getElementById('stat-upd').textContent=now;
-  document.getElementById('auto-update').textContent='Actualizado: '+now;
-  if(btn)btn.disabled=false;
-}
-function renderAutoSignals(){
-  const filtered=autoFilter==='all'?autoResults:autoResults.filter(r=>{
-    if(autoFilter==='buy') return r.dir==='buy'&&r.level!=='none';
-    if(autoFilter==='sell') return r.dir==='sell'&&r.level!=='none';
-    if(autoFilter==='very-high') return r.level==='very-high';
-    if(autoFilter==='high') return r.level==='high';
-    return true;
-  });
-  const order={'very-high':0,'high':1,'none':2};
-  filtered.sort((a,b)=>{
-    const lo=order[a.level]-order[b.level];
-    if(lo!==0)return lo;
-    if(a.dir==='buy'&&b.dir!=='buy')return -1;
-    if(a.dir!=='buy'&&b.dir==='buy')return 1;
-    return 0;
-  });
-  if(!filtered.length){document.getElementById('auto-list').innerHTML='<div class="empty">Sin señales activas.</div>';return;}
-  document.getElementById('auto-list').innerHTML='<div class="signal-list">'+filtered.map(r=>{
-    const stock=WATCHLIST.find(s=>s.sym===r.sym);const p=lp[r.sym];
-    const priceHtml=p?`<div style="text-align:right;"><div style="font-size:12px;font-weight:600;">$${p.c.toFixed(2)}</div><div style="font-size:11px;color:${p.dp>=0?'var(--gd)':'var(--rd)'};">${p.dp>=0?'+':''}${p.dp!=null?p.dp.toFixed(2):0}%</div></div>`:'';
-    const levelBadge=r.level==='very-high'
-      ?`<span class="level-badge level-very-high">Muy alta</span>`
-      :r.level==='high'
-      ?`<span class="level-badge level-high">Alta</span>`
-      :`<span class="level-badge level-none">—</span>`;
-    const dirBadge=r.dir==='buy'
-      ?`<span style="padding:3px 9px;border-radius:999px;font-size:11px;font-weight:700;background:var(--gl);color:var(--gd);margin-left:4px;">Compra</span>`
-      :r.dir==='sell'
-      ?`<span style="padding:3px 9px;border-radius:999px;font-size:11px;font-weight:700;background:var(--rl);color:var(--rd);margin-left:4px;">Venta</span>`
-      :'';
-    const cardBorder=r.level==='very-high'&&r.dir==='buy'?'border-left:3px solid var(--gd);background:rgba(225,245,238,0.3);'
-      :r.level==='very-high'&&r.dir==='sell'?'border-left:3px solid var(--rd);background:rgba(252,235,235,0.3);'
-      :r.level==='high'&&r.dir==='buy'?'border-left:3px solid var(--g);background:rgba(225,245,238,0.15);'
-      :r.level==='high'&&r.dir==='sell'?'border-left:3px solid var(--r);background:rgba(252,235,235,0.15);'
-      :'opacity:0.45;';
-    return`<div class="signal-card" style="${cardBorder}">
-      <div style="display:flex;align-items:center;gap:10px;">
-        <div><div style="font-size:13px;font-weight:700;">${r.sym}</div><div style="font-size:11px;color:var(--tx2);">${stock?.name||''}</div></div>
-        ${priceHtml}
-      </div>
-      <div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;">${levelBadge}${dirBadge}</div>
+function renderVisitsChart(data){
+  const el=document.getElementById('anl-visits-chart');
+  if(!el)return;
+  const max=Math.max(...data.map(d=>d.count),1);
+  el.innerHTML=data.map(d=>{
+    const h=Math.max(4,Math.round((d.count/max)*80));
+    const label=d.date.slice(5); // MM-DD
+    const isToday=d.date===new Date().toISOString().slice(0,10);
+    return`<div style="display:flex;flex-direction:column;align-items:center;gap:4px;flex:1;">
+      <div style="font-size:9px;color:var(--tx2);">${d.count||''}</div>
+      <div style="height:${h}px;width:100%;border-radius:3px 3px 0 0;background:${isToday?'var(--g)':'var(--gl)'};min-height:4px;"></div>
+      <div style="font-size:9px;color:var(--tx2);transform:rotate(-40deg);white-space:nowrap;">${label}</div>
     </div>`;
-  }).join('')+'</div>';}
-function filterAuto(f,btn){autoFilter=f;document.querySelectorAll('#auto-ftabs .ftab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderAutoSignals();}
-
-// ═══ AUTHOR SIGNALS ═══
-function renderAuthorSignals(){if(typeof authorFilter==='undefined')return;
-  const recs=window.allRecs||[];const el=document.getElementById('author-list');
-  const filtered=authorFilter==='all'?recs:recs.filter(r=>r.type===authorFilter);
-  const ordered=[...filtered.filter(r=>r.pinned),...filtered.filter(r=>!r.pinned)];
-  if(!ordered.length){el.innerHTML='<div class="empty">El autor aún no ha publicado señales.</div>';return;}
-  const tc={compra:{label:'Compra',cls:'rec-compra'},venta:{label:'Venta',cls:'rec-venta'},alerta:{label:'Alerta',cls:'rec-alerta'},analisis:{label:'Análisis',cls:'rec-analisis'},noticia:{label:'Noticia',cls:'rec-noticia'}};
-  el.innerHTML=ordered.map(r=>{const t=tc[r.type]||{label:r.type,cls:'rec-analisis'};const date=new Date(r.tsNum).toLocaleDateString('es',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});const extras=[];if(r.target)extras.push(`<span style="font-size:10px;background:var(--gl);color:var(--gd);padding:2px 7px;border-radius:999px;">Obj: ${r.target}</span>`);if(r.stop)extras.push(`<span style="font-size:10px;background:var(--rl);color:var(--rd);padding:2px 7px;border-radius:999px;">Stop: ${r.stop}</span>`);const pinLabel=r.pinned?'<span class="rec-pin">Fijado</span>':'';return`<div class="rec-card">${pinLabel}<span class="rec-type-badge ${t.cls}">${t.label}${r.symbol?' · '+r.symbol:''}</span><div class="rec-title">${r.title}</div><div class="rec-body">${r.body}</div>${extras.length?'<div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:7px;">'+extras.join('')+'</div>':''}<div class="rec-meta"><img src="logo.png" onerror="this.style.display='none'" alt="SMB" style="width:18px;height:18px;border-radius:50%;object-fit:cover;"><span>StockMarketBro · ${date}</span></div></div>`;}).join('');}
-function renderAuthorList(){
-  const recs=window.allRecs||[];const el=document.getElementById('rec-list-author');
-  if(!recs.length){el.innerHTML='<div class="empty">No has publicado señales aún.</div>';return;}
-  const tc={compra:{label:'Compra',cls:'rec-compra'},venta:{label:'Venta',cls:'rec-venta'},alerta:{label:'Alerta',cls:'rec-alerta'},analisis:{label:'Análisis',cls:'rec-analisis'},noticia:{label:'Noticia',cls:'rec-noticia'}};
-  el.innerHTML='<div style="display:flex;flex-direction:column;gap:9px;">'+recs.map(r=>{const t=tc[r.type]||{label:r.type,cls:'rec-analisis'};const date=new Date(r.tsNum).toLocaleDateString('es',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});const pinLabel=r.pinned?'<span class="rec-pin">Fijado</span>':'';return`<div class="rec-card">${pinLabel}<span class="rec-type-badge ${t.cls}">${t.label}${r.symbol?' · '+r.symbol:''}</span><div class="rec-title">${r.title}</div><div class="rec-body">${r.body}</div><div class="rec-meta"><span>StockMarketBro · ${date}</span><button class="rec-del-btn" onclick="window.deleteRec('${r.id}')">✕ Eliminar</button></div></div>`;}).join('')+'</div>';}
-function filterAuthor(f,btn){authorFilter=f;document.querySelectorAll('#auth-ftabs .ftab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderAuthorSignals();}
-function clearRecForm(){['rec-title','rec-body','rec-symbol','rec-target','rec-stop'].forEach(id=>document.getElementById(id).value='');document.getElementById('rec-pinned').checked=false;document.getElementById('rec-type').value='compra';}
-
-// ═══ MANUAL ALERTS ═══
-window.manualAlerts=[];window.alertHistory=[];window.alertIdCounter=0;
-const alertPrices={AAPL:189.30,MSFT:412.70,TSLA:172.40,GOOGL:171.90,AMZN:192.50,NVDA:880.00,META:524.60,NFLX:621.00};
-function addAlert(){const sym=document.getElementById('al-sym').value,type=document.getElementById('al-type').value,price=parseFloat(document.getElementById('al-price').value);if(!price||price<=0){showToast('Ingresa un precio válido');return;}window.manualAlerts.push({id:++window.alertIdCounter,sym,type,price});document.getElementById('al-price').value='';renderAlerts();if(window.saveUserData)window.saveUserData();showToast('Alerta: '+sym+' '+(type==='above'?'↑ sobre':'↓ bajo')+' $'+price.toFixed(2));}
-function renderAlerts(){const el=document.getElementById('alerts-list');if(!window.manualAlerts.length){el.innerHTML='<div class="empty">Sin alertas configuradas.</div>';return;}el.innerHTML=window.manualAlerts.map(a=>{const cur=(lp[a.sym]&&lp[a.sym].c)||alertPrices[a.sym];return`<div class="alert-row"><div class="alert-sym">${a.sym}</div><span class="alert-badge ${a.type==='above'?'alert-above':'alert-below'}">${a.type==='above'?'↑ sobre':'↓ bajo'} $${a.price.toFixed(2)}</span><div style="font-size:12px;color:var(--tx2);flex:1;">Live: ${cur?'$'+cur.toFixed(2):'—'}</div><button class="alert-del" onclick="removeAlert(${a.id})">✕</button></div>`;}).join('');}
-function removeAlert(id){window.manualAlerts=window.manualAlerts.filter(a=>a.id!==id);renderAlerts();if(window.saveUserData)window.saveUserData();}
-setInterval(()=>{if(!window.manualAlerts.length)return;const triggered=[];window.manualAlerts=window.manualAlerts.filter(a=>{const cur=lp[a.sym]?.c;if(!cur)return true;if((a.type==='above'&&cur>=a.price)||(a.type==='below'&&cur<=a.price)){triggered.push({...a,triggeredAt:cur});return false;}return true;});if(triggered.length){triggered.forEach(a=>{window.alertHistory.unshift({sym:a.sym,type:a.type,price:a.price,at:a.triggeredAt,time:new Date().toLocaleTimeString('es',{hour:'2-digit',minute:'2-digit'})});});renderAlerts();document.getElementById('alert-dot').style.display='inline-block';triggered.forEach(a=>showToast('SMB Alert: '+a.sym+' '+(a.type==='above'?'superó':'cayó bajo')+' $'+a.price.toFixed(2)));}},30000);
-
-// ═══ NEWS ═══
-const allNews=[{cat:'acciones',tag:'AAPL',tc:'#E1F5EE',tt:'#0F6E56',title:'Apple supera expectativas de ingresos en su reporte trimestral',meta:'Reuters · hace 2h',sent:'pos',sentLabel:'Positivo'},{cat:'macro',tag:'FED',tc:'#EEEDFE',tt:'#3C3489',title:'La Reserva Federal mantiene tasas sin cambios',meta:'Bloomberg · hace 3h',sent:'neu',sentLabel:'Neutral'},{cat:'crypto',tag:'BTC',tc:'#FAEEDA',tt:'#854F0B',title:'Bitcoin supera los $70,000 en medio de mayor demanda institucional',meta:'CoinDesk · hace 4h',sent:'pos',sentLabel:'Positivo'},{cat:'acciones',tag:'TSLA',tc:'#FCEBEB',tt:'#A32D2D',title:'Tesla reporta caída en entregas del primer trimestre',meta:'WSJ · hace 5h',sent:'neg',sentLabel:'Negativo'},{cat:'latam',tag:'LATAM',tc:'#E6F1FB',tt:'#185FA5',title:'Bolsas latinoamericanas registran alza impulsadas por commodities',meta:'El Financiero · hace 6h',sent:'pos',sentLabel:'Positivo'},{cat:'macro',tag:'MACRO',tc:'#EEEDFE',tt:'#3C3489',title:'Inflación en EE.UU. cede levemente, abre puerta a recortes',meta:'FT · hace 7h',sent:'pos',sentLabel:'Positivo'},{cat:'acciones',tag:'NVDA',tc:'#E1F5EE',tt:'#0F6E56',title:'NVIDIA alcanza nuevo máximo histórico tras boom de IA generativa',meta:'CNBC · hace 8h',sent:'pos',sentLabel:'Positivo'},{cat:'crypto',tag:'ETH',tc:'#EEEDFE',tt:'#3C3489',title:'Ethereum consolida soporte en $3,200 tras semanas de volatilidad',meta:'The Block · hace 9h',sent:'neu',sentLabel:'Neutral'},{cat:'latam',tag:'MXN',tc:'#E6F1FB',tt:'#185FA5',title:'Peso mexicano se fortalece frente al dólar por datos de empleo',meta:'El Economista · hace 10h',sent:'pos',sentLabel:'Positivo'},{cat:'acciones',tag:'META',tc:'#E1F5EE',tt:'#0F6E56',title:'Meta Platforms anuncia dividendo por primera vez en su historia',meta:'MarketWatch · hace 11h',sent:'pos',sentLabel:'Positivo'}];
-let currentNewsCat='all';
-function filterNews(cat,btn){currentNewsCat=cat;document.querySelectorAll('#news-filters .ftab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderNews();}
-function renderNews(){const f=currentNewsCat==='all'?allNews:allNews.filter(n=>n.cat===currentNewsCat),mid=Math.ceil(f.length/2);const ri=n=>`<div class="news-item"><div><span class="news-tag" style="background:${n.tc};color:${n.tt};">${n.tag}</span> <span class="sent-${n.sent}" style="padding:1px 6px;border-radius:999px;font-size:10px;font-weight:500;">${n.sentLabel}</span></div><div class="news-title">${n.title}</div><div class="news-meta">${n.meta}</div></div>`;document.getElementById('news-col1').innerHTML=f.slice(0,mid).map(ri).join('');document.getElementById('news-col2').innerHTML=f.slice(mid).map(ri).join('');}
-renderNews();
-
-// ═══ QUIZ ═══
-const quizData={basic:[{q:'¿Qué representa una acción de una empresa?',opts:['Un préstamo a la empresa','Una fracción de propiedad','Un bono de deuda','Un contrato de compra futura'],correct:1,exp:'Una acción representa una fracción de la propiedad de la empresa.'},{q:'¿Qué es un dividendo?',opts:['Un impuesto','El precio de compra','Un pago periódico a accionistas','Una comisión'],correct:2,exp:'El dividendo es un reparto de beneficios que la empresa hace a sus accionistas.'},{q:'¿Qué mide el S&P 500?',opts:['El precio del dólar','Las 500 empresas más grandes de EE.UU.','El volumen de Bitcoin','Bonos del gobierno'],correct:1,exp:'El S&P 500 mide el rendimiento de las 500 empresas más grandes de EE.UU.'},{q:'¿Qué significa "bear market"?',opts:['Precios subiendo +20%','Mercado nocturno','Precios cayendo -20% desde máximos','Más dividendos'],correct:2,exp:'Un bear market es una caída sostenida de más del 20% desde los máximos.'}],adv:[{q:'¿Qué indica un "golden cross"?',opts:['Precio en máximo','Media móvil corta cruza hacia arriba la larga','Volumen cae','RSI supera 70'],correct:1,exp:'El golden cross: media corta cruza hacia arriba la larga. Señal alcista.'},{q:'¿Qué mide el ratio P/E?',opts:['Diferencia compra-venta','Cuántas veces el precio son las ganancias anuales','Volatilidad','Porcentaje de dividendo'],correct:1,exp:'El P/E indica cuánto pagan los inversores por cada unidad de beneficio.'},{q:'¿Qué es una opción put?',opts:['Derecho a comprar','Orden de mercado','Derecho a vender a precio fijo','Contrato de futuros'],correct:2,exp:'Una put da el derecho de vender un activo a un precio determinado.'},{q:'¿Qué describe el apalancamiento?',opts:['Diversificar activos','Usar capital prestado para amplificar exposición','Reinvertir dividendos','Invertir a largo plazo'],correct:1,exp:'El apalancamiento usa deuda para controlar una posición mayor al capital.'}]};
-quizData.mixed=[...quizData.basic,...quizData.adv].sort(()=>Math.random()-0.5);
-let cQuiz=[],qIdx=0,qCorrect=0,qWrong=0,qStarted=false,qAnswered=false;
-function startQuiz(cat,btn){document.querySelectorAll('[id^="qcat-"]').forEach(b=>b.classList.remove('active'));btn.classList.add('active');cQuiz=[...quizData[cat]].sort(()=>Math.random()-0.5);qIdx=0;qCorrect=0;qWrong=0;qStarted=true;qAnswered=false;updateQStats();loadQ();}
-function loadQ(){if(qIdx>=cQuiz.length){document.getElementById('quiz-q').textContent='¡Quiz completado! '+qCorrect+'/'+cQuiz.length+' correctas';document.getElementById('quiz-opts').innerHTML='';document.getElementById('quiz-fb').style.display='none';document.getElementById('quiz-next').textContent='Reiniciar';document.getElementById('quiz-next').disabled=false;document.getElementById('quiz-next').onclick=()=>startQuiz(document.querySelector('[id^="qcat-"].active').id.replace('qcat-',''),document.querySelector('[id^="qcat-"].active'));return;}qAnswered=false;const q=cQuiz[qIdx];document.getElementById('quiz-q').textContent=(qIdx+1)+'. '+q.q;document.getElementById('quiz-bar').style.width=((qIdx/cQuiz.length)*100)+'%';document.getElementById('quiz-fb').style.display='none';document.getElementById('quiz-next').textContent='Siguiente →';document.getElementById('quiz-next').disabled=true;document.getElementById('quiz-opts').innerHTML=q.opts.map((o,i)=>`<button class="quiz-opt" onclick="answerQ(${i})">${o}</button>`).join('');}
-function answerQ(idx){if(qAnswered)return;qAnswered=true;const q=cQuiz[qIdx];document.querySelectorAll('.quiz-opt').forEach((b,i)=>{b.disabled=true;if(i===q.correct)b.classList.add('correct');else if(i===idx&&idx!==q.correct)b.classList.add('wrong');});if(idx===q.correct)qCorrect++;else qWrong++;const fb=document.getElementById('quiz-fb');fb.style.display='block';fb.style.background=idx===q.correct?'var(--gl)':'var(--rl)';fb.style.color=idx===q.correct?'var(--gd)':'var(--rd)';fb.textContent=(idx===q.correct?'Correcto · ':'Incorrecto · ')+q.exp;document.getElementById('quiz-next').disabled=false;updateQStats();}
-function nextQ(){if(!qStarted){startQuiz('mixed',document.getElementById('qcat-mixed'));return;}qIdx++;loadQ();}
-function updateQStats(){const total=qCorrect+qWrong;document.getElementById('stat-correct').textContent=qCorrect;document.getElementById('stat-wrong').textContent=qWrong;document.getElementById('stat-pct').textContent=total?Math.round((qCorrect/total)*100)+'%':'0%';document.getElementById('quiz-score-label').textContent=qCorrect+'/'+cQuiz.length;}
-document.getElementById('quiz-next').textContent='Iniciar quiz';
-
-
-// ═══ GLOSARIO ═══
-const glosario=[{term:'Acción',def:'Título que representa una fracción de la propiedad de una empresa.'},{term:'Bull market',def:'Periodo donde los precios suben más del 20%. Asociado a optimismo económico.'},{term:'Bear market',def:'Caída sostenida superior al 20% desde los máximos recientes.'},{term:'Dividendo',def:'Pago periódico que una empresa distribuye entre sus accionistas.'},{term:'ETF',def:'Fondo que agrupa múltiples activos y cotiza en bolsa como una acción.'},{term:'Stop-loss',def:'Orden automática para vender cuando el precio cae a un nivel predefinido.'},{term:'P/E ratio',def:'Ratio precio/beneficio. Compara el precio con las ganancias por acción.'},{term:'Volatilidad',def:'Medida de cuánto varía el precio. Alta volatilidad = mayor riesgo y oportunidad.'},{term:'Spread bid-ask',def:'Diferencia entre precio de compra y venta. Costo implícito de la operación.'},{term:'Apalancamiento',def:'Usar deuda para amplificar la exposición. Multiplica ganancias y pérdidas.'},{term:'Backtesting',def:'Probar una estrategia con datos históricos para evaluar su rentabilidad.'},{term:'Liquidez',def:'Facilidad con la que un activo puede comprarse o venderse sin mover su precio.'}];
-const gl=document.getElementById('glos-list');
-glosario.forEach(g=>{const div=document.createElement('div');div.className='glos-item';div.innerHTML=`<div class="glos-term">${g.term}<span class="arr">▾</span></div><div class="glos-def">${g.def}</div>`;div.onclick=()=>div.classList.toggle('open');gl.appendChild(div);});
-
-// ═══ LECCIONES ═══
-const lessons={bolsa:`<h3 style="font-size:16px;font-weight:600;margin-bottom:12px;">¿Qué es la bolsa de valores?</h3><p>La bolsa es un mercado organizado donde se compran y venden partes de empresas. Hay compradores, vendedores y un precio que varía según oferta y demanda. Para las empresas es una forma de conseguir capital. Para los inversores, una forma de hacer crecer su dinero.</p>`,acciones:`<h3 style="font-size:16px;font-weight:600;margin-bottom:12px;">Acciones y dividendos</h3><p>Una acción es una fracción de la propiedad de una empresa. Ganas dinero de dos formas: por plusvalía (vendes más caro de lo que compraste) y por dividendos (pagos periódicos de las ganancias de la empresa).</p>`,etfs:`<h3 style="font-size:16px;font-weight:600;margin-bottom:12px;">ETFs e índices</h3><p>Un ETF agrupa muchos activos y cotiza en bolsa como una acción. Comprar un ETF del S&P 500 equivale a invertir en las 500 empresas más grandes de EE.UU. al mismo tiempo. Ventajas: diversificación instantánea y comisiones bajas.</p>`,tecnico:`<h3 style="font-size:16px;font-weight:600;margin-bottom:12px;">Análisis técnico</h3><p>Estudia el comportamiento pasado de los precios para anticipar movimientos futuros. Usa gráficos, soportes, resistencias, medias móviles e indicadores como RSI, MACD y Stochastic RSI.</p>`,fundamental:`<h3 style="font-size:16px;font-weight:600;margin-bottom:12px;">Análisis fundamental</h3><p>Evalúa el valor real de una empresa mirando sus finanzas: ingresos, ganancias, deuda, P/E ratio, ROE y perspectivas de crecimiento. La base para inversores de largo plazo.</p>`,riesgo:`<h3 style="font-size:16px;font-weight:600;margin-bottom:12px;">Gestión del riesgo</h3><p>Reglas para proteger tu capital: usar stop-loss, no arriesgar más del 2% por operación, diversificar y mantener una proporción riesgo/beneficio mínima de 1:2.</p>`,opciones:`<h3 style="font-size:16px;font-weight:600;margin-bottom:12px;">Opciones financieras</h3><p>Una call da derecho a comprar un activo a precio fijo. Una put da derecho a venderlo. Son derivados que permiten especular o cubrir posiciones con menor capital.</p>`,algo:`<h3 style="font-size:16px;font-weight:600;margin-bottom:12px;">Trading algorítmico</h3><p>Uso de programas para ejecutar operaciones automáticamente según reglas predefinidas. Incluye backtesting para validar estrategias con datos históricos antes de operar en vivo.</p>`,forex:`<h3 style="font-size:16px;font-weight:600;margin-bottom:12px;">Forex y divisas</h3><p>El mercado de divisas es el más grande del mundo. Se opera en pares como EUR/USD o USD/JPY. Opera 24h al día, 5 días a la semana, con alto apalancamiento disponible.</p>`};
-function openLesson(key){document.getElementById('lesson-modal').style.display='flex';document.getElementById('lesson-content').innerHTML=lessons[key]||'<p style="color:var(--tx2);">Contenido próximamente.</p>';}
-function closeLesson(){document.getElementById('lesson-modal').style.display='none';}
-
-// ═══ PWA ═══
-let deferredPrompt=null;
-window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;document.getElementById('install-banner').classList.add('show');});
-document.getElementById('install-btn').addEventListener('click',async()=>{if(!deferredPrompt)return;deferredPrompt.prompt();const{outcome}=await deferredPrompt.userChoice;deferredPrompt=null;document.getElementById('install-banner').classList.remove('show');if(outcome==='accepted')showToast('¡StockMarketBro instalada!');});
-// Desregistrar cualquier Service Worker anterior y limpiar caché
-if('serviceWorker' in navigator){
-  // Unregister ALL service workers to prevent caching issues
-  navigator.serviceWorker.getRegistrations().then(regs=>{
-    regs.forEach(r=>r.unregister());
-  });
-  // Clear all caches
-  if(caches){
-    caches.keys().then(keys=>keys.forEach(k=>caches.delete(k)));
-  }
-  // Register the minimal new SW
-  navigator.serviceWorker.register('sw.js').catch(()=>{});
-}
-
-// ═══ TOAST ═══
-// ═══ CALCULADORA DE IMPUESTOS ═══
-const UIT = 5500;
-
-function taxFmt(n) {
-  return 'S/ ' + Math.round(n).toLocaleString('es-PE');
-}
-function taxPct(n) { return (n*100).toFixed(2).replace('.00','') + '%'; }
-function taxV(id) { return +document.getElementById(id).value || 0; }
-
-/* Route selector */
-function taxSelectRoute(id, el) {
-  document.querySelectorAll('.route-card').forEach(c => {
-    c.classList.remove('active','active-amber','active-blue');
-  });
-  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-  const cls = id === 'broker' ? 'active-amber' : id === 'otros' ? 'active-blue' : 'active';
-  el.classList.add(cls);
-  document.getElementById('panel-' + id).classList.add('active');
-}
-
-/* Progressive tax engine */
-function calcProgTax(base) {
-  let imp = 0, prev = 0, det = [];
-  for (const t of getTRAMOS()) {
-    if (base <= prev) break;
-    const slice = Math.min(base, t.hasta) - prev;
-    const i = slice * t.tasa;
-    imp += i;
-    det.push({ ...t, slice, imp: i, desde: prev, hasta: Math.min(base, t.hasta) });
-    prev = t.hasta;
-  }
-  return { imp, det };
-}
-
-function taxTramosHTML(det, base) {
-  const rows = getTRAMOS().map(t => {
-    const d = det.find(x => x.tasa === t.tasa && x.slice > 0);
-    const hit = !!d;
-    return `<tr class="${hit ? 'hit' : ''}">
-      <td>${t.label}</td>
-      <td>${t.hasta === Infinity ? 'Resto' : taxFmt(t.hasta)}</td>
-      <td>${taxPct(t.tasa)}</td>
-      <td>${hit ? taxFmt(d.imp) : '—'}</td>
-    </tr>`;
   }).join('');
-  return `<div class="tramos-wrap"><table class="tramos">
-    <tr><th>Tramo</th><th>Hasta</th><th>Tasa</th><th>Impuesto del tramo</th></tr>
-    ${rows}
-  </table></div>`;
 }
 
-function taxResultHTML(metrics, rows, tramos, note) {
-  const mcards = metrics.map(m =>
-    `<div class="metric${m.hi ? ' highlight' : ''}">
-       <div class="m-label">${m.label}</div>
-       <div class="m-value">${m.value}</div>
-     </div>`).join('');
-
-  const brows = rows.map(r =>
-    `<div class="brow ${r.cls||''}"><span class="bl">${r.label}</span><span class="br">${r.value}</span></div>`
-  ).join('');
-
-  return `<div class="result-block">
-    <div class="result-metrics">${mcards}</div>
-    <div class="breakdown">${brows}</div>
-    ${tramos || ''}
-    <p class="footer-note">${note}</p>
-  </div>`;
+function renderUsersTable(users){
+  const el=document.getElementById('anl-users-table');
+  if(!el)return;
+  if(!users.length){el.innerHTML='<div class="empty">Sin usuarios aún.</div>';return;}
+  // Sort by updatedAt desc
+  users.sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0));
+  el.innerHTML=`<table style="width:100%;border-collapse:collapse;font-size:12px;">
+    <thead><tr>
+      <th style="text-align:left;padding:5px 8px;color:var(--tx2);font-size:10px;font-weight:500;border-bottom:0.5px solid var(--br);text-transform:uppercase;">UID</th>
+      <th style="text-align:left;padding:5px 8px;color:var(--tx2);font-size:10px;font-weight:500;border-bottom:0.5px solid var(--br);text-transform:uppercase;">Saldo</th>
+      <th style="text-align:left;padding:5px 8px;color:var(--tx2);font-size:10px;font-weight:500;border-bottom:0.5px solid var(--br);text-transform:uppercase;">Posiciones</th>
+      <th style="text-align:left;padding:5px 8px;color:var(--tx2);font-size:10px;font-weight:500;border-bottom:0.5px solid var(--br);text-transform:uppercase;">Última actividad</th>
+    </tr></thead>
+    <tbody>${users.slice(0,20).map(u=>{
+      const positions=u.portfolio?Object.keys(u.portfolio).length:0;
+      const bal=typeof u.balance==='number'?'$'+u.balance.toFixed(2):'—';
+      const last=u.updatedAt?new Date(u.updatedAt).toLocaleDateString('es',{day:'2-digit',month:'short',year:'numeric'}):'—';
+      const uid=u.id.slice(0,12)+'...';
+      return`<tr>
+        <td style="padding:7px 8px;border-bottom:0.5px solid var(--br);font-family:monospace;font-size:11px;color:var(--tx2);">${uid}</td>
+        <td style="padding:7px 8px;border-bottom:0.5px solid var(--br);font-weight:500;">${bal}</td>
+        <td style="padding:7px 8px;border-bottom:0.5px solid var(--br);">${positions>0?positions+' activos':'Sin posiciones'}</td>
+        <td style="padding:7px 8px;border-bottom:0.5px solid var(--br);color:var(--tx2);">${last}</td>
+      </tr>`;
+    }).join('')}</tbody>
+  </table>`;
 }
 
-/* ── CALCULADORA BVL ────────────────────────────────────────────── */
-function calcBolsa() {
-  const venta    = taxV('b-venta');
-  const costo    = taxV('b-costo');
-  const gastos   = taxV('b-gastos');
-  const perdidas = taxV('b-perdidas');
-  const impExt   = taxV('b-impext');
-  const ret      = taxV('b-ret');
-  if (!venta && !costo) { document.getElementById('res-bolsa').innerHTML = ''; return; }
-
-  const bruta    = Math.max(0, venta - costo - gastos);
-  const neta     = bruta * 0.80;
-  const netaComp = Math.max(0, neta - perdidas);
-  const imp      = netaComp * 0.0625;
-  const credExt  = Math.min(impExt, imp);
-  const saldo    = Math.max(0, imp - credExt - ret);
-  const tasaEf   = bruta > 0 ? imp / bruta : 0;
-
-  document.getElementById('res-bolsa').innerHTML = taxResultHTML(
-    [
-      { label: 'Ganancia bruta',        value: taxFmt(bruta) },
-      { label: 'Renta neta (–20%)',     value: taxFmt(neta) },
-      { label: 'Impuesto a pagar',      value: taxFmt(saldo), hi: true }
-    ],
-    [
-      { label: 'Precio de venta',                  value: taxFmt(venta) },
-      { label: 'Costo computable (adquisición + gastos)', value: '– ' + taxFmt(costo+gastos), cls: 'deduct' },
-      { label: 'Ganancia bruta',                   value: taxFmt(bruta) },
-      { label: 'Deducción 20% fija por ley',       value: '– ' + taxFmt(bruta*0.20), cls: 'deduct' },
-      { label: 'Renta neta',                       value: taxFmt(neta) },
-      ...(perdidas > 0 ? [{ label: 'Pérdidas compensadas', value: '– ' + taxFmt(Math.min(perdidas,neta)), cls: 'deduct' }] : []),
-      { label: 'Impuesto (6.25% sobre renta neta = 5% efectivo)', value: taxFmt(imp) },
-      ...(credExt > 0 ? [{ label: 'Crédito por impuesto pagado en exterior', value: '– ' + taxFmt(credExt), cls: 'credit' }] : []),
-      ...(ret > 0     ? [{ label: 'Retención CAVALI aplicada', value: '– ' + taxFmt(ret), cls: 'credit' }] : []),
-      { label: 'Saldo a pagar en declaración anual', value: taxFmt(saldo), cls: 'total' }
-    ],
-    null,
-    `Tasa efectiva sobre ganancia bruta: <strong>${taxPct(tasaEf)}</strong> &nbsp;·&nbsp; Sin pagos mensuales &nbsp;·&nbsp; Declarar en <strong>Formulario Virtual N° 709</strong> anualmente &nbsp;·&nbsp; Base legal: Art. 51° LIR`
-  );
-  calcGlobal();
+function renderPortfolios(users){
+  const el=document.getElementById('anl-portfolios');
+  if(!el)return;
+  if(!users.length){el.innerHTML='<div class="empty">Sin portafolios activos.</div>';return;}
+  // Sort by number of positions
+  users.sort((a,b)=>Object.keys(b.portfolio).length-Object.keys(a.portfolio).length);
+  el.innerHTML=users.slice(0,10).map(u=>{
+    const positions=Object.entries(u.portfolio);
+    const bal=typeof u.balance==='number'?'$'+u.balance.toFixed(2):'—';
+    const tickers=positions.map(([sym,pos])=>{const q=pos.qty||0;const qs=q<1?q.toFixed(4):q.toFixed(2);return '<span style="padding:2px 7px;border-radius:999px;background:var(--gl);color:var(--gd);font-size:10px;font-weight:500;">'+sym+' ×'+qs+'</span>';}).join(' ');
+    return`<div style="padding:10px 0;border-bottom:0.5px solid var(--br);">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+        <div style="font-size:11px;color:var(--tx2);font-family:monospace;">${u.id.slice(0,16)}...</div>
+        <div style="font-size:12px;font-weight:600;">Saldo: ${bal}</div>
+      </div>
+      <div style="display:flex;gap:4px;flex-wrap:wrap;">${tickers}</div>
+    </div>`;
+  }).join('');
 }
 
-/* ── HELPERS DE DEDUCCIÓN ───────────────────────────────────────── */
-function rentaNetaTrabajo(tipo, bruto) {
-  const SIETE_UIT = 7 * UIT;   // S/ 38,500
-  if (tipo === 'ninguna' || bruto <= 0) return 0;
-  if (tipo === 'quinta') {
-    // 5ta: descuenta 7 UIT directamente del bruto
-    return Math.max(0, bruto - SIETE_UIT);
-  }
-  if (tipo === 'cuarta') {
-    // 4ta: primero 20% de deducción, luego 7 UIT
-    const neta20 = bruto * 0.80;
-    return Math.max(0, neta20 - SIETE_UIT);
-  }
-  return 0;
-}
 
-function updateHint(tipoId, hintId) {
-  const tipo = document.getElementById(tipoId).value;
-  const hint = document.getElementById(hintId);
-  if (!hint) return;
-  if (tipo === 'quinta') hint.textContent = 'Total de sueldos del año (antes de descuentos). La calculadora restará 7 UIT (S/ 38,500) automáticamente.';
-  else if (tipo === 'cuarta') hint.textContent = 'Total de honorarios emitidos en el año. La calculadora restará 20% y luego 7 UIT automáticamente.';
-  else hint.textContent = '';
-}
-
-/* ── CALCULADORA BROKER ─────────────────────────────────────────── */
-function calcBroker() {
-  const tipo     = document.getElementById('k-tipo').value;
-  const bruto    = taxV('k-bruto');
-  const ventaFE  = taxV('k-venta');
-  const costoFE  = taxV('k-costo');
-  const perdidas = taxV('k-perdidas');
-  const impExt   = taxV('k-impext');
-
-  updateHint('k-tipo', 'k-bruto-hint');
-
-  // Renta neta de trabajo (con deducciones correctas)
-  const rnt   = rentaNetaTrabajo(tipo, bruto);
-
-  // Renta neta fuente extranjera (ganancia bruta − pérdidas compensables)
-  const gananciaBruta = Math.max(0, ventaFE - costoFE);
-  const rnfe  = Math.max(0, gananciaBruta - perdidas);
-
-  const base  = rnt + rnfe;
-  if (base === 0 && bruto === 0 && ventaFE === 0) {
-    document.getElementById('res-broker').innerHTML = ''; return;
-  }
-
-  const SIETE_UIT   = 7 * UIT;
-  const ded20       = tipo === 'cuarta' ? bruto * 0.20 : 0;
-  const dedUIT      = tipo !== 'ninguna' ? Math.min(SIETE_UIT, bruto * (tipo === 'cuarta' ? 0.80 : 1)) : 0;
-
-  const { imp, det }     = calcProgTax(base);
-  const { imp: impTrab } = calcProgTax(rnt);
-  const impFE            = imp - impTrab;
-  const tasaMedia        = base > 0 ? imp / base : 0;
-  const limiteCred       = rnfe * tasaMedia;
-  const credExt          = Math.min(impExt, limiteCred);
-  const saldo            = Math.max(0, imp - credExt);
-
-  const filasTrabajo = tipo !== 'ninguna' ? [
-    { label: 'Ingreso bruto de trabajo',                    value: taxFmt(bruto) },
-    ...(ded20 > 0 ? [{ label: 'Deducción 20% (4ta categoría)', value: '– ' + taxFmt(ded20), cls: 'deduct' }] : []),
-    { label: 'Deducción 7 UIT',                             value: '– ' + taxFmt(dedUIT), cls: 'deduct' },
-    { label: 'Renta neta de trabajo',                       value: taxFmt(rnt) },
-  ] : [];
-
-  const filasFE = [
-    { label: 'Precio de venta (fuente extranjera)',         value: taxFmt(ventaFE) },
-    { label: 'Costo de adquisición',                        value: '– ' + taxFmt(costoFE), cls: 'deduct' },
-    { label: 'Ganancia bruta fuente extranjera',            value: taxFmt(gananciaBruta) },
-    ...(perdidas > 0 ? [{ label: 'Pérdidas compensadas', value: '– ' + taxFmt(Math.min(perdidas, gananciaBruta)), cls: 'deduct' }] : []),
-    { label: 'Renta neta fuente extranjera',                value: taxFmt(rnfe),
-      note: '⚠ Sin deducción adicional — se suma directamente a la base' },
-  ];
-
-  document.getElementById('res-broker').innerHTML = taxResultHTML(
-    [
-      { label: 'Base imponible total', value: taxFmt(base) },
-      { label: 'Tasa media efectiva',  value: taxPct(tasaMedia) },
-      { label: 'Impuesto a pagar',     value: taxFmt(saldo), hi: true }
-    ],
-    [
-      ...filasTrabajo,
-      ...filasFE,
-      { label: 'Base imponible total (trabajo + fuente ext.)', value: taxFmt(base), cls: 'total' },
-      { label: 'Impuesto progresivo total',                    value: taxFmt(imp) },
-      { label: 'Impuesto atribuible a fuente extranjera',      value: taxFmt(impFE) },
-      ...(impExt > 0 ? [
-        { label: 'Límite crédito exterior (tasa media × RNFE)', value: taxFmt(limiteCred) },
-        { label: 'Crédito aplicado',                           value: '– ' + taxFmt(credExt), cls: 'credit' }
-      ] : []),
-      { label: 'Saldo a pagar', value: taxFmt(saldo), cls: 'total' }
-    ],
-    taxTramosHTML(det, base),
-    `La deducción de 7 UIT aplica <strong>solo</strong> sobre rentas de trabajo en Perú, no sobre la fuente extranjera &nbsp;·&nbsp; Declarar en <strong>Formulario Virtual N° 709</strong> &nbsp;·&nbsp; Convertir a soles al tipo de cambio <strong>compra</strong> del día de percepción &nbsp;·&nbsp; Art. 46° y 51° LIR`
-  );
-  calcGlobal();
-}
-
-/* ── CALCULADORA OTROS ──────────────────────────────────────────── */
-function calcOtros() {
-  const tipo       = document.getElementById('o-tipo').value;
-  const bruto      = taxV('o-bruto');
-  const alquiler   = taxV('o-alquiler');
-  const intereses  = taxV('o-intereses');
-  const dividendos = taxV('o-dividendos');
-  const servicios  = taxV('o-servicios');
-  const otros      = taxV('o-otros');
-  const impExt     = taxV('o-impext');
-
-  updateHint('o-tipo', 'o-bruto-hint');
-
-  const rnt     = rentaNetaTrabajo(tipo, bruto);
-  const totalFE = alquiler + intereses + dividendos + servicios + otros;
-  const base    = rnt + totalFE;
-
-  if (base === 0) { document.getElementById('res-otros').innerHTML = ''; return; }
-
-  const SIETE_UIT = 7 * UIT;
-  const ded20     = tipo === 'cuarta' ? bruto * 0.20 : 0;
-  const dedUIT    = tipo !== 'ninguna' ? Math.min(SIETE_UIT, bruto * (tipo === 'cuarta' ? 0.80 : 1)) : 0;
-
-  const { imp, det }     = calcProgTax(base);
-  const { imp: impTrab } = calcProgTax(rnt);
-  const impFE            = imp - impTrab;
-  const tasaMedia        = base > 0 ? imp / base : 0;
-  const limiteCred       = totalFE * tasaMedia;
-  const credExt          = Math.min(impExt, limiteCred);
-  const saldo            = Math.max(0, imp - credExt);
-
-  const filasTrabajo = tipo !== 'ninguna' ? [
-    { label: 'Ingreso bruto de trabajo',                    value: taxFmt(bruto) },
-    ...(ded20 > 0 ? [{ label: 'Deducción 20% (4ta categoría)', value: '– ' + taxFmt(ded20), cls: 'deduct' }] : []),
-    { label: 'Deducción 7 UIT',                             value: '– ' + taxFmt(dedUIT), cls: 'deduct' },
-    { label: 'Renta neta de trabajo',                       value: taxFmt(rnt) },
-  ] : [];
-
-  const detalleRows = [
-    alquiler   > 0 ? { label: 'Alquileres en el exterior',             value: taxFmt(alquiler) } : null,
-    intereses  > 0 ? { label: 'Intereses de cuentas en el exterior',   value: taxFmt(intereses) } : null,
-    dividendos > 0 ? { label: 'Dividendos de empresas extranjeras',    value: taxFmt(dividendos) } : null,
-    servicios  > 0 ? { label: 'Servicios / honorarios en el exterior', value: taxFmt(servicios) } : null,
-    otros      > 0 ? { label: 'Otros ingresos del exterior',           value: taxFmt(otros) } : null,
-  ].filter(Boolean);
-
-  document.getElementById('res-otros').innerHTML = taxResultHTML(
-    [
-      { label: 'Total fuente extranjera', value: taxFmt(totalFE) },
-      { label: 'Tasa media efectiva',     value: taxPct(tasaMedia) },
-      { label: 'Impuesto a pagar',        value: taxFmt(saldo), hi: true }
-    ],
-    [
-      ...filasTrabajo,
-      ...detalleRows,
-      { label: 'Renta neta fuente extranjera (sin deducción)', value: taxFmt(totalFE) },
-      { label: 'Base imponible total', value: taxFmt(base), cls: 'total' },
-      { label: 'Impuesto progresivo total',                    value: taxFmt(imp) },
-      { label: 'Impuesto atribuible a fuente extranjera',      value: taxFmt(impFE) },
-      ...(impExt > 0 ? [
-        { label: 'Límite crédito exterior (tasa media × RNFE)', value: taxFmt(limiteCred) },
-        { label: 'Crédito aplicado',                           value: '– ' + taxFmt(credExt), cls: 'credit' }
-      ] : []),
-      { label: 'Saldo a pagar', value: taxFmt(saldo), cls: 'total' }
-    ],
-    taxTramosHTML(det, base),
-    `Los ingresos del exterior se suman directamente a la base sin deducción propia &nbsp;·&nbsp; Declarar en <strong>Formulario Virtual N° 709</strong> &nbsp;·&nbsp; Convertir a soles al tipo de cambio <strong>compra</strong> del día de percepción &nbsp;·&nbsp; Art. 76° y 51° LIR`
-  );
-  calcGlobal();
-}
 
 // ═══ LANDING CALCULADORA (uses same engine, different IDs) ═══
 let lUIT = 5500;
