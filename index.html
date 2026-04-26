@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- SMB v6.1 -->
+<!-- SMB v6.2 -->
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -1261,7 +1261,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
         </div>
         <div class="tax-form-grid">
           <div class="tax-field"><label>Gastos de compra (comisiones)</label><div class="currency-wrap"><span class="prefix">S/</span><input type="number" id="b-gastos" placeholder="0" min="0" value="0" oninput="calcBolsa()"></div></div>
-          <div class="tax-field"><label>Pérdidas de capital del año anterior</label><div class="currency-wrap"><span class="prefix">S/</span><input type="number" id="b-perdidas" placeholder="0" min="0" value="0" oninput="calcBolsa()"></div></div>
+          <div class="tax-field"><label>Pérdidas de capital mismo ejercicio</label><div class="currency-wrap"><span class="prefix">S/</span><input type="number" id="b-perdidas-anio" placeholder="0" min="0" value="0" oninput="calcBolsa()"></div></div>
         </div>
         <div class="tax-form-grid">
           <div class="tax-field"><label>Impuesto pagado en el exterior</label><div class="currency-wrap"><span class="prefix">S/</span><input type="number" id="b-impext" placeholder="0" min="0" value="0" oninput="calcBolsa()"></div></div>
@@ -1278,8 +1278,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
         </div>
         <div class="section-sep">Tus ingresos anuales</div>
         <div class="tax-form-grid">
-          <div class="tax-field"><label>Renta neta de trabajo (4ta/5ta cat.)</label><div class="currency-wrap"><span class="prefix">S/</span><input type="number" id="k-trabajo" placeholder="ej. 80,000" min="0" value="0" oninput="calcBroker()"></div><span class="hint">Ingresos laborales menos 7 UIT (S/ 38,500)</span></div>
-          <div class="tax-field"><label>Ganancia neta del broker extranjero</label><div class="currency-wrap"><span class="prefix">S/</span><input type="number" id="k-ganancia" placeholder="ej. 20,000" min="0" value="0" oninput="calcBroker()"></div><span class="hint">Precio de venta − costo, convertido a soles</span></div>
+          <div class="tax-field"><label>Categoría de trabajo en Perú</label><select id="k-tipo-trabajo" onchange="calcBroker()" style="width:100%;padding:8px 10px;border:0.5px solid var(--br);border-radius:var(--rad);font-size:13px;background:var(--bg2);color:var(--tx);font-family:inherit;outline:none;"><option value="quinta">5ta categoría (empleado en planilla)</option><option value="cuarta">4ta categoría (independiente)</option><option value="ambas">4ta + 5ta categoría</option><option value="ninguna">Sin ingresos de trabajo en Perú</option></select><span class="hint">Determina cómo se calcula la deducción de 7 UIT</span></div>
+          <div class="tax-field"><label>Ingresos brutos de trabajo (anual)</label><div class="currency-wrap"><span class="prefix">S/</span><input type="number" id="k-bruto-trabajo" placeholder="ej. 80,000" min="0" oninput="calcBroker()"></div><span class="hint">Total ingresos antes de descuentos. La calculadora resta 7 UIT automáticamente.</span></div>
+          <div class="tax-field"><label>Ganancia bruta del broker extranjero</label><div class="currency-wrap"><span class="prefix">S/</span><input type="number" id="k-ganancia" placeholder="ej. 20,000" min="0" oninput="calcBroker()"></div><span class="hint">Precio de venta − costo de adquisición, convertido a soles al T/C del día</span></div>
         </div>
         <div class="tax-form-grid">
           <div class="tax-field"><label>Pérdidas compensables (fuente ext.)</label><div class="currency-wrap"><span class="prefix">S/</span><input type="number" id="k-perdidas" placeholder="0" min="0" value="0" oninput="calcBroker()"></div></div>
@@ -1296,7 +1297,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
         </div>
         <div class="section-sep">Ingresos en Perú</div>
         <div class="tax-form-grid">
-          <div class="tax-field"><label>Renta neta de trabajo (4ta/5ta cat.)</label><div class="currency-wrap"><span class="prefix">S/</span><input type="number" id="o-trabajo" placeholder="ej. 60,000" min="0" value="0" oninput="calcOtros()"></div><span class="hint">Ingresos laborales menos 7 UIT</span></div>
+          <div class="tax-field"><label>Categoría de trabajo en Perú</label><select id="o-tipo-trabajo" onchange="calcOtros()" style="width:100%;padding:8px 10px;border:0.5px solid var(--br);border-radius:var(--rad);font-size:13px;background:var(--bg2);color:var(--tx);font-family:inherit;outline:none;"><option value="quinta">5ta categoría (planilla)</option><option value="cuarta">4ta categoría (independiente)</option><option value="ambas">4ta + 5ta categoría</option><option value="ninguna">Sin ingresos de trabajo en Perú</option></select></div>
+          <div class="tax-field"><label>Ingresos brutos de trabajo (anual)</label><div class="currency-wrap"><span class="prefix">S/</span><input type="number" id="o-bruto-trabajo" placeholder="ej. 60,000" min="0" value="0" oninput="calcOtros()"></div><span class="hint">La calculadora aplica deducciones según la categoría</span></div>
         </div>
         <div class="section-sep">Ingresos del exterior (anuales en soles)</div>
         <div class="tax-form-grid">
@@ -2326,6 +2328,34 @@ function taxSelectRoute(id,el){
   el.classList.add(cls);
   document.getElementById('tax-panel-'+id).classList.add('active');
 }
+function rentaNetaTrabajo(tipo, bruto){
+  /*
+   * Art. 46° LIR — Deducciones renta de trabajo:
+   * 5ta categoría (planilla): deducción única de 7 UIT sobre ingresos brutos
+   * 4ta categoría (independiente): 20% gastos presuntos sobre ingresos brutos
+   *   (máx. 24 UIT), luego se deduce 7 UIT de la suma 4ta+5ta neta
+   * Si tiene ambas: se suman las rentas netas y se deduce 7 UIT del total
+   */
+  const SIETE_UIT = 7 * UIT;
+  if(tipo === 'ninguna' || bruto <= 0) return 0;
+  if(tipo === 'quinta'){
+    // Neto 5ta = bruto − 7 UIT
+    return Math.max(0, bruto - SIETE_UIT);
+  }
+  if(tipo === 'cuarta'){
+    // Renta bruta 4ta → deducción 20% presunta (máx. 24 UIT) → renta neta 4ta
+    const ded20 = Math.min(bruto * 0.20, 24 * UIT);
+    const neta4ta = bruto - ded20;
+    // Luego deducción 7 UIT del total
+    return Math.max(0, neta4ta - SIETE_UIT);
+  }
+  if(tipo === 'ambas'){
+    // Ingresa bruto total (4ta+5ta). Aplicamos 20% solo sobre porción estimada 4ta.
+    // Simplificación práctica: deducimos 7 UIT del total combinado
+    return Math.max(0, bruto - SIETE_UIT);
+  }
+  return Math.max(0, bruto - SIETE_UIT);
+}
 function calcProgTax(base){
   let imp=0,prev=0,det=[];
   for(const t of getTRAMOS()){
@@ -2350,44 +2380,189 @@ function taxResultHTML(metrics,rows,tramos,note){
   return`<div class="result-block"><div class="result-metrics">${mcards}</div><div class="breakdown">${brows}</div>${tramos||''}<p class="footer-note">${note}</p></div>`;
 }
 function calcBolsa(){
-  const venta=taxV('b-venta'),costo=taxV('b-costo'),gastos=taxV('b-gastos'),perdidas=taxV('b-perdidas'),impExt=taxV('b-impext'),ret=taxV('b-ret');
-  const el=document.getElementById('res-bolsa');if(!el)return;
-  if(!venta&&!costo){el.innerHTML='<div style="text-align:center;padding:24px;color:var(--tx2);font-size:13px;">Ingresa tus datos para ver el cálculo</div>';return;}
-  const bruta=Math.max(0,venta-costo-gastos),neta=bruta*0.80,netaComp=Math.max(0,neta-perdidas),imp=netaComp*0.0625,credExt=Math.min(impExt,imp),saldo=Math.max(0,imp-credExt-ret),tasaEf=bruta>0?imp/bruta:0;
-  el.innerHTML=taxResultHTML(
-    [{label:'Ganancia bruta',value:taxFmt(bruta)},{label:'Renta neta (–20%)',value:taxFmt(neta)},{label:'Impuesto a pagar',value:taxFmt(saldo),hi:true}],
-    [{label:'Precio de venta',value:taxFmt(venta)},{label:'Costo computable',value:'– '+taxFmt(costo+gastos),cls:'deduct'},{label:'Ganancia bruta',value:taxFmt(bruta)},{label:'Deducción 20% fija',value:'– '+taxFmt(bruta*0.20),cls:'deduct'},{label:'Renta neta',value:taxFmt(neta)},...(perdidas>0?[{label:'Pérdidas compensadas',value:'– '+taxFmt(Math.min(perdidas,neta)),cls:'deduct'}]:[]),{label:'Impuesto (6.25% = 5% efectivo)',value:taxFmt(imp)},...(credExt>0?[{label:'Crédito por impuesto exterior',value:'– '+taxFmt(credExt),cls:'credit'}]:[]),...(ret>0?[{label:'Retención CAVALI',value:'– '+taxFmt(ret),cls:'credit'}]:[]),{label:'Saldo a pagar',value:taxFmt(saldo),cls:'total'}],
+  /*
+   * SUNAT — Renta de capital de fuente extranjera: BVL / MILA
+   * Base legal: Art. 36° y 51° LIR; Art. 28°-A Rgto.
+   *
+   * 1. Ganancia bruta = Ingreso por venta − Costo computable − Gastos necesarios
+   * 2. Renta neta = Ganancia bruta × 80% (deducción fija 20%, Art. 36° LIR)
+   * 3. Compensación de pérdidas: solo contra ganancias de capital del mismo ejercicio
+   *    (pérdidas de años anteriores NO compensan; pérdidas del mismo año sí)
+   * 4. Impuesto = Renta neta compensada × 6.25% (equivale a 5% s/ ganancia bruta)
+   * 5. Crédito por impuesto en el exterior: máximo = impuesto peruano calculado (Art. 88° LIR)
+   * 6. Retenciones CAVALI se deducen del impuesto resultante (pagos a cuenta)
+   */
+  const venta=taxV('b-venta'), costo=taxV('b-costo'), gastos=taxV('b-gastos');
+  const perdidasMismoAnio=taxV('b-perdidas-anio'), impExt=taxV('b-impext'), ret=taxV('b-ret');
+  const el=document.getElementById('res-bolsa'); if(!el)return;
+  if(!venta&&!costo){
+    el.innerHTML='<div style="text-align:center;padding:24px;color:var(--tx2);font-size:13px;">Ingresa tus datos para ver el cálculo</div>';
+    return;
+  }
+  // 1. Ganancia bruta
+  const costoComputable = costo + gastos;
+  const gananciaBruta = Math.max(0, venta - costoComputable);
+  const perdida = venta < costoComputable ? costoComputable - venta : 0; // pérdida de capital
+  // 2. Renta neta (deducción 20% fija)
+  const rentaNeta = gananciaBruta * 0.80;
+  // 3. Compensación pérdidas del mismo ejercicio (distintas operaciones en BVL)
+  //    Las pérdidas se compensan ANTES de aplicar el 20%, es decir, sobre ganancia bruta
+  //    Art. 36° LIR: "las pérdidas de capital... compensan ganancias del mismo ejercicio"
+  const gananciaBrutaComp = Math.max(0, gananciaBruta - perdidasMismoAnio);
+  const rentaNetaComp = gananciaBrutaComp * 0.80; // 20% sobre ganancia ya compensada
+  // 4. Impuesto = 6.25% sobre renta neta (≡ 5% sobre ganancia bruta compensada)
+  const impuestoBruto = rentaNetaComp * 0.0625;
+  // 5. Crédito exterior: máximo = impuesto peruano calculado (Art. 88° LIR)
+  //    No puede exceder lo que hubiera pagado sin el crédito
+  const limiteCredExt = impuestoBruto;
+  const credExt = Math.min(impExt, limiteCredExt);
+  const impuestoNeto = Math.max(0, impuestoBruto - credExt);
+  // 6. Retenciones CAVALI
+  const saldo = Math.max(0, impuestoNeto - ret);
+  const devolucion = ret > impuestoNeto ? ret - impuestoNeto : 0;
+  const tasaEfectiva = gananciaBruta > 0 ? impuestoBruto / gananciaBruta : 0;
+
+  const rows = [
+    {label:'Ingreso por venta', value:taxFmt(venta)},
+    {label:'Costo computable', value:'− '+taxFmt(costo), cls:'deduct'},
+  ];
+  if(gastos>0) rows.push({label:'Gastos de venta/compra', value:'− '+taxFmt(gastos), cls:'deduct'});
+  if(perdida>0){
+    rows.push({label:'Pérdida de capital', value:taxFmt(perdida), cls:'deduct'});
+    rows.push({label:'Renta neta', value:'S/ 0 (operación con pérdida)'});
+  } else {
+    rows.push({label:'Ganancia bruta', value:taxFmt(gananciaBruta)});
+    if(perdidasMismoAnio>0){
+      rows.push({label:'Pérdidas mismo ejercicio (otras ops.)', value:'− '+taxFmt(Math.min(perdidasMismoAnio, gananciaBruta)), cls:'deduct'});
+      rows.push({label:'Ganancia bruta compensada', value:taxFmt(gananciaBrutaComp)});
+    }
+    rows.push({label:'Deducción 20% fija (Art. 36° LIR)', value:'− '+taxFmt(gananciaBrutaComp*0.20), cls:'deduct'});
+    rows.push({label:'Renta neta de capital', value:taxFmt(rentaNetaComp)});
+    rows.push({label:'Impuesto (6.25%)', value:taxFmt(impuestoBruto)});
+    if(credExt>0) rows.push({label:'Crédito impuesto exterior (límite: '+taxFmt(limiteCredExt)+')', value:'− '+taxFmt(credExt), cls:'credit'});
+    if(ret>0) rows.push({label:'Retenciones CAVALI', value:'− '+taxFmt(ret), cls:'credit'});
+    rows.push({label: devolucion>0 ? 'Saldo a favor (devolución)' : 'Saldo a pagar', value: devolucion>0 ? taxFmt(devolucion)+' (favor)' : taxFmt(saldo), cls:'total'});
+  }
+
+  el.innerHTML = taxResultHTML(
+    [
+      {label:'Ganancia bruta', value: gananciaBruta>0 ? taxFmt(gananciaBruta) : '— (pérdida)'},
+      {label:'Tasa efectiva real', value: gananciaBruta>0 ? taxPct(tasaEfectiva) : '0%'},
+      {label: devolucion>0 ? 'Saldo a favor' : 'Impuesto a pagar', value: devolucion>0 ? taxFmt(devolucion) : taxFmt(saldo), hi:true}
+    ],
+    rows,
     null,
-    `Tasa efectiva: <strong>${taxPct(tasaEf)}</strong> &nbsp;·&nbsp; Sin pagos mensuales &nbsp;·&nbsp; Declarar en <strong>Formulario Virtual N° 709</strong> &nbsp;·&nbsp; Art. 51° LIR`
+    `Tasa efectiva: <strong>${taxPct(tasaEfectiva)}</strong> &nbsp;·&nbsp; Deducción 20% fija (Art. 36° LIR) &nbsp;·&nbsp; Sin pagos mensuales &nbsp;·&nbsp; <strong>Formulario Virtual N° 709</strong> &nbsp;·&nbsp; Crédito exterior: Art. 88° LIR`
   );
   calcGlobal();
 }
 function calcBroker(){
-  const trabajo=taxV('k-trabajo'),ganancia=taxV('k-ganancia'),perdidas=taxV('k-perdidas'),impExt=taxV('k-impext');
-  const el=document.getElementById('res-broker');if(!el)return;
-  const rnfe=Math.max(0,ganancia-perdidas),base=trabajo+rnfe;
-  const brokerHasInput=document.getElementById('k-trabajo').value!==''||document.getElementById('k-ganancia').value!=='';
-  if(!brokerHasInput){el.innerHTML='<div style="text-align:center;padding:24px;color:var(--tx2);font-size:13px;">Ingresa tus datos para ver el cálculo</div>';calcGlobal();return;}
-  const{imp,det}=calcProgTax(base),{imp:impTrab}=calcProgTax(trabajo),impFE=imp-impTrab,tasaMedia=imp/base,limiteCred=rnfe*tasaMedia,credExt=Math.min(impExt,limiteCred),saldo=Math.max(0,imp-credExt);
-  el.innerHTML=taxResultHTML(
-    [{label:'Base imponible total',value:taxFmt(base)},{label:'Tasa media efectiva',value:taxPct(tasaMedia)},{label:'Impuesto a pagar',value:taxFmt(saldo),hi:true}],
-    [{label:'Renta neta de trabajo',value:taxFmt(trabajo)},{label:'Renta neta fuente extranjera',value:taxFmt(rnfe)},{label:'Base imponible total',value:taxFmt(base),cls:'total'},{label:'Impuesto progresivo',value:taxFmt(imp)},{label:'Impuesto fuente extranjera',value:taxFmt(impFE)},...(impExt>0?[{label:'Límite crédito exterior',value:taxFmt(limiteCred)},{label:'Crédito aplicado',value:'– '+taxFmt(credExt),cls:'credit'}]:[]),{label:'Saldo a pagar',value:taxFmt(saldo),cls:'total'}],
+  /*
+   * SUNAT — Renta de capital fuente extranjera: Broker extranjero
+   * Base legal: Art. 51°, 29°-A, 88° LIR
+   *
+   * Régimen aplicable a personas naturales domiciliadas:
+   * 1. Ganancia bruta = Precio venta − Costo adquisición − Gastos
+   *    NO aplica deducción 20% (esa es solo para BVL/MILA, Art. 36°)
+   * 2. La renta neta de fuente extranjera (RNFE) se SUMA a la renta neta de trabajo
+   *    para determinar la tasa progresiva (Art. 51° LIR)
+   * 3. Compensación de pérdidas: solo contra ganancias del mismo tipo de fuente extranjera
+   * 4. Tasa progresiva: 8%, 14%, 17%, 20%, 30% según tramos en UIT
+   * 5. Crédito impuesto exterior: máximo = RNFE × tasa media peruana (Art. 88° LIR)
+   *    La tasa media = impuesto total / base total imponible
+   * 6. Sin pagos a cuenta mensuales. Regularización anual (Form. 709).
+   */
+  const tipoTrabajo = document.getElementById('k-tipo-trabajo')?.value || 'quinta';
+  const brutaTrabajo = taxV('k-bruto-trabajo');
+  const gananciaBruta = taxV('k-ganancia');
+  const perdidas = taxV('k-perdidas');
+  const impExt = taxV('k-impext');
+  const el = document.getElementById('res-broker'); if(!el)return;
+
+  const brokerHasInput = document.getElementById('k-ganancia')?.value !== '' ||
+                         document.getElementById('k-bruto-trabajo')?.value !== '';
+  if(!brokerHasInput){
+    el.innerHTML='<div style="text-align:center;padding:24px;color:var(--tx2);font-size:13px;">Ingresa tus datos para ver el cálculo</div>';
+    calcGlobal(); return;
+  }
+
+  // 1. Renta neta de trabajo (deducción 7 UIT para 4ta/5ta categoría)
+  const rnTrabajo = rentaNetaTrabajo(tipoTrabajo, brutaTrabajo);
+
+  // 2. Renta neta fuente extranjera (sin deducción 20%)
+  const rnfe = Math.max(0, gananciaBruta - perdidas);
+
+  // 3. Base imponible total = trabajo + RNFE
+  const baseTotal = rnTrabajo + rnfe;
+
+  if(baseTotal === 0){
+    el.innerHTML='<div style="text-align:center;padding:24px;color:var(--tx2);font-size:13px;">Base imponible = 0. Sin impuesto a pagar.</div>';
+    calcGlobal(); return;
+  }
+
+  // 4. Impuesto progresivo sobre base total
+  const {imp: impTotal, det} = calcProgTax(baseTotal);
+  // Impuesto atribuible solo a trabajo
+  const {imp: impTrabajo} = calcProgTax(rnTrabajo);
+  // Impuesto atribuible a RNFE
+  const impSobreRNFE = impTotal - impTrabajo;
+
+  // 5. Tasa media = impuesto total / base total
+  const tasaMedia = baseTotal > 0 ? impTotal / baseTotal : 0;
+
+  // 6. Crédito exterior: limitado a RNFE × tasa media (Art. 88° LIR)
+  const limiteCredExt = rnfe * tasaMedia;
+  const credExt = Math.min(impExt, limiteCredExt);
+  const saldo = Math.max(0, impTotal - credExt);
+
+  const rows = [
+    {label:'Ingresos brutos de trabajo', value:taxFmt(brutaTrabajo)},
+    {label: tipoTrabajo==='ninguna' ? 'Sin deducción (no hay ingresos de trabajo)' :
+             tipoTrabajo==='cuarta' ? 'Deducción: 20% presunto + 7 UIT (Art. 46° LIR)' :
+             'Deducción: 7 UIT = '+taxFmt(7*UIT)+' (Art. 46° LIR)',
+     value:'− '+taxFmt(brutaTrabajo - rnTrabajo), cls:'deduct'},
+    {label:'Renta neta de trabajo', value:taxFmt(rnTrabajo)},
+    {label:'Ganancia bruta (broker extranero)', value:taxFmt(gananciaBruta)},
+    {label:'Nota: sin deducción 20% (no aplica Art. 36°)', value:''},
+  ];
+  if(perdidas>0) rows.push({label:'Pérdidas fuente extranjera compensadas', value:'− '+taxFmt(Math.min(perdidas,gananciaBruta)), cls:'deduct'});
+  rows.push({label:'Renta neta fuente extranjera', value:taxFmt(rnfe)});
+  rows.push({label:'Base imponible total (trabajo + RNFE)', value:taxFmt(baseTotal), cls:'total'});
+  rows.push({label:'Impuesto progresivo total', value:taxFmt(impTotal)});
+  rows.push({label:'Impuesto atribuible a RNFE', value:taxFmt(impSobreRNFE)});
+  if(impExt>0){
+    rows.push({label:'Tasa media peruana', value:taxPct(tasaMedia)});
+    rows.push({label:'Límite crédito exterior (RNFE × tasa media)', value:taxFmt(limiteCredExt)});
+    rows.push({label:'Crédito aplicado', value:'− '+taxFmt(credExt), cls:'credit'});
+  }
+  rows.push({label:'Saldo a pagar', value:taxFmt(saldo), cls:'total'});
+
+  el.innerHTML = taxResultHTML(
+    [
+      {label:'Base imponible total', value:taxFmt(baseTotal)},
+      {label:'Tasa media efectiva', value:taxPct(tasaMedia)},
+      {label:'Impuesto a pagar', value:taxFmt(saldo), hi:true}
+    ],
+    rows,
     taxTramosHTML(det),
-    `Sin pagos mensuales &nbsp;·&nbsp; Declarar en <strong>Formulario Virtual N° 709</strong> &nbsp;·&nbsp; Convertir a soles al T/C compra del día de percepción &nbsp;·&nbsp; Art. 51° LIR`
+    `Sin deducción 20% para broker extranjero &nbsp;·&nbsp; Tasa media: <strong>${taxPct(tasaMedia)}</strong> &nbsp;·&nbsp; Crédito exterior: Art. 88° LIR &nbsp;·&nbsp; <strong>Formulario Virtual N° 709</strong> &nbsp;·&nbsp; Convertir a soles al T/C compra del día`
   );
   calcGlobal();
 }
 function calcOtros(){
-  const trabajo=taxV('o-trabajo'),alquiler=taxV('o-alquiler'),intereses=taxV('o-intereses'),dividendos=taxV('o-dividendos'),servicios=taxV('o-servicios'),otros=taxV('o-otros'),impExt=taxV('o-impext');
+  const tipoTrabOtros = document.getElementById('o-tipo-trabajo')?.value || 'quinta';
+  const brutoTrabOtros = taxV('o-bruto-trabajo');
+  const trabajo = rentaNetaTrabajo(tipoTrabOtros, brutoTrabOtros);alquiler=taxV('o-alquiler'),intereses=taxV('o-intereses'),dividendos=taxV('o-dividendos'),servicios=taxV('o-servicios'),otros=taxV('o-otros'),impExt=taxV('o-impext');
   const el=document.getElementById('res-otros');if(!el)return;
   const totalFE=alquiler+intereses+dividendos+servicios+otros,base=trabajo+totalFE;
   const otrosHasInput=['o-trabajo','o-alquiler','o-intereses','o-dividendos','o-servicios','o-otros'].some(id=>document.getElementById(id)?.value!=='');
   if(!otrosHasInput){el.innerHTML='<div style="text-align:center;padding:24px;color:var(--tx2);font-size:13px;">Ingresa tus datos para ver el cálculo</div>';calcGlobal();return;}
   const{imp,det}=calcProgTax(base),{imp:impTrab}=calcProgTax(trabajo),impFE=imp-impTrab,tasaMedia=imp/base,limiteCred=totalFE*tasaMedia,credExt=Math.min(impExt,limiteCred),saldo=Math.max(0,imp-credExt);
   const detRows=[alquiler>0?{label:'Alquileres en el exterior',value:taxFmt(alquiler)}:null,intereses>0?{label:'Intereses de cuentas',value:taxFmt(intereses)}:null,dividendos>0?{label:'Dividendos extranjeros',value:taxFmt(dividendos)}:null,servicios>0?{label:'Servicios / honorarios',value:taxFmt(servicios)}:null,otros>0?{label:'Otros ingresos',value:taxFmt(otros)}:null].filter(Boolean);
+  const deducTrab = brutoTrabOtros - trabajo;
   el.innerHTML=taxResultHTML(
     [{label:'Total fuente extranjera',value:taxFmt(totalFE)},{label:'Tasa media efectiva',value:taxPct(tasaMedia)},{label:'Impuesto a pagar',value:taxFmt(saldo),hi:true}],
-    [{label:'Renta neta de trabajo',value:taxFmt(trabajo)},...detRows,{label:'Total fuente extranjera',value:taxFmt(totalFE)},{label:'Base imponible total',value:taxFmt(base),cls:'total'},{label:'Impuesto progresivo',value:taxFmt(imp)},{label:'Impuesto fuente extranjera',value:taxFmt(impFE)},...(impExt>0?[{label:'Límite crédito exterior',value:taxFmt(limiteCred)},{label:'Crédito aplicado',value:'– '+taxFmt(credExt),cls:'credit'}]:[]),{label:'Saldo a pagar',value:taxFmt(saldo),cls:'total'}],
+    [{label:'Ingresos brutos de trabajo',value:taxFmt(brutoTrabOtros)},{label:'Deducciones trabajo (Art. 46° LIR)',value:'− '+taxFmt(deducTrab),cls:'deduct'},{label:'Renta neta de trabajo',value:taxFmt(trabajo)},...detRows,{label:'Total fuente extranjera',value:taxFmt(totalFE)},{label:'Base imponible total',value:taxFmt(base),cls:'total'},{label:'Impuesto progresivo',value:taxFmt(imp)},{label:'Impuesto fuente extranjera',value:taxFmt(impFE)},...(impExt>0?[{label:'Límite crédito exterior',value:taxFmt(limiteCred)},{label:'Crédito aplicado',value:'– '+taxFmt(credExt),cls:'credit'}]:[]),{label:'Saldo a pagar',value:taxFmt(saldo),cls:'total'}],
     taxTramosHTML(det),
     `Sin pagos mensuales &nbsp;·&nbsp; Declarar en <strong>Formulario Virtual N° 709</strong> &nbsp;·&nbsp; Ingresos en moneda extranjera al T/C compra del día que los percibes &nbsp;·&nbsp; Art. 76° y 51° LIR`
   );
