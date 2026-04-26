@@ -1284,7 +1284,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
           <div class="tax-field"><label>Pérdidas compensables (fuente ext.)</label><div class="currency-wrap"><span class="prefix">S/</span><input type="number" id="k-perdidas" placeholder="0" min="0" value="0" oninput="calcBroker()"></div></div>
           <div class="tax-field"><label>Impuesto pagado en el exterior</label><div class="currency-wrap"><span class="prefix">S/</span><input type="number" id="k-impext" placeholder="0" min="0" value="0" oninput="calcBroker()"></div><span class="hint">Crédito deducible con límite</span></div>
         </div>
-        <div id="res-broker"></div>
+        <div id="res-broker"><div style="text-align:center;padding:24px;color:var(--tx2);font-size:13px;">Ingresa tus datos para ver el cálculo</div></div>
       </div>
 
       <!-- PANEL OTROS -->
@@ -1310,11 +1310,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
           <div class="tax-field"><label>Otros ingresos del exterior</label><div class="currency-wrap"><span class="prefix">S/</span><input type="number" id="o-otros" placeholder="0" min="0" value="0" oninput="calcOtros()"></div></div>
           <div class="tax-field"><label>Impuesto pagado en el exterior</label><div class="currency-wrap"><span class="prefix">S/</span><input type="number" id="o-impext" placeholder="0" min="0" value="0" oninput="calcOtros()"></div><span class="hint">Crédito deducible con límite de tasa media</span></div>
         </div>
-        <div id="res-otros"></div>
+        <div id="res-otros"><div style="text-align:center;padding:24px;color:var(--tx2);font-size:13px;">Ingresa tus datos para ver el cálculo</div></div>
       </div>
 
       <div style="margin-top:20px;padding:12px 14px;background:var(--rl);border-radius:var(--rad);font-size:11px;color:var(--rd);line-height:1.6;">
         ⚠️ <strong>Aviso:</strong> Esta calculadora es solo orientativa con fines educativos. Consulta siempre a un contador o asesor tributario certificado para tu declaración real. StockMarketBro no se responsabiliza por decisiones tomadas en base a estos cálculos.
+      </div>
+      <div id="tax-global-result" style="margin-top:16px;">
+        <div style="text-align:center;padding:20px;color:var(--tx2);font-size:13px;">Completa al menos una sección para ver el resumen global de impuestos</div>
       </div>
     </div>
   </div>
@@ -2278,16 +2281,18 @@ function onUitYearChange(){
   const yr = parseInt(document.getElementById('uit-year').value);
   const val = UIT_TABLE[yr] || 5500;
   UIT = val;
-  document.getElementById('uit-value').value = val;
-  document.getElementById('uit-badge').textContent = 'UIT '+yr+' = S/ '+val.toLocaleString('es-PE');
-  // Recalculate whichever panel is active
+  const uitValEl = document.getElementById('uit-value');
+  if(uitValEl) uitValEl.value = val;
+  const uitBadge = document.getElementById('uit-badge');
+  if(uitBadge) uitBadge.textContent = 'UIT '+yr+' = S/ '+val.toLocaleString('es-PE');
   recalcActive();
 }
 function onUitManualChange(){
   const val = parseInt(document.getElementById('uit-value').value) || 5500;
   UIT = val;
-  const yr = document.getElementById('uit-year').value;
-  document.getElementById('uit-badge').textContent = 'UIT '+yr+' = S/ '+val.toLocaleString('es-PE');
+  const yr = document.getElementById('uit-year')?.value || 2026;
+  const uitBadge = document.getElementById('uit-badge');
+  if(uitBadge) uitBadge.textContent = 'UIT '+yr+' = S/ '+val.toLocaleString('es-PE');
   recalcActive();
 }
 function recalcActive(){
@@ -2344,7 +2349,7 @@ function taxResultHTML(metrics,rows,tramos,note){
 function calcBolsa(){
   const venta=taxV('b-venta'),costo=taxV('b-costo'),gastos=taxV('b-gastos'),perdidas=taxV('b-perdidas'),impExt=taxV('b-impext'),ret=taxV('b-ret');
   const el=document.getElementById('res-bolsa');if(!el)return;
-  if(!venta&&!costo){el.innerHTML='';return;}
+  if(!venta&&!costo){el.innerHTML='<div style="text-align:center;padding:24px;color:var(--tx2);font-size:13px;">Ingresa tus datos para ver el cálculo</div>';return;}
   const bruta=Math.max(0,venta-costo-gastos),neta=bruta*0.80,netaComp=Math.max(0,neta-perdidas),imp=netaComp*0.0625,credExt=Math.min(impExt,imp),saldo=Math.max(0,imp-credExt-ret),tasaEf=bruta>0?imp/bruta:0;
   el.innerHTML=taxResultHTML(
     [{label:'Ganancia bruta',value:taxFmt(bruta)},{label:'Renta neta (–20%)',value:taxFmt(neta)},{label:'Impuesto a pagar',value:taxFmt(saldo),hi:true}],
@@ -2352,12 +2357,15 @@ function calcBolsa(){
     null,
     `Tasa efectiva: <strong>${taxPct(tasaEf)}</strong> &nbsp;·&nbsp; Sin pagos mensuales &nbsp;·&nbsp; Declarar en <strong>Formulario Virtual N° 709</strong> &nbsp;·&nbsp; Art. 51° LIR`
   );
+  calcGlobal();
 }
 function calcBroker(){
   const trabajo=taxV('k-trabajo'),ganancia=taxV('k-ganancia'),perdidas=taxV('k-perdidas'),impExt=taxV('k-impext');
   const el=document.getElementById('res-broker');if(!el)return;
   const rnfe=Math.max(0,ganancia-perdidas),base=trabajo+rnfe;
-  if(base===0){el.innerHTML='';return;}
+  const brokerHasInput=document.getElementById('k-trabajo').value!==''||document.getElementById('k-ganancia').value!=='';
+  if(!brokerHasInput){el.innerHTML='<div style="text-align:center;padding:24px;color:var(--tx2);font-size:13px;">Ingresa tus datos para ver el cálculo</div>';calcGlobal();return;}
+  if(base===0){el.innerHTML='<div style="text-align:center;padding:24px;color:var(--tx2);font-size:13px;">La base imponible es 0 — sin impuesto a pagar</div>';calcGlobal();return;}
   const{imp,det}=calcProgTax(base),{imp:impTrab}=calcProgTax(trabajo),impFE=imp-impTrab,tasaMedia=imp/base,limiteCred=rnfe*tasaMedia,credExt=Math.min(impExt,limiteCred),saldo=Math.max(0,imp-credExt);
   el.innerHTML=taxResultHTML(
     [{label:'Base imponible total',value:taxFmt(base)},{label:'Tasa media efectiva',value:taxPct(tasaMedia)},{label:'Impuesto a pagar',value:taxFmt(saldo),hi:true}],
@@ -2365,12 +2373,15 @@ function calcBroker(){
     taxTramosHTML(det),
     `Sin pagos mensuales &nbsp;·&nbsp; Declarar en <strong>Formulario Virtual N° 709</strong> &nbsp;·&nbsp; Convertir a soles al T/C compra del día de percepción &nbsp;·&nbsp; Art. 51° LIR`
   );
+  calcGlobal();
 }
 function calcOtros(){
   const trabajo=taxV('o-trabajo'),alquiler=taxV('o-alquiler'),intereses=taxV('o-intereses'),dividendos=taxV('o-dividendos'),servicios=taxV('o-servicios'),otros=taxV('o-otros'),impExt=taxV('o-impext');
   const el=document.getElementById('res-otros');if(!el)return;
   const totalFE=alquiler+intereses+dividendos+servicios+otros,base=trabajo+totalFE;
-  if(base===0){el.innerHTML='';return;}
+  const otrosHasInput=['o-trabajo','o-alquiler','o-intereses','o-dividendos','o-servicios','o-otros'].some(id=>document.getElementById(id)?.value!=='');
+  if(!otrosHasInput){el.innerHTML='<div style="text-align:center;padding:24px;color:var(--tx2);font-size:13px;">Ingresa tus datos para ver el cálculo</div>';calcGlobal();return;}
+  if(base===0){el.innerHTML='<div style="text-align:center;padding:24px;color:var(--tx2);font-size:13px;">La base imponible es 0 — sin impuesto a pagar</div>';calcGlobal();return;}
   const{imp,det}=calcProgTax(base),{imp:impTrab}=calcProgTax(trabajo),impFE=imp-impTrab,tasaMedia=imp/base,limiteCred=totalFE*tasaMedia,credExt=Math.min(impExt,limiteCred),saldo=Math.max(0,imp-credExt);
   const detRows=[alquiler>0?{label:'Alquileres en el exterior',value:taxFmt(alquiler)}:null,intereses>0?{label:'Intereses de cuentas',value:taxFmt(intereses)}:null,dividendos>0?{label:'Dividendos extranjeros',value:taxFmt(dividendos)}:null,servicios>0?{label:'Servicios / honorarios',value:taxFmt(servicios)}:null,otros>0?{label:'Otros ingresos',value:taxFmt(otros)}:null].filter(Boolean);
   el.innerHTML=taxResultHTML(
@@ -2379,6 +2390,52 @@ function calcOtros(){
     taxTramosHTML(det),
     `Sin pagos mensuales &nbsp;·&nbsp; Declarar en <strong>Formulario Virtual N° 709</strong> &nbsp;·&nbsp; Ingresos en moneda extranjera al T/C compra del día que los percibes &nbsp;·&nbsp; Art. 76° y 51° LIR`
   );
+  calcGlobal();
+}
+
+// ── RESUMEN GLOBAL ──
+function calcGlobal(){
+  const el=document.getElementById('tax-global-result');if(!el)return;
+  // Get saldo from each section
+  function getSaldo(resultId){
+    const el=document.getElementById(resultId);if(!el)return 0;
+    const totals=el.querySelectorAll('.brow.total .br');
+    if(!totals.length)return 0;
+    const last=totals[totals.length-1];
+    if(!last)return 0;
+    const txt=last.textContent.replace(/[^0-9]/g,'');
+    return parseInt(txt)||0;
+  }
+  const saldoBolsa=getSaldo('res-bolsa');
+  const saldoBroker=getSaldo('res-broker');
+  const saldoOtros=getSaldo('res-otros');
+  const total=saldoBolsa+saldoBroker+saldoOtros;
+  if(total===0){el.innerHTML='<div style="text-align:center;padding:20px;color:var(--tx2);font-size:13px;">Completa al menos una sección para ver el resumen global</div>';return;}
+  el.innerHTML=`
+    <div style="background:linear-gradient(135deg,#0a0a1a,#1a1a2e);border-radius:var(--rad-xl);padding:24px;margin-top:8px;">
+      <div style="font-size:12px;font-weight:600;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:.08em;margin-bottom:16px;">Resumen global de impuestos · ${document.getElementById('uit-year')?.value||2026}</div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;">
+        <div style="background:rgba(255,255,255,0.06);border-radius:var(--rad-lg);padding:14px;">
+          <div style="font-size:10px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;">BVL / MILA</div>
+          <div style="font-size:18px;font-weight:700;color:${saldoBolsa>0?'#63d68a':'rgba(255,255,255,0.25)'};">${saldoBolsa>0?'S/ '+saldoBolsa.toLocaleString('es-PE'):'—'}</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.06);border-radius:var(--rad-lg);padding:14px;">
+          <div style="font-size:10px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;">Broker extranjero</div>
+          <div style="font-size:18px;font-weight:700;color:${saldoBroker>0?'#e8a542':'rgba(255,255,255,0.25)'};">${saldoBroker>0?'S/ '+saldoBroker.toLocaleString('es-PE'):'—'}</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.06);border-radius:var(--rad-lg);padding:14px;">
+          <div style="font-size:10px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;">Otros ingresos</div>
+          <div style="font-size:18px;font-weight:700;color:${saldoOtros>0?'#4d9de0':'rgba(255,255,255,0.25)'};">${saldoOtros>0?'S/ '+saldoOtros.toLocaleString('es-PE'):'—'}</div>
+        </div>
+        <div style="background:rgba(29,158,117,0.25);border:1px solid rgba(29,158,117,0.5);border-radius:var(--rad-lg);padding:14px;">
+          <div style="font-size:10px;color:rgba(255,255,255,0.6);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;">TOTAL A PAGAR</div>
+          <div style="font-size:22px;font-weight:800;color:#1D9E75;">S/ ${total.toLocaleString('es-PE')}</div>
+        </div>
+      </div>
+      <div style="font-size:11px;color:rgba(255,255,255,0.3);border-top:1px solid rgba(255,255,255,0.08);padding-top:12px;">
+        ⚠️ Suma orientativa de los tres regímenes. Estos montos se declaran por separado en el <strong style="color:rgba(255,255,255,0.5);">Formulario Virtual N° 709</strong> de SUNAT. Consulta a un contador certificado.
+      </div>
+    </div>`;
 }
 
 // ═══ ANALYTICS ═══
@@ -2515,14 +2572,17 @@ function lOnUitYearChange(){
   const yr=parseInt(document.getElementById('l-uit-year').value);
   const val={2020:4300,2021:4400,2022:4600,2023:4950,2024:5150,2025:5350,2026:5500}[yr]||5500;
   lUIT=val;
-  document.getElementById('l-uit-value').value=val;
-  document.getElementById('l-uit-badge').textContent='UIT '+yr+' = S/ '+val.toLocaleString('es-PE');
+  const luitValEl=document.getElementById('l-uit-value');
+  if(luitValEl)luitValEl.value=val;
+  const luitBadge=document.getElementById('l-uit-badge');
+  if(luitBadge)luitBadge.textContent='UIT '+yr+' = S/ '+val.toLocaleString('es-PE');
   lRecalcActive();
 }
 function lOnUitManualChange(){
   lUIT=parseInt(document.getElementById('l-uit-value').value)||5500;
-  const yr=document.getElementById('l-uit-year').value;
-  document.getElementById('l-uit-badge').textContent='UIT '+yr+' = S/ '+lUIT.toLocaleString('es-PE');
+  const yr=document.getElementById('l-uit-year')?.value||2026;
+  const luitBadge=document.getElementById('l-uit-badge');
+  if(luitBadge)luitBadge.textContent='UIT '+yr+' = S/ '+lUIT.toLocaleString('es-PE');
   lRecalcActive();
 }
 function lRecalcActive(){
@@ -2544,7 +2604,7 @@ function lCalcProgTax(base){let imp=0,prev=0,det=[];for(const t of lGetTRAMOS())
 function lCalcBolsa(){
   const venta=lTaxV('lb-venta'),costo=lTaxV('lb-costo'),gastos=lTaxV('lb-gastos'),perdidas=lTaxV('lb-perdidas'),impExt=lTaxV('lb-impext'),ret=lTaxV('lb-ret');
   const el=document.getElementById('l-res-bolsa');if(!el)return;
-  if(!venta&&!costo){el.innerHTML='';return;}
+  if(!venta&&!costo){el.innerHTML='<div style="text-align:center;padding:24px;color:var(--tx2);font-size:13px;">Ingresa tus datos para ver el cálculo</div>';return;}
   const bruta=Math.max(0,venta-costo-gastos),neta=bruta*0.80,netaComp=Math.max(0,neta-perdidas),imp=netaComp*0.0625,credExt=Math.min(impExt,imp),saldo=Math.max(0,imp-credExt-ret),tasaEf=bruta>0?imp/bruta:0;
   el.innerHTML=taxResultHTML([{label:'Ganancia bruta',value:taxFmt(bruta)},{label:'Renta neta (–20%)',value:taxFmt(neta)},{label:'Impuesto a pagar',value:taxFmt(saldo),hi:true}],[{label:'Precio de venta',value:taxFmt(venta)},{label:'Costo computable',value:'– '+taxFmt(costo+gastos),cls:'deduct'},{label:'Ganancia bruta',value:taxFmt(bruta)},{label:'Deducción 20%',value:'– '+taxFmt(bruta*0.20),cls:'deduct'},{label:'Renta neta',value:taxFmt(neta)},...(perdidas>0?[{label:'Pérdidas compensadas',value:'– '+taxFmt(Math.min(perdidas,neta)),cls:'deduct'}]:[]),{label:'Impuesto (5% efectivo)',value:taxFmt(imp)},...(credExt>0?[{label:'Crédito exterior',value:'– '+taxFmt(credExt),cls:'credit'}]:[]),...(ret>0?[{label:'Retención CAVALI',value:'– '+taxFmt(ret),cls:'credit'}]:[]),{label:'Saldo a pagar',value:taxFmt(saldo),cls:'total'}],null,`Tasa efectiva: <strong>${taxPct(tasaEf)}</strong> · Formulario Virtual N° 709 · Art. 51° LIR`);
 }
