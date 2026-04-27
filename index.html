@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- SMB v8.9 -->
+<!-- SMB v9.0 -->
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -2946,6 +2946,7 @@ function calcHip(){
   let totalCapital = 0;
   let mesesReales = 0;
   const cronograma = []; // por año
+  const cronoMensual = []; // por mes
 
   for(let mes=1; mes<=plazoMeses*2 && saldo>0.01; mes++){
     const esMesDoble = hipCuotaMode==='double' && (mes%12===7 || mes%12===0);
@@ -2977,6 +2978,12 @@ function calcHip(){
     cronograma[anio-1].saldoFinal = saldo;
     if(esMesDoble) cronograma[anio-1].tieneDoble = true;
 
+    // Monthly detail
+    const meses_es=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+    const mesNom = meses_es[(mes-1)%12];
+    const anioNum = Math.ceil(mes/12);
+    cronoMensual.push({label:`${mesNom} Año ${anioNum}`, pago:pagoFinal, capital:capFinal, interes:intFinal, saldo, doble:esMesDoble});
+
     if(saldo<=0.01) break;
   }
 
@@ -3002,9 +3009,15 @@ function calcHip(){
         <div style="font-size:13px;font-weight:700;color:#7be3b0;">🎁 Ahorro con cuotas dobles</div>
         <div style="font-size:11px;color:rgba(255,255,255,0.6);margin-top:4px;">Plazo real: <strong style="color:#fff;">${plazoRealAnios} años</strong> · Ahorras <strong style="color:#7be3b0;">${ahorroMeses} meses</strong></div>
       </div>`:''}
-      <div style="font-size:11px;font-weight:600;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Tabla por año</div>
-      <div style="overflow-x:auto;max-height:320px;overflow-y:auto;">
-        <table class="hip-table">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+        <div style="font-size:11px;font-weight:600;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:.06em;">Tabla de pagos</div>
+        <div style="display:flex;gap:0;border:0.5px solid rgba(255,255,255,0.15);border-radius:var(--rad);overflow:hidden;">
+          <button onclick="hipToggleTable('anual',this)" style="padding:5px 10px;border:none;background:rgba(255,255,255,0.15);color:#fff;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;" id="hip-btn-anual">📅 Anual</button>
+          <button onclick="hipToggleTable('mensual',this)" style="padding:5px 10px;border:none;background:transparent;color:rgba(255,255,255,0.5);font-size:11px;cursor:pointer;font-family:inherit;" id="hip-btn-mensual">📆 Mensual</button>
+        </div>
+      </div>
+      <div style="overflow-x:auto;max-height:320px;overflow-y:auto;" id="hip-table-wrap">
+        <table class="hip-table" id="hip-table-anual">
           <tr><th>Año</th><th>Cuota anual</th><th>Capital</th><th>Intereses</th><th>Saldo</th></tr>
           ${cronograma.map((a,i)=>`<tr class="${a.tieneDoble?'double-month':''}">
             <td>Año ${a.anio}${a.tieneDoble?' 🎁':''}</td>
@@ -3015,9 +3028,37 @@ function calcHip(){
           </tr>`).join('')}
           <tr><td colspan="2"><strong>TOTAL</strong></td><td>${hipFmt(totalCapital)}</td><td>${hipFmt(totalIntereses)}</td><td>${hipFmt(totalPagado)}</td></tr>
         </table>
+        <table class="hip-table" id="hip-table-mensual" style="display:none;">
+          <tr><th>Mes</th><th>Cuota</th><th>Capital</th><th>Interés</th><th>Saldo</th></tr>
+          ${cronoMensual.map(m=>`<tr class="${m.doble?'double-month':''}">
+            <td>${m.label}${m.doble?' 🎁':''}</td>
+            <td>${hipFmtD(m.pago)}</td>
+            <td>${hipFmtD(m.capital)}</td>
+            <td>${hipFmtD(m.interes)}</td>
+            <td>${m.saldo>0?hipFmt(m.saldo):'✓ Pagado'}</td>
+          </tr>`).join('')}
+          <tr><td colspan="2"><strong>TOTAL</strong></td><td>${hipFmt(totalCapital)}</td><td>${hipFmt(totalIntereses)}</td><td>${hipFmt(totalPagado)}</td></tr>
+        </table>
       </div>
       <div style="font-size:10px;color:rgba(255,255,255,0.25);margin-top:12px;line-height:1.6;">⚠️ Cálculo estimado con tasa fija y sistema francés (cuota constante). No incluye seguros, comisiones ni gastos notariales. Consulta con tu entidad financiera.</div>
     </div>`;
+}
+
+function hipToggleTable(mode, btn){
+  const ta = document.getElementById('hip-table-anual');
+  const tm = document.getElementById('hip-table-mensual');
+  const ba = document.getElementById('hip-btn-anual');
+  const bm = document.getElementById('hip-btn-mensual');
+  if(!ta||!tm) return;
+  if(mode==='mensual'){
+    ta.style.display='none'; tm.style.display='';
+    if(ba){ba.style.background='transparent';ba.style.color='rgba(255,255,255,0.5)';}
+    if(bm){bm.style.background='rgba(255,255,255,0.15)';bm.style.color='#fff';bm.style.fontWeight='600';}
+  } else {
+    ta.style.display=''; tm.style.display='none';
+    if(ba){ba.style.background='rgba(255,255,255,0.15)';ba.style.color='#fff';ba.style.fontWeight='600';}
+    if(bm){bm.style.background='transparent';bm.style.color='rgba(255,255,255,0.5)';bm.style.fontWeight='400';}
+  }
 }
 
 function showToast(m){const t=document.getElementById('toast');t.textContent=m;t.style.display='block';setTimeout(()=>t.style.display='none',3500);}
