@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- SMB v9.2 -->
+<!-- SMB v9.3 -->
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -398,107 +398,114 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
         <div style="font-size:15px;color:var(--tx2);max-width:440px;margin:0 auto;">Accede a mercados en vivo, simulador con precios reales, educación y calculadora de impuestos.</div>
       </div>
 
-      <!-- 4 CARDS -->
-      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:18px;">
+      <!-- CARDS — carousel on mobile, 2-col grid on desktop -->
+      <style>
+      .modules-carousel{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;}
+      .module-card{background:var(--bg);border:0.5px solid var(--br);border-radius:20px;padding:28px;cursor:pointer;position:relative;overflow:hidden;transition:transform .2s,border-color .2s,box-shadow .2s;display:flex;flex-direction:column;}
+      .module-card:hover{transform:translateY(-4px);}
+      @media(max-width:700px){
+        .modules-carousel{display:flex;flex-direction:row;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;padding-bottom:12px;scrollbar-width:none;}
+        .modules-carousel::-webkit-scrollbar{display:none;}
+        .module-card{min-width:72vw;max-width:280px;flex-shrink:0;scroll-snap-align:start;padding:22px;}
+      }
+      </style>
+      <div class="modules-carousel">
 
         <!-- MERCADO -->
-        <div onclick="goToModuleOrLogin('mercado')" style="background:var(--bg);border:0.5px solid var(--br);border-radius:20px;padding:32px;cursor:pointer;position:relative;overflow:hidden;transition:transform .2s,border-color .2s,box-shadow .2s;" onmouseover="this.style.transform='translateY(-4px)';this.style.borderColor='var(--g)';this.style.boxShadow='0 12px 32px rgba(29,158,117,0.12)'" onmouseout="this.style.transform='';this.style.borderColor='var(--br)';this.style.boxShadow=''">
-          <div style="position:absolute;right:-20px;bottom:-20px;font-size:100px;opacity:0.06;pointer-events:none;">📈</div>
-          <div style="display:inline-flex;align-items:center;gap:8px;background:var(--gl);padding:6px 12px;border-radius:999px;margin-bottom:20px;">
-            <span style="font-size:16px;">📈</span>
-            <span style="font-size:11px;font-weight:700;color:var(--gd);text-transform:uppercase;letter-spacing:.08em;">Mercado</span>
+        <div class="module-card" onclick="goToModuleOrLogin('mercado')" onmouseover="this.style.borderColor='var(--g)';this.style.boxShadow='0 12px 32px rgba(29,158,117,0.12)'" onmouseout="this.style.borderColor='var(--br)';this.style.boxShadow=''">
+          <div style="position:absolute;right:-16px;bottom:-16px;font-size:80px;opacity:0.06;pointer-events:none;">📈</div>
+          <div style="display:inline-flex;align-items:center;gap:7px;background:var(--gl);padding:5px 11px;border-radius:999px;margin-bottom:16px;">
+            <span style="font-size:14px;">📈</span>
+            <span style="font-size:10px;font-weight:700;color:var(--gd);text-transform:uppercase;letter-spacing:.08em;">Mercado</span>
           </div>
-          <div style="font-size:22px;font-weight:800;color:var(--tx);letter-spacing:-.02em;margin-bottom:8px;line-height:1.2;">Mercados en<br>tiempo real</div>
-          <div style="font-size:13px;color:var(--tx2);line-height:1.7;margin-bottom:20px;">Gráficos TradingView interactivos, heatmap estilo Finviz del S&P 500 y criptomonedas, cotizaciones en vivo y más.</div>
-          <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:24px;">
-            <span style="font-size:11px;padding:3px 9px;background:var(--bg2);border-radius:999px;color:var(--tx2);">Gráficos TradingView</span>
-            <span style="font-size:11px;padding:3px 9px;background:var(--bg2);border-radius:999px;color:var(--tx2);">Heatmap S&P 500</span>
-            <span style="font-size:11px;padding:3px 9px;background:var(--bg2);border-radius:999px;color:var(--tx2);">Cripto · ETF</span>
+          <div style="font-size:18px;font-weight:800;color:var(--tx);letter-spacing:-.02em;margin-bottom:7px;line-height:1.2;">Mercados en<br>tiempo real</div>
+          <div style="font-size:12px;color:var(--tx2);line-height:1.6;margin-bottom:14px;flex:1;">Gráficos TradingView, heatmap S&P 500, criptomonedas y cotizaciones en vivo.</div>
+          <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:16px;">
+            <span style="font-size:10px;padding:2px 8px;background:var(--bg2);border-radius:999px;color:var(--tx2);">TradingView</span>
+            <span style="font-size:10px;padding:2px 8px;background:var(--bg2);border-radius:999px;color:var(--tx2);">Heatmap</span>
+            <span style="font-size:10px;padding:2px 8px;background:var(--bg2);border-radius:999px;color:var(--tx2);">Cripto</span>
           </div>
-          <div style="display:flex;align-items:center;gap:6px;color:var(--g);font-size:13px;font-weight:600;">Ver mercados <span style="font-size:16px;">→</span></div>
+          <div style="display:flex;align-items:center;gap:5px;color:var(--g);font-size:12px;font-weight:600;">Ver mercados <span>→</span></div>
         </div>
 
         <!-- SIMULADOR -->
-        <div onclick="goToModuleOrLogin('simulador')" style="background:var(--bg);border:0.5px solid var(--br);border-radius:20px;padding:32px;cursor:pointer;position:relative;overflow:hidden;transition:transform .2s,border-color .2s,box-shadow .2s;" onmouseover="this.style.transform='translateY(-4px)';this.style.borderColor='#185FA5';this.style.boxShadow='0 12px 32px rgba(24,95,165,0.1)'" onmouseout="this.style.transform='';this.style.borderColor='var(--br)';this.style.boxShadow=''">
-          <div style="position:absolute;right:-20px;bottom:-20px;font-size:100px;opacity:0.06;pointer-events:none;">💹</div>
-          <div style="display:inline-flex;align-items:center;gap:8px;background:#E6F1FB;padding:6px 12px;border-radius:999px;margin-bottom:20px;">
-            <span style="font-size:16px;">💹</span>
-            <span style="font-size:11px;font-weight:700;color:#185FA5;text-transform:uppercase;letter-spacing:.08em;">Simulador</span>
+        <div class="module-card" onclick="goToModuleOrLogin('simulador')" onmouseover="this.style.borderColor='#185FA5';this.style.boxShadow='0 12px 32px rgba(24,95,165,0.1)'" onmouseout="this.style.borderColor='var(--br)';this.style.boxShadow=''">
+          <div style="position:absolute;right:-16px;bottom:-16px;font-size:80px;opacity:0.06;pointer-events:none;">💹</div>
+          <div style="display:inline-flex;align-items:center;gap:7px;background:#E6F1FB;padding:5px 11px;border-radius:999px;margin-bottom:16px;">
+            <span style="font-size:14px;">💹</span>
+            <span style="font-size:10px;font-weight:700;color:#185FA5;text-transform:uppercase;letter-spacing:.08em;">Simulador</span>
           </div>
-          <div style="font-size:22px;font-weight:800;color:var(--tx);letter-spacing:-.02em;margin-bottom:8px;line-height:1.2;">Opera con precios<br>reales sin riesgo</div>
-          <div style="font-size:13px;color:var(--tx2);line-height:1.7;margin-bottom:20px;">Practica con $10,000 ficticios. Compra acciones, Bitcoin y Ethereum por cantidad o por monto en USD con precios reales de Finnhub.</div>
-          <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:24px;">
-            <span style="font-size:11px;padding:3px 9px;background:var(--bg2);border-radius:999px;color:var(--tx2);">$10,000 ficticios</span>
-            <span style="font-size:11px;padding:3px 9px;background:var(--bg2);border-radius:999px;color:var(--tx2);">BTC · ETH · Acciones</span>
-            <span style="font-size:11px;padding:3px 9px;background:var(--bg2);border-radius:999px;color:var(--tx2);">Portafolio guardado</span>
+          <div style="font-size:18px;font-weight:800;color:var(--tx);letter-spacing:-.02em;margin-bottom:7px;line-height:1.2;">Opera sin<br>riesgo real</div>
+          <div style="font-size:12px;color:var(--tx2);line-height:1.6;margin-bottom:14px;flex:1;">$10,000 ficticios con precios reales. Acciones, BTC, ETH por cantidad o USD.</div>
+          <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:16px;">
+            <span style="font-size:10px;padding:2px 8px;background:var(--bg2);border-radius:999px;color:var(--tx2);">BTC · ETH</span>
+            <span style="font-size:10px;padding:2px 8px;background:var(--bg2);border-radius:999px;color:var(--tx2);">Precios reales</span>
           </div>
-          <div style="display:flex;align-items:center;gap:6px;color:#185FA5;font-size:13px;font-weight:600;">Ir al simulador <span style="font-size:16px;">→</span></div>
+          <div style="display:flex;align-items:center;gap:5px;color:#185FA5;font-size:12px;font-weight:600;">Ir al simulador <span>→</span></div>
         </div>
 
         <!-- EDUCACIÓN -->
-        <div onclick="goToModuleOrLogin('educacion')" style="background:var(--bg);border:0.5px solid var(--br);border-radius:20px;padding:32px;cursor:pointer;position:relative;overflow:hidden;transition:transform .2s,border-color .2s,box-shadow .2s;" onmouseover="this.style.transform='translateY(-4px)';this.style.borderColor='var(--ad)';this.style.boxShadow='0 12px 32px rgba(220,150,30,0.1)'" onmouseout="this.style.transform='';this.style.borderColor='var(--br)';this.style.boxShadow=''">
-          <div style="position:absolute;right:-20px;bottom:-20px;font-size:100px;opacity:0.06;pointer-events:none;">🎓</div>
-          <div style="display:inline-flex;align-items:center;gap:8px;background:var(--al);padding:6px 12px;border-radius:999px;margin-bottom:20px;">
-            <span style="font-size:16px;">🎓</span>
-            <span style="font-size:11px;font-weight:700;color:var(--ad);text-transform:uppercase;letter-spacing:.08em;">Educación</span>
+        <div class="module-card" onclick="goToModuleOrLogin('educacion')" onmouseover="this.style.borderColor='var(--ad)';this.style.boxShadow='0 12px 32px rgba(220,150,30,0.1)'" onmouseout="this.style.borderColor='var(--br)';this.style.boxShadow=''">
+          <div style="position:absolute;right:-16px;bottom:-16px;font-size:80px;opacity:0.06;pointer-events:none;">🎓</div>
+          <div style="display:inline-flex;align-items:center;gap:7px;background:var(--al);padding:5px 11px;border-radius:999px;margin-bottom:16px;">
+            <span style="font-size:14px;">🎓</span>
+            <span style="font-size:10px;font-weight:700;color:var(--ad);text-transform:uppercase;letter-spacing:.08em;">Educación</span>
           </div>
-          <div style="font-size:22px;font-weight:800;color:var(--tx);letter-spacing:-.02em;margin-bottom:8px;line-height:1.2;">Curso Código<br>BOLSA</div>
-          <div style="font-size:13px;color:var(--tx2);line-height:1.7;margin-bottom:20px;">Sesiones de video exclusivas del equipo StockMarketBro + lecciones interactivas desde básico hasta avanzado. Aprende a invertir desde cero.</div>
-          <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:24px;">
-            <span style="font-size:11px;padding:3px 9px;background:var(--bg2);border-radius:999px;color:var(--tx2);">Video Sesión 1</span>
-            <span style="font-size:11px;padding:3px 9px;background:var(--bg2);border-radius:999px;color:var(--tx2);">Básico · Intermedio · Avanzado</span>
+          <div style="font-size:18px;font-weight:800;color:var(--tx);letter-spacing:-.02em;margin-bottom:7px;line-height:1.2;">Curso Código<br>BOLSA</div>
+          <div style="font-size:12px;color:var(--tx2);line-height:1.6;margin-bottom:14px;flex:1;">Videos exclusivos del equipo SMB + lecciones desde básico hasta avanzado.</div>
+          <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:16px;">
+            <span style="font-size:10px;padding:2px 8px;background:var(--bg2);border-radius:999px;color:var(--tx2);">Video Sesión 1</span>
+            <span style="font-size:10px;padding:2px 8px;background:var(--bg2);border-radius:999px;color:var(--tx2);">3 niveles</span>
           </div>
-          <div style="display:flex;align-items:center;gap:6px;color:var(--ad);font-size:13px;font-weight:600;">Ver curso <span style="font-size:16px;">→</span></div>
+          <div style="display:flex;align-items:center;gap:5px;color:var(--ad);font-size:12px;font-weight:600;">Ver curso <span>→</span></div>
         </div>
 
-        <!-- CALCULADORA -->
-        <div onclick="goToModuleOrLogin('calculadora')" style="background:var(--bg);border:0.5px solid var(--br);border-radius:20px;padding:32px;cursor:pointer;position:relative;overflow:hidden;transition:transform .2s,border-color .2s,box-shadow .2s;" onmouseover="this.style.transform='translateY(-4px)';this.style.borderColor='var(--pd)';this.style.boxShadow='0 12px 32px rgba(100,60,180,0.08)'" onmouseout="this.style.transform='';this.style.borderColor='var(--br)';this.style.boxShadow=''">
-          <div style="position:absolute;right:-20px;bottom:-20px;font-size:100px;opacity:0.06;pointer-events:none;">🧮</div>
-          <div style="display:inline-flex;align-items:center;gap:8px;background:var(--pl);padding:6px 12px;border-radius:999px;margin-bottom:20px;">
-            <span style="font-size:16px;">🧮</span>
-            <span style="font-size:11px;font-weight:700;color:var(--pd);text-transform:uppercase;letter-spacing:.08em;">Impuestos</span>
+        <!-- IMPUESTOS -->
+        <div class="module-card" onclick="goToModuleOrLogin('calculadora')" onmouseover="this.style.borderColor='var(--pd)';this.style.boxShadow='0 12px 32px rgba(100,60,180,0.08)'" onmouseout="this.style.borderColor='var(--br)';this.style.boxShadow=''">
+          <div style="position:absolute;right:-16px;bottom:-16px;font-size:80px;opacity:0.06;pointer-events:none;">🧮</div>
+          <div style="display:inline-flex;align-items:center;gap:7px;background:var(--pl);padding:5px 11px;border-radius:999px;margin-bottom:16px;">
+            <span style="font-size:14px;">🧮</span>
+            <span style="font-size:10px;font-weight:700;color:var(--pd);text-transform:uppercase;letter-spacing:.08em;">Impuestos</span>
           </div>
-          <div style="font-size:22px;font-weight:800;color:var(--tx);letter-spacing:-.02em;margin-bottom:8px;line-height:1.2;">Calculadora de<br>impuestos SUNAT</div>
-          <div style="font-size:13px;color:var(--tx2);line-height:1.7;margin-bottom:20px;">Calcula cuánto pagas por tus inversiones. BVL/MILA (5% efectivo), broker extranjero (8–30%) y otros ingresos. UIT actualizable por año.</div>
-          <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:24px;">
-            <span style="font-size:11px;padding:3px 9px;background:var(--bg2);border-radius:999px;color:var(--tx2);">BVL · MILA</span>
-            <span style="font-size:11px;padding:3px 9px;background:var(--bg2);border-radius:999px;color:var(--tx2);">Broker extranjero</span>
-            <span style="font-size:11px;padding:3px 9px;background:var(--bg2);border-radius:999px;color:var(--tx2);">Art. 36° y 51° LIR</span>
+          <div style="font-size:18px;font-weight:800;color:var(--tx);letter-spacing:-.02em;margin-bottom:7px;line-height:1.2;">Calculadora<br>SUNAT</div>
+          <div style="font-size:12px;color:var(--tx2);line-height:1.6;margin-bottom:14px;flex:1;">BVL/MILA (5%), broker extranjero (8–30%) y otros ingresos. UIT por año.</div>
+          <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:16px;">
+            <span style="font-size:10px;padding:2px 8px;background:var(--bg2);border-radius:999px;color:var(--tx2);">BVL · MILA</span>
+            <span style="font-size:10px;padding:2px 8px;background:var(--bg2);border-radius:999px;color:var(--tx2);">Art. 36° y 51°</span>
           </div>
-          <div style="display:flex;align-items:center;gap:6px;color:var(--pd);font-size:13px;font-weight:600;">Calcular impuestos <span style="font-size:16px;">→</span></div>
+          <div style="display:flex;align-items:center;gap:5px;color:var(--pd);font-size:12px;font-weight:600;">Calcular <span>→</span></div>
         </div>
 
         <!-- HIPOTECARIO -->
-        <div onclick="goToModuleOrLogin('hipotecario')" style="background:var(--bg);border:0.5px solid var(--br);border-radius:20px;padding:32px;cursor:pointer;position:relative;overflow:hidden;transition:transform .2s,border-color .2s,box-shadow .2s;" onmouseover="this.style.transform='translateY(-4px)';this.style.borderColor='#0e7490';this.style.boxShadow='0 12px 32px rgba(14,116,144,0.1)'" onmouseout="this.style.transform='';this.style.borderColor='var(--br)';this.style.boxShadow=''">
-          <div style="position:absolute;right:-20px;bottom:-20px;font-size:100px;opacity:0.06;pointer-events:none;">🏠</div>
-          <div style="display:inline-flex;align-items:center;gap:8px;background:#e0f2fe;padding:6px 12px;border-radius:999px;margin-bottom:20px;">
-            <span style="font-size:16px;">🏠</span>
-            <span style="font-size:11px;font-weight:700;color:#0e7490;text-transform:uppercase;letter-spacing:.08em;">Hipotecario</span>
+        <div class="module-card" onclick="goToModuleOrLogin('hipotecario')" onmouseover="this.style.borderColor='#0e7490';this.style.boxShadow='0 12px 32px rgba(14,116,144,0.1)'" onmouseout="this.style.borderColor='var(--br)';this.style.boxShadow=''">
+          <div style="position:absolute;right:-16px;bottom:-16px;font-size:80px;opacity:0.06;pointer-events:none;">🏠</div>
+          <div style="display:inline-flex;align-items:center;gap:7px;background:#e0f2fe;padding:5px 11px;border-radius:999px;margin-bottom:16px;">
+            <span style="font-size:14px;">🏠</span>
+            <span style="font-size:10px;font-weight:700;color:#0e7490;text-transform:uppercase;letter-spacing:.08em;">Hipotecario</span>
           </div>
-          <div style="font-size:22px;font-weight:800;color:var(--tx);letter-spacing:-.02em;margin-bottom:8px;line-height:1.2;">Calculadora<br>hipotecaria</div>
-          <div style="font-size:13px;color:var(--tx2);line-height:1.7;margin-bottom:20px;">Simula tu cuota mensual, cuotas dobles en julio y diciembre, y tabla de amortización completa mes a mes.</div>
-          <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:24px;">
-            <span style="font-size:11px;padding:3px 9px;background:var(--bg2);border-radius:999px;color:var(--tx2);">Cuotas simples y dobles</span>
-            <span style="font-size:11px;padding:3px 9px;background:var(--bg2);border-radius:999px;color:var(--tx2);">Tabla anual y mensual</span>
+          <div style="font-size:18px;font-weight:800;color:var(--tx);letter-spacing:-.02em;margin-bottom:7px;line-height:1.2;">Calculadora<br>hipotecaria</div>
+          <div style="font-size:12px;color:var(--tx2);line-height:1.6;margin-bottom:14px;flex:1;">Cuota mensual, cuotas dobles julio/diciembre y tabla de amortización completa.</div>
+          <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:16px;">
+            <span style="font-size:10px;padding:2px 8px;background:var(--bg2);border-radius:999px;color:var(--tx2);">Cuotas dobles</span>
+            <span style="font-size:10px;padding:2px 8px;background:var(--bg2);border-radius:999px;color:var(--tx2);">Tabla mensual</span>
           </div>
-          <div style="display:flex;align-items:center;gap:6px;color:#0e7490;font-size:13px;font-weight:600;">Calcular préstamo <span style="font-size:16px;">→</span></div>
+          <div style="display:flex;align-items:center;gap:5px;color:#0e7490;font-size:12px;font-weight:600;">Calcular préstamo <span>→</span></div>
         </div>
 
         <!-- PLAZOS FIJOS -->
-        <div onclick="goToModuleOrLogin('plazos')" style="background:var(--bg);border:0.5px solid var(--br);border-radius:20px;padding:32px;cursor:pointer;position:relative;overflow:hidden;transition:transform .2s,border-color .2s,box-shadow .2s;" onmouseover="this.style.transform='translateY(-4px)';this.style.borderColor='#b45309';this.style.boxShadow='0 12px 32px rgba(180,83,9,0.1)'" onmouseout="this.style.transform='';this.style.borderColor='var(--br)';this.style.boxShadow=''">
-          <div style="position:absolute;right:-20px;bottom:-20px;font-size:100px;opacity:0.06;pointer-events:none;">💰</div>
-          <div style="display:inline-flex;align-items:center;gap:8px;background:#fef3c7;padding:6px 12px;border-radius:999px;margin-bottom:20px;">
-            <span style="font-size:16px;">💰</span>
-            <span style="font-size:11px;font-weight:700;color:#b45309;text-transform:uppercase;letter-spacing:.08em;">Plazos Fijos</span>
+        <div class="module-card" onclick="goToModuleOrLogin('plazos')" onmouseover="this.style.borderColor='#b45309';this.style.boxShadow='0 12px 32px rgba(180,83,9,0.1)'" onmouseout="this.style.borderColor='var(--br)';this.style.boxShadow=''">
+          <div style="position:absolute;right:-16px;bottom:-16px;font-size:80px;opacity:0.06;pointer-events:none;">💰</div>
+          <div style="display:inline-flex;align-items:center;gap:7px;background:#fef3c7;padding:5px 11px;border-radius:999px;margin-bottom:16px;">
+            <span style="font-size:14px;">💰</span>
+            <span style="font-size:10px;font-weight:700;color:#b45309;text-transform:uppercase;letter-spacing:.08em;">Plazos Fijos</span>
           </div>
-          <div style="font-size:22px;font-weight:800;color:var(--tx);letter-spacing:-.02em;margin-bottom:8px;line-height:1.2;">Tasas de depósito<br>en Perú 2026</div>
-          <div style="font-size:13px;color:var(--tx2);line-height:1.7;margin-bottom:20px;">Compara las mejores tasas TEA de bancos, cajas municipales, cajas rurales y financieras. Hasta 6.5% anual.</div>
-          <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:24px;">
-            <span style="font-size:11px;padding:3px 9px;background:var(--bg2);border-radius:999px;color:var(--tx2);">27 entidades</span>
-            <span style="font-size:11px;padding:3px 9px;background:var(--bg2);border-radius:999px;color:var(--tx2);">Fuente: SBS</span>
-            <span style="font-size:11px;padding:3px 9px;background:var(--bg2);border-radius:999px;color:var(--tx2);">Simulador incluido</span>
+          <div style="font-size:18px;font-weight:800;color:var(--tx);letter-spacing:-.02em;margin-bottom:7px;line-height:1.2;">Tasas depósito<br>Perú 2026</div>
+          <div style="font-size:12px;color:var(--tx2);line-height:1.6;margin-bottom:14px;flex:1;">27 entidades: bancos, cajas municipales, rurales y financieras. Hasta 6.5% TEA.</div>
+          <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:16px;">
+            <span style="font-size:10px;padding:2px 8px;background:var(--bg2);border-radius:999px;color:var(--tx2);">Fuente: SBS</span>
+            <span style="font-size:10px;padding:2px 8px;background:var(--bg2);border-radius:999px;color:var(--tx2);">27 entidades</span>
           </div>
-          <div style="display:flex;align-items:center;gap:6px;color:#b45309;font-size:13px;font-weight:600;">Ver tasas <span style="font-size:16px;">→</span></div>
+          <div style="display:flex;align-items:center;gap:5px;color:#b45309;font-size:12px;font-weight:600;">Ver tasas <span>→</span></div>
         </div>
 
       </div>
