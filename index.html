@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- SMB v8.2 -->
+<!-- SMB v8.3 -->
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -1152,10 +1152,48 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
   <!-- APP FOOTER -->
   <div style="background:#111;margin-top:auto;">
     <div class="mini-disclaimer">
-      <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="rgba(239,159,39,0.6)" stroke-width="1.2"/><path d="M8 5v4M8 10.5v.5" stroke="rgba(239,159,39,0.8)" stroke-width="1.4" stroke-linecap="round"/></svg>
-      <div class="mini-disclaimer-text"><strong>Aviso:</strong> Contenido exclusivamente educativo. No constituye asesoramiento financiero ni recomendación de compra o venta de activos.</div>
+      <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="rgba(239,159,39,0.6)" stroke-width="1.2"/><path d="M8 5v4M8 10.5v.5" stroke="rgba(239,159,39,0.8)" stroke-width="1.4" stroke-linecap="round"/></svg>
+      <div class="mini-disclaimer-text"><strong>Aviso importante:</strong> El contenido de StockMarketBro es exclusivamente con fines educativos e informativos. No constituye asesoramiento financiero, ni recomendación de compra o venta de ningún instrumento financiero.</div>
+      <button onclick="document.getElementById('risk-modal').style.display='flex'" style="flex-shrink:0;background:transparent;border:none;color:rgba(239,159,39,0.9);font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap;padding:0 4px;text-decoration:underline;text-underline-offset:2px;">Ver aviso de riesgo</button>
     </div>
-    <div style="padding:14px 20px;text-align:center;"><div style="font-size:10px;color:rgba(255,255,255,0.22);">© 2026 StockMarketBro · Solo educativo · No asesoramiento financiero · Simulación ficticia</div></div>
+    <div class="footer">
+      <div class="footer-inner">
+        <div class="footer-top">
+          <div>
+            <div class="footer-brand"><img src="logo.png" onerror="this.style.display='none'" alt="SMB"><div class="footer-brand-name">STOCKMARKET<span>BRO</span></div></div>
+            <div class="footer-desc">Plataforma educativa de trading e inversiones. Aprende, practica y analiza el mercado con herramientas profesionales — sin arriesgar dinero real.</div>
+          </div>
+          <div>
+            <div class="footer-col-title">Módulos</div>
+            <div class="footer-links">
+              <span class="footer-link" onclick="showAppTab('mercado')" style="cursor:pointer;">Mercado</span>
+              <span class="footer-link" onclick="showAppTab('senales')" style="cursor:pointer;">Señales</span>
+              <span class="footer-link" onclick="showAppTab('educacion')" style="cursor:pointer;">Educación</span>
+              <span class="footer-link" onclick="showAppTab('simulador')" style="cursor:pointer;">Simulador</span>
+              <span class="footer-link" onclick="showAppTab('calculadora')" style="cursor:pointer;">Impuestos</span>
+            </div>
+          </div>
+          <div>
+            <div class="footer-col-title">Legal</div>
+            <div class="footer-links">
+              <span class="footer-link" onclick="document.getElementById('risk-modal').style.display='flex'" style="cursor:pointer;">Aviso de riesgo</span>
+              <span class="footer-link">Política de privacidad</span>
+              <span class="footer-link">Términos de uso</span>
+              <span class="footer-link">Contacto</span>
+            </div>
+          </div>
+        </div>
+        <hr class="footer-divider">
+        <div class="footer-bottom">
+          <div class="footer-copy">© 2026 StockMarketBro. Todos los derechos reservados. Hecho con fines educativos.</div>
+          <div class="footer-badges">
+            <span class="footer-badge">Solo educativo</span>
+            <span class="footer-badge">No asesoramiento financiero</span>
+            <span class="footer-badge">Simulación ficticia</span>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </div><!-- end app-ui -->
 
