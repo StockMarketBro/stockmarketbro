@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- SMB v7.0 -->
+<!-- SMB v7.1 -->
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -101,12 +101,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .mini-bars{height:26px;display:flex;align-items:flex-end;gap:1.5px;margin-top:5px;}
 .mini-bar{border-radius:1px 1px 0 0;flex:1;}
 
-/* ── SIMULATOR SECTION ── */
-.sim-section{background:var(--bg2);border-top:0.5px solid var(--br);border-bottom:0.5px solid var(--br);padding:52px 28px;}
-.sim-inner{max-width:1020px;margin:0 auto;}
-.sim-pill{display:inline-flex;align-items:center;gap:6px;background:var(--g);color:#fff;font-size:11px;font-weight:600;padding:4px 12px;border-radius:999px;margin-bottom:14px;}
-.sim-grid{display:grid;grid-template-columns:320px 1fr;gap:18px;margin-top:28px;}
-@media(max-width:720px){.sim-grid{grid-template-columns:1fr;}}
+
 .trade-card{background:var(--bg);border:0.5px solid var(--br);border-radius:var(--rad-xl);padding:18px;}
 .mode-tabs{display:flex;border:0.5px solid var(--br);border-radius:var(--rad);overflow:hidden;margin-bottom:12px;}
 .mode-tab{flex:1;padding:7px;border:none;background:transparent;font-size:12px;cursor:pointer;color:var(--tx2);font-family:inherit;}
@@ -374,7 +369,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
       </div>
     </div>
     <div class="nav-links">
-      <button class="nav-link" onclick="goTo('#sim-section')">Simulador</button>
+      <button class="nav-link" onclick="goToModuleOrLogin('simulador')">Simulador</button>
       <button class="nav-link" onclick="goTo('#features-section')">Funciones</button>
       <button class="nav-link" onclick="goTo('#modules-section')">Módulos</button>
       <button class="btn-login" onclick="openModal('login')">Iniciar sesión</button>
@@ -393,7 +388,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
     <h1 class="a2">Aprende a invertir.<br><span>Practica en vivo.</span></h1>
     <p class="a3">El simulador de trading más completo en español. Opera con precios reales, aprende con lecciones y sigue las señales del equipo.</p>
     <div class="hero-btns a4">
-      <button class="btn-primary" onclick="goTo('#sim-section')">Probar el simulador</button>
+      <button class="btn-primary" onclick="goToModuleOrLogin('simulador')">Probar el simulador</button>
       <button class="btn-secondary" onclick="openModal('register')">Crear cuenta gratis</button>
     </div>
     <div class="hero-stats a5">
@@ -454,125 +449,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
     </div>
   </div>
 </div>
-
-  <!-- SIMULATOR SECTION -->
-  <div class="sim-section" id="sim-section">
-    <div class="sim-inner">
-      <div class="a2">
-        <div class="sim-pill"><span class="live-dot" style="background:#fff;"></span>Simulador en vivo</div>
-        <h2 style="font-size:30px;font-weight:700;letter-spacing:-.02em;margin-bottom:7px;">Opera con precios reales.<br>Sin arriesgar dinero.</h2>
-        <p style="font-size:14px;color:var(--tx2);max-width:500px;">Compra y vende cualquier acción con $10,000 ficticios y precios reales de Finnhub. Incluye compra por acciones o por monto en USD.</p>
-      </div>
-      <div class="sim-grid a3">
-        <!-- TRADE PANEL -->
-        <div class="trade-card">
-          <div style="font-size:13px;font-weight:600;margin-bottom:12px;">Nueva operación</div>
-          <div style="font-size:11px;color:var(--tx2);margin-bottom:4px;">Buscar acción</div>
-          <div class="search-wrap">
-            <input class="inp" id="l-search" type="text" placeholder="ej. Apple, TSLA, NVDA..." autocomplete="off" oninput="lOnSearch(this.value)" onkeydown="if(event.key==='Enter')lSearchEnter()" style="margin-bottom:0;">
-            <div class="search-results" id="l-results"></div>
-          </div>
-          <div style="font-size:10px;color:var(--tx2);margin:4px 0 8px;">Presiona Enter para buscar cualquier ticker</div>
-          <div class="pop-grid">
-            <button class="pop-btn" onclick="lPick('AAPL','Apple')">AAPL</button>
-            <button class="pop-btn" onclick="lPick('MSFT','Microsoft')">MSFT</button>
-            <button class="pop-btn" onclick="lPick('TSLA','Tesla')">TSLA</button>
-            <button class="pop-btn" onclick="lPick('NVDA','NVIDIA')">NVDA</button>
-            <button class="pop-btn" onclick="lPick('GOOGL','Alphabet')">GOOGL</button>
-            <button class="pop-btn" onclick="lPick('AMZN','Amazon')">AMZN</button>
-            <button class="pop-btn" onclick="lPick('META','Meta')">META</button>
-            <button class="pop-btn" onclick="lPick('NFLX','Netflix')">NFLX</button>
-            <button class="pop-btn" onclick="lPick('AMD','AMD')">AMD</button>
-            <button class="pop-btn" onclick="lPick('COIN','Coinbase')">COIN</button>
-            <button class="pop-btn" onclick="lPick('BTCUSD','Bitcoin')">BTC</button>
-            <button class="pop-btn" onclick="lPick('ETHUSD','Ethereum')">ETH</button>
-          </div>
-          <div class="price-box" id="l-pricebox">
-            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;">
-              <div>
-                <div style="font-size:10px;color:var(--tx2);margin-bottom:2px;"><span class="live-dot"></span>Precio real · Finnhub</div>
-                <div style="font-size:24px;font-weight:700;" id="l-price">—</div>
-                <div style="font-size:12px;" id="l-change">—</div>
-              </div>
-              <div style="text-align:right;">
-                <div style="font-size:12px;font-weight:600;" id="l-sym-label">—</div>
-                <div style="font-size:10px;color:var(--tx2);" id="l-name-label">—</div>
-              </div>
-            </div>
-          </div>
-          <div class="mode-tabs">
-            <button class="mode-tab active" id="l-mt-s" onclick="lSetMode('shares')">Por acciones</button>
-            <button class="mode-tab" id="l-mt-u" onclick="lSetMode('usd')">Por monto USD</button>
-          </div>
-          <div id="l-panel-s">
-            <div style="font-size:11px;color:var(--tx2);margin-bottom:4px;">Cantidad de acciones</div>
-            <input class="inp" type="number" id="l-qty-s" value="1" min="0.000001" step="1" oninput="lCalcS()" style="margin-bottom:8px;">
-            <div style="display:flex;justify-content:space-between;padding:6px 0;border-top:0.5px solid var(--br);border-bottom:0.5px solid var(--br);margin-bottom:11px;">
-              <div style="font-size:12px;color:var(--tx2);">Total operación</div>
-              <div style="font-size:13px;font-weight:600;" id="l-tot-s">—</div>
-            </div>
-          </div>
-          <div id="l-panel-u" style="display:none;">
-            <div style="font-size:11px;color:var(--tx2);margin-bottom:4px;">Monto en USD</div>
-            <input class="inp" type="number" id="l-qty-u" value="100" min="1" oninput="lCalcU()" style="margin-bottom:7px;">
-            <div class="qa-wrap">
-              <button class="qa-btn" onclick="lSetU(50)">$50</button>
-              <button class="qa-btn" onclick="lSetU(100)">$100</button>
-              <button class="qa-btn" onclick="lSetU(250)">$250</button>
-              <button class="qa-btn" onclick="lSetU(500)">$500</button>
-              <button class="qa-btn" onclick="lSetU(1000)">$1K</button>
-              <button class="qa-btn" onclick="lSetU(Math.floor(window.simBalance))">Máx</button>
-            </div>
-            <div class="calc-box" id="l-calc-box">
-              <div style="display:flex;justify-content:space-between;">
-                <div style="font-size:11px;color:var(--gd);">Recibirás aprox.</div>
-                <div style="font-size:13px;font-weight:600;color:var(--gd);" id="l-frac">— acciones</div>
-              </div>
-            </div>
-            <div style="display:flex;justify-content:space-between;padding:6px 0;border-top:0.5px solid var(--br);border-bottom:0.5px solid var(--br);margin-bottom:11px;">
-              <div style="font-size:12px;color:var(--tx2);">Total a pagar</div>
-              <div style="font-size:13px;font-weight:600;" id="l-tot-u">—</div>
-            </div>
-          </div>
-          <div class="trade-btns">
-            <button class="btn-buy" onclick="lTrade('buy')">Comprar</button>
-            <button class="btn-sell" onclick="lTrade('sell')">Vender</button>
-          </div>
-          <div style="margin-top:9px;padding:7px 9px;background:var(--bg2);border-radius:var(--rad);font-size:10px;color:var(--tx2);">Precios reales vía Finnhub · Simulación sin dinero real · Se actualiza cada 30s</div>
-        </div>
-        <!-- PORTFOLIO PANEL -->
-        <div class="port-panel">
-          <div class="bal-row">
-            <div class="bal-card"><div class="bal-label">Saldo</div><div class="bal-val" id="l-bal">$10,000</div></div>
-            <div class="bal-card"><div class="bal-label">Portafolio</div><div class="bal-val" id="l-portval">$0</div></div>
-            <div class="bal-card"><div class="bal-label">Ganancia/Pérdida</div><div class="bal-val" id="l-pnl" style="color:var(--g);">+$0</div></div>
-          </div>
-          <div class="card">
-            <div style="font-size:12px;font-weight:600;margin-bottom:11px;">Mis posiciones</div>
-            <table class="ptable">
-              <thead><tr><th>Activo</th><th>Acciones</th><th>Precio</th><th>Valor</th><th>P&L</th></tr></thead>
-              <tbody id="l-ptbody"><tr><td colspan="5" class="empty">Aún sin posiciones.</td></tr></tbody>
-            </table>
-            <div style="margin-top:9px;padding-top:9px;border-top:0.5px solid var(--br);display:flex;justify-content:space-between;">
-              <div style="font-size:11px;color:var(--tx2);">Total portafolio</div>
-              <div style="font-size:14px;font-weight:600;" id="l-total-port">$0.00</div>
-            </div>
-          </div>
-          <div class="card">
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:9px;">
-              <div style="font-size:12px;font-weight:600;">Historial de operaciones</div>
-              <button class="pop-btn" onclick="lReset()" style="color:var(--rd);border-color:var(--rl);">↺ Reiniciar</button>
-            </div>
-            <div id="l-history"><div class="empty">Aún sin operaciones.</div></div>
-          </div>
-        </div>
-      </div>
-      <div style="text-align:center;margin-top:26px;" class="a4">
-        <div style="font-size:13px;color:var(--tx2);margin-bottom:12px;">¿Te gusta? Crea una cuenta para guardar tu progreso y acceder a todos los módulos</div>
-        <button class="btn-primary" onclick="openModal('register')" style="font-size:14px;padding:12px 28px;">Guardar mi portafolio — es gratis</button>
-      </div>
-    </div>
-  </div>
 
   <!-- MÓDULOS PRINCIPALES -->
   <div style="padding:64px 28px;background:var(--bg);">
@@ -1451,7 +1327,7 @@ function showLoggedInTopbar(user,name){
     else{av.textContent=name.charAt(0).toUpperCase();}
   }
   navLinks.innerHTML=`
-    <button class="nav-link" onclick="goTo('#sim-section')">Simulador</button>
+    <button class="nav-link" onclick="goToModuleOrLogin('simulador')">Simulador</button>
     <button class="nav-link" onclick="goTo('#features-section')">Funciones</button>
     <button class="nav-link" onclick="goTo('#modules-section')">Módulos</button>
     <button class="btn-login" onclick="goToDashboard()" style="background:var(--g);color:#fff;border-color:var(--g);">Ir al dashboard</button>
