@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- SMB v8.1 -->
+<!-- SMB v8.2 -->
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -1465,11 +1465,63 @@ function goToModuleOrLogin(tab){
   }
 }
 
-// ═══ TICKER ═══
-const ticks=[{s:'S&P 500',p:'5,284',d:'+1.23%',u:true},{s:'NASDAQ',p:'16,421',d:'+0.87%',u:true},{s:'AAPL',p:'$189.30',d:'+2.10%',u:true},{s:'MSFT',p:'$412.70',d:'+1.40%',u:true},{s:'TSLA',p:'$172.40',d:'-3.20%',u:false},{s:'NVDA',p:'$880',d:'+4.50%',u:true},{s:'BTC',p:'$70,421',d:'+2.87%',u:true},{s:'ETH',p:'$3,210',d:'+1.54%',u:true},{s:'META',p:'$524.60',d:'+1.20%',u:true},{s:'EUR/USD',p:'1.0842',d:'+0.12%',u:true},{s:'ORO',p:'$2,345',d:'+0.55%',u:true},{s:'DJI',p:'38,912',d:'-0.31%',u:false}];
-const doubled=[...ticks,...ticks];
-const tickerEl=document.getElementById('ticker-inner');
-if(tickerEl)tickerEl.innerHTML=doubled.map(t=>`<div class="tick-item"><span class="tick-sym">${t.s}</span><span>${t.p}</span><span class="${t.u?'up':'dn'}">${t.d}</span></div>`).join('');
+// ═══ TICKER — precios en tiempo real ═══
+const TICKER_SYMBOLS = [
+  {sym:'FOREXCOM:SPXUSD', label:'S&P 500', fmt:'idx'},
+  {sym:'FOREXCOM:NSXUSD', label:'NASDAQ',  fmt:'idx'},
+  {sym:'TVC:DJI',         label:'Dow Jones',fmt:'idx'},
+  {sym:'AAPL',            label:'AAPL',    fmt:'usd'},
+  {sym:'MSFT',            label:'MSFT',    fmt:'usd'},
+  {sym:'NVDA',            label:'NVDA',    fmt:'usd'},
+  {sym:'TSLA',            label:'TSLA',    fmt:'usd'},
+  {sym:'META',            label:'META',    fmt:'usd'},
+  {sym:'AMZN',            label:'AMZN',    fmt:'usd'},
+  {sym:'GOOGL',           label:'GOOGL',   fmt:'usd'},
+  {sym:'BINANCE:BTCUSDT', label:'BTC',     fmt:'crypto'},
+  {sym:'BINANCE:ETHUSDT', label:'ETH',     fmt:'crypto'},
+  {sym:'OANDA:EURUSD_CFD',label:'EUR/USD', fmt:'fx'},
+  {sym:'TVC:GOLD',        label:'ORO',     fmt:'usd'},
+];
+
+function fmtTickerPrice(p, fmt){
+  if(!p) return '—';
+  if(fmt==='crypto') return '$'+p.toLocaleString('en-US',{maximumFractionDigits:0});
+  if(fmt==='idx')    return p.toLocaleString('en-US',{maximumFractionDigits:0});
+  if(fmt==='fx')     return p.toFixed(4);
+  return '$'+p.toFixed(2);
+}
+
+function renderTicker(data){
+  const tickerEl=document.getElementById('ticker-inner');
+  if(!tickerEl)return;
+  const items = data.map(t=>{
+    const up = t.dp >= 0;
+    const sign = up ? '+' : '';
+    return `<div class="tick-item"><span class="tick-sym">${t.label}</span><span>${fmtTickerPrice(t.c, t.fmt)}</span><span class="${up?'up':'dn'}">${sign}${t.dp?.toFixed(2)||'0.00'}%</span></div>`;
+  });
+  const doubled = [...items, ...items];
+  tickerEl.innerHTML = doubled.join('');
+}
+
+async function loadTickerPrices(){
+  const results = [];
+  for(const s of TICKER_SYMBOLS){
+    try{
+      const fsym = s.sym.includes(':') ? s.sym : s.sym;
+      const r = await fetch(`https://finnhub.io/api/v1/quote?symbol=${fsym}&token=${FK}`);
+      if(r.status===429){await new Promise(res=>setTimeout(res,1500));continue;}
+      const d = await r.json();
+      if(d&&d.c>0) results.push({...s, c:d.c, dp:d.dp||0});
+      else results.push({...s, c:0, dp:0});
+    }catch(e){ results.push({...s, c:0, dp:0}); }
+    await new Promise(res=>setTimeout(res,120)); // avoid rate limit
+  }
+  if(results.length) renderTicker(results);
+}
+
+// Load on start and refresh every 2 minutes
+loadTickerPrices();
+setInterval(loadTickerPrices, 120000);
 
 // ═══ LIVE PRICES (landing) ═══
 const liveRows=[{sym:'AAPL',name:'Apple',p:'$189.30',d:'+2.10%',u:true,b:[4,5,6,5,7,8,9]},{sym:'MSFT',name:'Microsoft',p:'$412.70',d:'+1.40%',u:true,b:[5,4,6,7,6,8,9]},{sym:'TSLA',name:'Tesla',p:'$172.40',d:'-3.20%',u:false,b:[9,8,6,7,5,4,3]},{sym:'NVDA',name:'NVIDIA',p:'$880.00',d:'+4.50%',u:true,b:[3,5,6,5,7,9,10]},{sym:'BTC',name:'Bitcoin',p:'$70,421',d:'+2.87%',u:true,b:[4,6,5,8,7,9,10]}];
