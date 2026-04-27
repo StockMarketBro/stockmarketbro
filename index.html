@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- SMB v8.5 -->
+<!-- SMB v8.6 -->
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -568,17 +568,22 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 
   <!-- MERCADO -->
   <div id="tab-mercado" class="app-section-content active">
-    <div class="tv-wrap">
-      <div class="tradingview-widget-container"><div class="tradingview-widget-container__widget"></div>
-        <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
-        {"symbols":[{"proName":"FOREXCOM:SPXUSD","title":"S&P 500"},{"proName":"NASDAQ:AAPL","title":"Apple"},{"proName":"NASDAQ:MSFT","title":"Microsoft"},{"proName":"NASDAQ:TSLA","title":"Tesla"},{"proName":"NASDAQ:GOOGL","title":"Alphabet"},{"proName":"NASDAQ:NVDA","title":"NVIDIA"},{"proName":"BITSTAMP:BTCUSD","title":"Bitcoin"},{"proName":"FOREXCOM:NSXUSD","title":"NASDAQ 100"}],"showSymbolLogo":true,"isTransparent":true,"displayMode":"adaptive","colorTheme":"light","locale":"es"}
-        </script>
-      </div>
+
+    <!-- TICKER TAPE -->
+    <div style="border-radius:var(--rad-lg);overflow:hidden;border:0.5px solid var(--br);">
+      <iframe
+        src="https://www.tradingview-widget.com/embed-widget/ticker-tape/?locale=es#%7B%22symbols%22%3A%5B%7B%22proName%22%3A%22FOREXCOM%3ASPXUSD%22%2C%22title%22%3A%22S%26P%20500%22%7D%2C%7B%22proName%22%3A%22FOREXCOM%3ANSXUSD%22%2C%22title%22%3A%22NASDAQ%22%7D%2C%7B%22proName%22%3A%22TVC%3ADJI%22%2C%22title%22%3A%22Dow%20Jones%22%7D%2C%7B%22proName%22%3A%22NASDAQ%3AAAPL%22%2C%22title%22%3A%22Apple%22%7D%2C%7B%22proName%22%3A%22NASDAQ%3AMSFT%22%2C%22title%22%3A%22Microsoft%22%7D%2C%7B%22proName%22%3A%22NASDAQ%3ANVDA%22%2C%22title%22%3A%22NVIDIA%22%7D%2C%7B%22proName%22%3A%22NASDAQ%3ATSLA%22%2C%22title%22%3A%22Tesla%22%7D%2C%7B%22proName%22%3A%22BITSTAMP%3ABTCUSD%22%2C%22title%22%3A%22Bitcoin%22%7D%2C%7B%22proName%22%3A%22BITSTAMP%3AETHUSD%22%2C%22title%22%3A%22Ethereum%22%7D%2C%7B%22proName%22%3A%22TVC%3AGOLD%22%2C%22title%22%3A%22Oro%22%7D%5D%2C%22showSymbolLogo%22%3Atrue%2C%22isTransparent%22%3Atrue%2C%22displayMode%22%3A%22adaptive%22%2C%22colorTheme%22%3A%22light%22%2C%22locale%22%3A%22es%22%7D"
+        style="width:100%;height:56px;border:none;"
+        scrolling="no"
+        allowtransparency="true">
+      </iframe>
     </div>
+
+    <!-- GRÁFICO INTERACTIVO -->
     <div class="section-card" style="padding:0;">
       <div style="padding:11px 14px 9px;border-bottom:0.5px solid var(--br);">
         <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px;">
-          <input id="app-sym-input" type="text" placeholder="Busca símbolo..." style="flex:1;min-width:160px;padding:7px 11px;border:0.5px solid var(--br);border-radius:var(--rad);font-size:13px;background:var(--bg2);color:var(--tx);outline:none;font-family:inherit;" onkeydown="if(event.key==='Enter')appSearchSym()" oninput="this.value=this.value.toUpperCase()">
+          <input id="app-sym-input" type="text" placeholder="Busca símbolo... ej. AAPL, BTC, EUR/USD" style="flex:1;min-width:160px;padding:7px 11px;border:0.5px solid var(--br);border-radius:var(--rad);font-size:13px;background:var(--bg2);color:var(--tx);outline:none;font-family:inherit;" onkeydown="if(event.key==='Enter')appSearchSym()" oninput="this.value=this.value.toUpperCase()">
           <button onclick="appSearchSym()" style="padding:7px 13px;border-radius:var(--rad);border:none;background:var(--g);color:#fff;font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;">Ver gráfico</button>
         </div>
         <div style="display:flex;gap:4px;flex-wrap:wrap;">
@@ -587,27 +592,37 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
           <button class="app-nav-btn" onclick="appQuickLoad('NASDAQ:TSLA','TSLA',this)">TSLA</button>
           <button class="app-nav-btn" onclick="appQuickLoad('NASDAQ:NVDA','NVDA',this)">NVDA</button>
           <button class="app-nav-btn" onclick="appQuickLoad('NASDAQ:GOOGL','GOOGL',this)">GOOGL</button>
-          <button class="app-nav-btn" onclick="appQuickLoad('FOREXCOM:SPXUSD','S&P500',this)">S&P500</button>
+          <button class="app-nav-btn" onclick="appQuickLoad('NASDAQ:AMZN','AMZN',this)">AMZN</button>
+          <button class="app-nav-btn" onclick="appQuickLoad('FOREXCOM:SPXUSD','S&P500',this)">S&P 500</button>
+          <button class="app-nav-btn" onclick="appQuickLoad('FOREXCOM:NSXUSD','NASDAQ',this)">NASDAQ</button>
+          <button class="app-nav-btn" onclick="appQuickLoad('TVC:DJI','DJI',this)">Dow Jones</button>
           <button class="app-nav-btn" onclick="appQuickLoad('BITSTAMP:BTCUSD','BTC',this)">BTC</button>
+          <button class="app-nav-btn" onclick="appQuickLoad('BITSTAMP:ETHUSD','ETH',this)">ETH</button>
           <button class="app-nav-btn" onclick="appQuickLoad('TVC:GOLD','ORO',this)">ORO</button>
         </div>
       </div>
-      <div id="app-chart" style="height:380px;"></div>
+      <div id="app-chart" style="height:400px;"></div>
     </div>
+
+    <!-- COTIZACIONES: ACCIONES + CRIPTO -->
     <div class="two-col">
-      <div class="section-card"><div class="section-card-title">Acciones</div>
-        <div class="tradingview-widget-container"><div class="tradingview-widget-container__widget"></div>
-          <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-market-quotes.js" async>
-          {"symbols":[["Apple","NASDAQ:AAPL|1D"],["Microsoft","NASDAQ:MSFT|1D"],["Tesla","NASDAQ:TSLA|1D"],["NVIDIA","NASDAQ:NVDA|1D"],["Amazon","NASDAQ:AMZN|1D"],["S&P 500","FOREXCOM:SPXUSD|1D"]],"showSymbolLogo":false,"isTransparent":true,"colorTheme":"light","locale":"es","width":"100%","height":250}
-          </script>
-        </div>
+      <div class="section-card" style="padding:0;overflow:hidden;">
+        <div style="padding:10px 14px;border-bottom:0.5px solid var(--br);font-size:12px;font-weight:600;">📈 Acciones</div>
+        <iframe
+          src="https://www.tradingview-widget.com/embed-widget/market-quotes/?locale=es#%7B%22symbols%22%3A%5B%5B%22Apple%22%2C%22NASDAQ%3AAAPL%7C1D%22%5D%2C%5B%22Microsoft%22%2C%22NASDAQ%3AMSFT%7C1D%22%5D%2C%5B%22NVIDIA%22%2C%22NASDAQ%3ANVDA%7C1D%22%5D%2C%5B%22Tesla%22%2C%22NASDAQ%3ATSLA%7C1D%22%5D%2C%5B%22Amazon%22%2C%22NASDAQ%3AAMZN%7C1D%22%5D%2C%5B%22Meta%22%2C%22NASDAQ%3AMETA%7C1D%22%5D%2C%5B%22Alphabet%22%2C%22NASDAQ%3AGOOGL%7C1D%22%5D%2C%5B%22S%26P%20500%22%2C%22FOREXCOM%3ASPXUSD%7C1D%22%5D%2C%5B%22Dow%20Jones%22%2C%22TVC%3ADJI%7C1D%22%5D%2C%5B%22Oro%22%2C%22TVC%3AGOLD%7C1D%22%5D%5D%2C%22showSymbolLogo%22%3Atrue%2C%22isTransparent%22%3Atrue%2C%22colorTheme%22%3A%22light%22%2C%22locale%22%3A%22es%22%2C%22width%22%3A%22100%25%22%2C%22height%22%3A340%7D"
+          style="width:100%;height:340px;border:none;"
+          scrolling="no"
+          allowtransparency="true">
+        </iframe>
       </div>
-      <div class="section-card"><div class="section-card-title">Criptomonedas</div>
-        <div class="tradingview-widget-container"><div class="tradingview-widget-container__widget"></div>
-          <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-market-quotes.js" async>
-          {"symbols":[["Bitcoin","BITSTAMP:BTCUSD|1D"],["Ethereum","BITSTAMP:ETHUSD|1D"],["Solana","COINBASE:SOLUSD|1D"],["BNB","BINANCE:BNBUSD|1D"],["XRP","BITSTAMP:XRPUSD|1D"],["Cardano","COINBASE:ADAUSD|1D"]],"showSymbolLogo":false,"isTransparent":true,"colorTheme":"light","locale":"es","width":"100%","height":250}
-          </script>
-        </div>
+      <div class="section-card" style="padding:0;overflow:hidden;">
+        <div style="padding:10px 14px;border-bottom:0.5px solid var(--br);font-size:12px;font-weight:600;">₿ Criptomonedas</div>
+        <iframe
+          src="https://www.tradingview-widget.com/embed-widget/market-quotes/?locale=es#%7B%22symbols%22%3A%5B%5B%22Bitcoin%22%2C%22BITSTAMP%3ABTCUSD%7C1D%22%5D%2C%5B%22Ethereum%22%2C%22BITSTAMP%3AETHUSD%7C1D%22%5D%2C%5B%22Solana%22%2C%22COINBASE%3ASOLUSD%7C1D%22%5D%2C%5B%22BNB%22%2C%22BINANCE%3ABNBUSD%7C1D%22%5D%2C%5B%22XRP%22%2C%22BITSTAMP%3AXRPUSD%7C1D%22%5D%2C%5B%22Cardano%22%2C%22COINBASE%3AADAUSD%7C1D%22%5D%2C%5B%22Dogecoin%22%2C%22BINANCE%3ADOGEUSDT%7C1D%22%5D%2C%5B%22Avalanche%22%2C%22BINANCE%3AAVAXUSDT%7C1D%22%5D%5D%2C%22showSymbolLogo%22%3Atrue%2C%22isTransparent%22%3Atrue%2C%22colorTheme%22%3A%22light%22%2C%22locale%22%3A%22es%22%2C%22width%22%3A%22100%25%22%2C%22height%22%3A340%7D"
+          style="width:100%;height:340px;border:none;"
+          scrolling="no"
+          allowtransparency="true">
+        </iframe>
       </div>
     </div>
 
@@ -615,8 +630,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
     <div class="section-card" style="padding:0;overflow:hidden;">
       <div style="padding:12px 16px 10px;border-bottom:0.5px solid var(--br);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
         <div>
-          <div class="section-card-title" style="margin:0;">Mapa de calor del mercado</div>
-          <div style="font-size:11px;color:var(--tx2);margin-top:2px;">S&P 500 · Rendimiento por sector · TradingView</div>
+          <div class="section-card-title" style="margin:0;">🔥 Mapa de calor del mercado</div>
+          <div style="font-size:11px;color:var(--tx2);margin-top:2px;">Verde = sube · Rojo = baja · Tamaño = capitalización de mercado</div>
         </div>
         <div style="display:flex;gap:5px;" id="heatmap-filters">
           <button class="app-nav-btn active" id="hm-sp500" onclick="switchHeatmap('sp500',this)">S&P 500</button>
@@ -624,13 +639,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
           <button class="app-nav-btn" id="hm-etf" onclick="switchHeatmap('etf',this)">ETFs</button>
         </div>
       </div>
-      <div id="heatmap-container" style="height:500px;">
-        <div class="tradingview-widget-container" style="height:100%;">
-          <div class="tradingview-widget-container__widget" style="height:100%;"></div>
-          <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-stock-heatmap.js" async>
-          {"exchanges":[],"dataSource":"SPX500","grouping":"sector","blockSize":"market_cap_basic","blockColor":"change","locale":"es","colorTheme":"light","hasTopBar":false,"isDataSetEnabled":false,"isZoomEnabled":true,"hasSymbolTooltip":true,"isMonoSize":false,"width":"100%","height":"500"}
-          </script>
-        </div>
+      <div id="heatmap-container" style="height:520px;">
+        <iframe
+          src="https://www.tradingview-widget.com/embed-widget/stock-heatmap/?locale=es#%7B%22exchanges%22%3A%5B%5D%2C%22dataSource%22%3A%22SPX500%22%2C%22grouping%22%3A%22sector%22%2C%22blockSize%22%3A%22market_cap_basic%22%2C%22blockColor%22%3A%22change%22%2C%22locale%22%3A%22es%22%2C%22colorTheme%22%3A%22light%22%2C%22hasTopBar%22%3Afalse%2C%22isDataSetEnabled%22%3Afalse%2C%22isZoomEnabled%22%3Atrue%2C%22hasSymbolTooltip%22%3Atrue%2C%22isMonoSize%22%3Afalse%2C%22width%22%3A%22100%25%22%2C%22height%22%3A%22520%22%7D"
+          id="heatmap-iframe"
+          style="width:100%;height:520px;border:none;"
+          scrolling="no"
+          allowtransparency="true">
+        </iframe>
       </div>
     </div>
   </div>
@@ -1703,11 +1719,17 @@ let currentHeatmap='sp500';
 function initHeatmap(){
   buildHeatmap('sp500');
 }
-function switchHeatmap(type,btn){
+function switchHeatmap(source, btn){
   document.querySelectorAll('#heatmap-filters .app-nav-btn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  currentHeatmap=type;
-  buildHeatmap(type);
+  if(btn) btn.classList.add('active');
+  const iframe = document.getElementById('heatmap-iframe');
+  if(!iframe) return;
+  const URLS = {
+    sp500: 'https://www.tradingview-widget.com/embed-widget/stock-heatmap/?locale=es#%7B%22exchanges%22%3A%5B%5D%2C%22dataSource%22%3A%22SPX500%22%2C%22grouping%22%3A%22sector%22%2C%22blockSize%22%3A%22market_cap_basic%22%2C%22blockColor%22%3A%22change%22%2C%22locale%22%3A%22es%22%2C%22colorTheme%22%3A%22light%22%2C%22hasTopBar%22%3Afalse%2C%22isZoomEnabled%22%3Atrue%2C%22hasSymbolTooltip%22%3Atrue%2C%22isMonoSize%22%3Afalse%2C%22width%22%3A%22100%25%22%2C%22height%22%3A%22520%22%7D',
+    crypto: 'https://www.tradingview-widget.com/embed-widget/stock-heatmap/?locale=es#%7B%22exchanges%22%3A%5B%5D%2C%22dataSource%22%3A%22Crypto%22%2C%22grouping%22%3A%22no_group%22%2C%22blockSize%22%3A%22market_cap_calc%22%2C%22blockColor%22%3A%22change%22%2C%22locale%22%3A%22es%22%2C%22colorTheme%22%3A%22light%22%2C%22hasTopBar%22%3Afalse%2C%22isZoomEnabled%22%3Atrue%2C%22hasSymbolTooltip%22%3Atrue%2C%22isMonoSize%22%3Afalse%2C%22width%22%3A%22100%25%22%2C%22height%22%3A%22520%22%7D',
+    etf: 'https://www.tradingview-widget.com/embed-widget/stock-heatmap/?locale=es#%7B%22exchanges%22%3A%5B%5D%2C%22dataSource%22%3A%22ETF%22%2C%22grouping%22%3A%22sector%22%2C%22blockSize%22%3A%22volume%22%2C%22blockColor%22%3A%22change%22%2C%22locale%22%3A%22es%22%2C%22colorTheme%22%3A%22light%22%2C%22hasTopBar%22%3Afalse%2C%22isZoomEnabled%22%3Atrue%2C%22hasSymbolTooltip%22%3Atrue%2C%22isMonoSize%22%3Afalse%2C%22width%22%3A%22100%25%22%2C%22height%22%3A%22520%22%7D',
+  };
+  iframe.src = URLS[source] || URLS.sp500;
 }
 function buildHeatmap(type){
   const container=document.getElementById('heatmap-container');
