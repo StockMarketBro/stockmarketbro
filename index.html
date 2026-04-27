@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- SMB v8.7 -->
+<!-- SMB v8.8 -->
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -713,7 +713,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
           <button class="ftab" onclick="filterAuto('high',this)">⚡ Alta</button>
         </div>
       </div>
-      <div id="auto-list"><div class="loading-state">Cargando análisis técnico...</div></div>
+      <div id="auto-list"><div class="loading-state" style="text-align:center;padding:24px;">
+  <div style="font-size:16px;margin-bottom:8px;">📡</div>
+  <div style="font-size:13px;font-weight:600;margin-bottom:6px;">Análisis técnico</div>
+  <div style="font-size:12px;color:var(--tx2);margin-bottom:14px;">Haz clic en "Actualizar análisis" para ejecutar el escaneo de indicadores técnicos sobre 24 activos.</div>
+  <button onclick="runScan()" style="padding:8px 18px;border-radius:var(--rad);border:none;background:var(--g);color:#fff;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">↻ Iniciar análisis</button>
+</div></div>
       <div style="font-size:10px;color:var(--tx2);margin-top:10px;" id="auto-update"></div>
     </div>
 
@@ -1342,7 +1347,6 @@ function showApp(user){
   try{showDashboardBtn();}catch(e){}
   if(window.fbLoadRecs)window.fbLoadRecs();
   setTimeout(()=>{
-    try{runScan();}catch(e){}
     try{if(window.loadUserData)window.loadUserData();}catch(e){}
     try{updateBothSimUIs();}catch(e){}
   },600);
@@ -1707,7 +1711,7 @@ function showAppTab(t){
   });
   try{if(t==='mercado'){initAppChart();setTimeout(()=>initHeatmap(),500);}}catch(e){}
   try{if(t==='simulador')aRefreshPrices();}catch(e){}
-  try{if(t==='senales'){if(window.fbLoadRecs)window.fbLoadRecs();const rd=document.getElementById('rec-dot');if(rd)rd.style.display='none';runScan();}}catch(e){}
+  try{if(t==='senales'){if(window.fbLoadRecs)window.fbLoadRecs();const rd=document.getElementById('rec-dot');if(rd)rd.style.display='none';}}catch(e){}
   try{if(t==='autor'&&window.fbLoadRecs)window.fbLoadRecs();}catch(e){}
   try{if(t==='analytics')loadAnalytics();}catch(e){}
 }
@@ -2046,7 +2050,11 @@ async function analyzeStock(sym){
   return{sym,level:'none',dir:'none'};
 }
 function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
-async function runScan(){if(typeof WATCHLIST==='undefined')return;
+let _scanRunning=false;
+async function runScan(){
+  if(typeof WATCHLIST==='undefined')return;
+  if(_scanRunning){showToast('El análisis ya está en curso...');return;}
+  _scanRunning=true;
   const btn=document.getElementById('scan-btn');
   if(btn)btn.disabled=true;
   const pb=document.getElementById('scan-pb');const pf=document.getElementById('scan-pf');
@@ -2062,7 +2070,7 @@ async function runScan(){if(typeof WATCHLIST==='undefined')return;
     const results=await Promise.all(batch.map(s=>analyzeStock(s.sym)));
     autoResults.push(...results);
     if(pf)pf.style.width=Math.round(((i+BATCH)/WATCHLIST.length)*100)+'%';
-    if(i+BATCH<WATCHLIST.length)await sleep(1500);
+    if(i+BATCH<WATCHLIST.length)await sleep(2500);
   }
   if(pb)setTimeout(()=>{pb.style.display='none';},500);
   renderAutoSignals();
@@ -2084,6 +2092,7 @@ async function runScan(){if(typeof WATCHLIST==='undefined')return;
   document.getElementById('stat-upd').textContent=now;
   document.getElementById('auto-update').textContent='Actualizado: '+now;
   if(btn)btn.disabled=false;
+  _scanRunning=false;
 }
 function renderAutoSignals(){
   const filtered = autoFilter==='all'
