@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- SMB v9.1 -->
+<!-- SMB v9.2 -->
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -67,7 +67,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .logo-name{font-size:14px;font-weight:700;letter-spacing:.01em;}
 .logo-name span{color:var(--g);}
 .nav-links{display:flex;align-items:center;gap:2px;}
-.nav-link{padding:6px 11px;font-size:12px;color:var(--tx2);cursor:pointer;border-radius:var(--rad);border:none;background:transparent;font-family:inherit;}
+.nav-link{padding:5px 9px;font-size:11px;color:var(--tx2);cursor:pointer;border-radius:var(--rad);border:none;background:transparent;font-family:inherit;}
 .nav-link:hover{background:var(--bg2);color:var(--tx);}
 .btn-login{padding:7px 15px;border-radius:var(--rad);border:0.5px solid var(--br2);background:transparent;font-size:12px;font-weight:500;color:var(--tx);cursor:pointer;font-family:inherit;}
 .btn-login:hover{background:var(--bg2);}
@@ -373,6 +373,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
       <button class="nav-link" onclick="goToModuleOrLogin('educacion')">Educación</button>
       <button class="nav-link" onclick="goToModuleOrLogin('simulador')">Simulador</button>
       <button class="nav-link" onclick="goToModuleOrLogin('calculadora')">Impuestos</button>
+    <button class="nav-link" onclick="goToModuleOrLogin('hipotecario')">Hipotecario</button>
+    <button class="nav-link" onclick="goToModuleOrLogin('plazos')">Plazos Fijos</button>
+      <button class="nav-link" onclick="goToModuleOrLogin('hipotecario')">Hipotecario</button>
+      <button class="nav-link" onclick="goToModuleOrLogin('plazos')">Plazos Fijos</button>
     </div>
     <div id="topbar-actions" style="display:flex;align-items:center;gap:8px;justify-content:flex-end;">
       <button class="btn-login" onclick="openModal('login')">Iniciar sesión</button>
@@ -462,6 +466,39 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
             <span style="font-size:11px;padding:3px 9px;background:var(--bg2);border-radius:999px;color:var(--tx2);">Art. 36° y 51° LIR</span>
           </div>
           <div style="display:flex;align-items:center;gap:6px;color:var(--pd);font-size:13px;font-weight:600;">Calcular impuestos <span style="font-size:16px;">→</span></div>
+        </div>
+
+        <!-- HIPOTECARIO -->
+        <div onclick="goToModuleOrLogin('hipotecario')" style="background:var(--bg);border:0.5px solid var(--br);border-radius:20px;padding:32px;cursor:pointer;position:relative;overflow:hidden;transition:transform .2s,border-color .2s,box-shadow .2s;" onmouseover="this.style.transform='translateY(-4px)';this.style.borderColor='#0e7490';this.style.boxShadow='0 12px 32px rgba(14,116,144,0.1)'" onmouseout="this.style.transform='';this.style.borderColor='var(--br)';this.style.boxShadow=''">
+          <div style="position:absolute;right:-20px;bottom:-20px;font-size:100px;opacity:0.06;pointer-events:none;">🏠</div>
+          <div style="display:inline-flex;align-items:center;gap:8px;background:#e0f2fe;padding:6px 12px;border-radius:999px;margin-bottom:20px;">
+            <span style="font-size:16px;">🏠</span>
+            <span style="font-size:11px;font-weight:700;color:#0e7490;text-transform:uppercase;letter-spacing:.08em;">Hipotecario</span>
+          </div>
+          <div style="font-size:22px;font-weight:800;color:var(--tx);letter-spacing:-.02em;margin-bottom:8px;line-height:1.2;">Calculadora<br>hipotecaria</div>
+          <div style="font-size:13px;color:var(--tx2);line-height:1.7;margin-bottom:20px;">Simula tu cuota mensual, cuotas dobles en julio y diciembre, y tabla de amortización completa mes a mes.</div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:24px;">
+            <span style="font-size:11px;padding:3px 9px;background:var(--bg2);border-radius:999px;color:var(--tx2);">Cuotas simples y dobles</span>
+            <span style="font-size:11px;padding:3px 9px;background:var(--bg2);border-radius:999px;color:var(--tx2);">Tabla anual y mensual</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;color:#0e7490;font-size:13px;font-weight:600;">Calcular préstamo <span style="font-size:16px;">→</span></div>
+        </div>
+
+        <!-- PLAZOS FIJOS -->
+        <div onclick="goToModuleOrLogin('plazos')" style="background:var(--bg);border:0.5px solid var(--br);border-radius:20px;padding:32px;cursor:pointer;position:relative;overflow:hidden;transition:transform .2s,border-color .2s,box-shadow .2s;" onmouseover="this.style.transform='translateY(-4px)';this.style.borderColor='#b45309';this.style.boxShadow='0 12px 32px rgba(180,83,9,0.1)'" onmouseout="this.style.transform='';this.style.borderColor='var(--br)';this.style.boxShadow=''">
+          <div style="position:absolute;right:-20px;bottom:-20px;font-size:100px;opacity:0.06;pointer-events:none;">💰</div>
+          <div style="display:inline-flex;align-items:center;gap:8px;background:#fef3c7;padding:6px 12px;border-radius:999px;margin-bottom:20px;">
+            <span style="font-size:16px;">💰</span>
+            <span style="font-size:11px;font-weight:700;color:#b45309;text-transform:uppercase;letter-spacing:.08em;">Plazos Fijos</span>
+          </div>
+          <div style="font-size:22px;font-weight:800;color:var(--tx);letter-spacing:-.02em;margin-bottom:8px;line-height:1.2;">Tasas de depósito<br>en Perú 2026</div>
+          <div style="font-size:13px;color:var(--tx2);line-height:1.7;margin-bottom:20px;">Compara las mejores tasas TEA de bancos, cajas municipales, cajas rurales y financieras. Hasta 6.5% anual.</div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:24px;">
+            <span style="font-size:11px;padding:3px 9px;background:var(--bg2);border-radius:999px;color:var(--tx2);">27 entidades</span>
+            <span style="font-size:11px;padding:3px 9px;background:var(--bg2);border-radius:999px;color:var(--tx2);">Fuente: SBS</span>
+            <span style="font-size:11px;padding:3px 9px;background:var(--bg2);border-radius:999px;color:var(--tx2);">Simulador incluido</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;color:#b45309;font-size:13px;font-weight:600;">Ver tasas <span style="font-size:16px;">→</span></div>
         </div>
 
       </div>
