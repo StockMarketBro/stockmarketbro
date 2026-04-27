@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- SMB v7.1 -->
+<!-- SMB v7.3 -->
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -361,9 +361,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 
   <!-- TOPBAR -->
   <div class="topbar a1">
-    <div style="display:flex;align-items:center;gap:12px;">
-      <button onclick="goToLanding()" style="padding:5px 10px;border-radius:var(--rad);border:0.5px solid var(--br);background:transparent;font-size:12px;cursor:pointer;color:var(--tx2);font-family:inherit;">← Inicio</button>
-      <div class="logo">
+    <div style="display:flex;align-items:center;">
+      <div class="logo" onclick="goToLanding()" style="cursor:pointer;" title="Volver al inicio">
         <img src="logo.png" onerror="this.style.display='none'" alt="SMB">
         <div class="logo-name">STOCKMARKET<span>BRO</span></div>
       </div>
@@ -385,15 +384,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
   <!-- HERO -->
   <div class="hero">
     <div class="hero-badge a1"><span class="live-dot"></span>Precios reales · Finnhub + TradingView</div>
-    <h1 class="a2">Aprende a invertir.<br><span>Practica en vivo.</span></h1>
-    <p class="a3">El simulador de trading más completo en español. Opera con precios reales, aprende con lecciones y sigue las señales del equipo.</p>
+    <h1 class="a2">Tu plataforma de<br><span>inversión inteligente.</span></h1>
+    <p class="a3">Mercados en vivo, simulador con precios reales, curso Código BOLSA y calculadora de impuestos SUNAT. Todo en un solo lugar.</p>
     <div class="hero-btns a4">
-      <button class="btn-primary" onclick="goToModuleOrLogin('simulador')">Probar el simulador</button>
-      <button class="btn-secondary" onclick="openModal('register')">Crear cuenta gratis</button>
-    </div>
-    <div class="hero-stats a5">
-      <div><div class="hstat-num" id="hs1">0</div><div class="hstat-label">Activos disponibles</div></div>
-      <div><div class="hstat-num" id="hs2" style="font-size:18px;"></div><div class="hstat-label">Curso Código BOLSA</div></div>
+      <button class="btn-primary" onclick="openModal('register')">Crear cuenta gratis</button>
+      <button class="btn-secondary" onclick="openModal('login')">Iniciar sesión</button>
     </div>
   </div>
 
@@ -620,9 +615,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
     </div>
   </div>
   <div class="app-topbar">
-    <div style="display:flex;align-items:center;gap:12px;">
-      <button onclick="goToLanding()" style="padding:5px 10px;border-radius:var(--rad);border:0.5px solid var(--br);background:transparent;font-size:12px;cursor:pointer;color:var(--tx2);font-family:inherit;">← Inicio</button>
-      <div class="logo">
+    <div style="display:flex;align-items:center;">
+      <div class="logo" onclick="goToLanding()" style="cursor:pointer;" title="Volver al inicio">
         <img src="logo.png" onerror="this.style.display='none'" alt="SMB">
         <div class="logo-name">STOCKMARKET<span>BRO</span></div>
       </div>
@@ -1330,31 +1324,20 @@ function showLoggedInTopbar(user,name){
     <button class="nav-link" onclick="goToModuleOrLogin('simulador')">Simulador</button>
     <button class="nav-link" onclick="goTo('#features-section')">Funciones</button>
     <button class="nav-link" onclick="goTo('#modules-section')">Módulos</button>
-    <button class="btn-login" onclick="goToDashboard()" style="background:var(--g);color:#fff;border-color:var(--g);">Ir al dashboard</button>
-    <button class="btn-login" onclick="doSignOut()" style="margin-left:5px;">Cerrar sesión</button>
+    <button class="btn-login" onclick="goToDashboard()" style="background:var(--g);color:#fff;border-color:var(--g);">Dashboard</button>
+    <button class="btn-login" onclick="doSignOut()">Cerrar sesión</button>
   `;
 }
 
 function showDashboardBtn(){
-  // Show floating button to go to dashboard
-  let fb=document.getElementById('float-dashboard-btn');
-  if(!fb){
-    fb=document.createElement('div');
-    fb.id='float-dashboard-btn';
-    fb.style.cssText='position:fixed;bottom:24px;right:24px;z-index:500;';
-    fb.innerHTML='<button onclick="goToDashboard()" style="padding:12px 20px;border-radius:999px;border:none;background:var(--g);color:#fff;font-size:13px;font-weight:600;cursor:pointer;box-shadow:0 4px 16px rgba(29,158,117,0.4);font-family:inherit;display:flex;align-items:center;gap:8px;">📊 Ir al dashboard</button>';
-    document.body.appendChild(fb);
-  }
-  fb.style.display='block';
+  // Floating dashboard button removed per user request
 }
 
 function showLanding(){
   document.getElementById('landing').style.display='block';
   document.getElementById('app-ui').style.display='none';
   document.getElementById('app-ui').classList.remove('show');
-  // Hide dashboard floating button when logged out
-  const fb=document.getElementById('float-dashboard-btn');
-  if(fb)fb.style.display='none';
+
 }
 
 // onAuthStateChanged — espera el primer estado real de Firebase
@@ -1569,9 +1552,7 @@ if(liveRowEl)liveRowEl.innerHTML=liveRows.map(r=>{const c=r.u?'var(--g)':'var(--
 function count(el,target,pre,suf,ms){let v=0,s=target/50;const iv=setInterval(()=>{v=Math.min(v+s,target);el.textContent=pre+Math.floor(v)+suf;if(v>=target)clearInterval(iv);},ms/50);}
 setTimeout(()=>{
   const hs1=document.getElementById('hs1');
-  const hs2=document.getElementById('hs2');
   if(hs1)count(hs1,50,'+','',900);
-  if(hs2)hs2.textContent='📈';
 },400);
 
 // ═══ APP TABS ═══
