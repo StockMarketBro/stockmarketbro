@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- SMB v9.3 -->
+<!-- SMB v9.4 -->
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -373,8 +373,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
       <button class="nav-link" onclick="goToModuleOrLogin('educacion')">Educación</button>
       <button class="nav-link" onclick="goToModuleOrLogin('simulador')">Simulador</button>
       <button class="nav-link" onclick="goToModuleOrLogin('calculadora')">Impuestos</button>
-    <button class="nav-link" onclick="goToModuleOrLogin('hipotecario')">Hipotecario</button>
-    <button class="nav-link" onclick="goToModuleOrLogin('plazos')">Plazos Fijos</button>
       <button class="nav-link" onclick="goToModuleOrLogin('hipotecario')">Hipotecario</button>
       <button class="nav-link" onclick="goToModuleOrLogin('plazos')">Plazos Fijos</button>
     </div>
@@ -403,11 +401,19 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
       .modules-carousel{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;}
       .module-card{background:var(--bg);border:0.5px solid var(--br);border-radius:20px;padding:28px;cursor:pointer;position:relative;overflow:hidden;transition:transform .2s,border-color .2s,box-shadow .2s;display:flex;flex-direction:column;}
       .module-card:hover{transform:translateY(-4px);}
+      .module-card-title{font-size:18px;font-weight:800;color:var(--tx);letter-spacing:-.02em;margin-bottom:7px;line-height:1.2;}
       @media(max-width:700px){
-        .modules-carousel{display:flex;flex-direction:row;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;padding-bottom:12px;scrollbar-width:none;}
+        .modules-carousel{display:flex;flex-direction:row;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;padding-bottom:14px;scrollbar-width:none;cursor:grab;}
         .modules-carousel::-webkit-scrollbar{display:none;}
-        .module-card{min-width:72vw;max-width:280px;flex-shrink:0;scroll-snap-align:start;padding:22px;}
+        .modules-carousel.dragging{cursor:grabbing;}
+        .module-card{min-width:75vw;max-width:260px;flex-shrink:0;scroll-snap-align:start;padding:20px;}
+        .module-card-title{font-size:16px;}
       }
+      /* Carousel dots */
+      .carousel-dots{display:none;justify-content:center;gap:6px;margin-top:12px;}
+      .carousel-dot{width:6px;height:6px;border-radius:50%;background:var(--br2);transition:background .2s,width .2s;}
+      .carousel-dot.active{background:var(--g);width:18px;border-radius:3px;}
+      @media(max-width:700px){.carousel-dots{display:flex;}}
       </style>
       <div class="modules-carousel">
 
@@ -418,7 +424,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
             <span style="font-size:14px;">📈</span>
             <span style="font-size:10px;font-weight:700;color:var(--gd);text-transform:uppercase;letter-spacing:.08em;">Mercado</span>
           </div>
-          <div style="font-size:18px;font-weight:800;color:var(--tx);letter-spacing:-.02em;margin-bottom:7px;line-height:1.2;">Mercados en<br>tiempo real</div>
+          <div class="module-card-title">Mercados en<br>tiempo real</div>
           <div style="font-size:12px;color:var(--tx2);line-height:1.6;margin-bottom:14px;flex:1;">Gráficos TradingView, heatmap S&P 500, criptomonedas y cotizaciones en vivo.</div>
           <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:16px;">
             <span style="font-size:10px;padding:2px 8px;background:var(--bg2);border-radius:999px;color:var(--tx2);">TradingView</span>
@@ -435,7 +441,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
             <span style="font-size:14px;">💹</span>
             <span style="font-size:10px;font-weight:700;color:#185FA5;text-transform:uppercase;letter-spacing:.08em;">Simulador</span>
           </div>
-          <div style="font-size:18px;font-weight:800;color:var(--tx);letter-spacing:-.02em;margin-bottom:7px;line-height:1.2;">Opera sin<br>riesgo real</div>
+          <div class="module-card-title">Opera sin<br>riesgo real</div>
           <div style="font-size:12px;color:var(--tx2);line-height:1.6;margin-bottom:14px;flex:1;">$10,000 ficticios con precios reales. Acciones, BTC, ETH por cantidad o USD.</div>
           <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:16px;">
             <span style="font-size:10px;padding:2px 8px;background:var(--bg2);border-radius:999px;color:var(--tx2);">BTC · ETH</span>
@@ -451,7 +457,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
             <span style="font-size:14px;">🎓</span>
             <span style="font-size:10px;font-weight:700;color:var(--ad);text-transform:uppercase;letter-spacing:.08em;">Educación</span>
           </div>
-          <div style="font-size:18px;font-weight:800;color:var(--tx);letter-spacing:-.02em;margin-bottom:7px;line-height:1.2;">Curso Código<br>BOLSA</div>
+          <div class="module-card-title">Curso Código<br>BOLSA</div>
           <div style="font-size:12px;color:var(--tx2);line-height:1.6;margin-bottom:14px;flex:1;">Videos exclusivos del equipo SMB + lecciones desde básico hasta avanzado.</div>
           <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:16px;">
             <span style="font-size:10px;padding:2px 8px;background:var(--bg2);border-radius:999px;color:var(--tx2);">Video Sesión 1</span>
@@ -467,7 +473,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
             <span style="font-size:14px;">🧮</span>
             <span style="font-size:10px;font-weight:700;color:var(--pd);text-transform:uppercase;letter-spacing:.08em;">Impuestos</span>
           </div>
-          <div style="font-size:18px;font-weight:800;color:var(--tx);letter-spacing:-.02em;margin-bottom:7px;line-height:1.2;">Calculadora<br>SUNAT</div>
+          <div class="module-card-title">Calculadora<br>SUNAT</div>
           <div style="font-size:12px;color:var(--tx2);line-height:1.6;margin-bottom:14px;flex:1;">BVL/MILA (5%), broker extranjero (8–30%) y otros ingresos. UIT por año.</div>
           <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:16px;">
             <span style="font-size:10px;padding:2px 8px;background:var(--bg2);border-radius:999px;color:var(--tx2);">BVL · MILA</span>
@@ -483,7 +489,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
             <span style="font-size:14px;">🏠</span>
             <span style="font-size:10px;font-weight:700;color:#0e7490;text-transform:uppercase;letter-spacing:.08em;">Hipotecario</span>
           </div>
-          <div style="font-size:18px;font-weight:800;color:var(--tx);letter-spacing:-.02em;margin-bottom:7px;line-height:1.2;">Calculadora<br>hipotecaria</div>
+          <div class="module-card-title">Calculadora<br>hipotecaria</div>
           <div style="font-size:12px;color:var(--tx2);line-height:1.6;margin-bottom:14px;flex:1;">Cuota mensual, cuotas dobles julio/diciembre y tabla de amortización completa.</div>
           <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:16px;">
             <span style="font-size:10px;padding:2px 8px;background:var(--bg2);border-radius:999px;color:var(--tx2);">Cuotas dobles</span>
@@ -499,7 +505,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
             <span style="font-size:14px;">💰</span>
             <span style="font-size:10px;font-weight:700;color:#b45309;text-transform:uppercase;letter-spacing:.08em;">Plazos Fijos</span>
           </div>
-          <div style="font-size:18px;font-weight:800;color:var(--tx);letter-spacing:-.02em;margin-bottom:7px;line-height:1.2;">Tasas depósito<br>Perú 2026</div>
+          <div class="module-card-title">Tasas depósito<br>Perú 2026</div>
           <div style="font-size:12px;color:var(--tx2);line-height:1.6;margin-bottom:14px;flex:1;">27 entidades: bancos, cajas municipales, rurales y financieras. Hasta 6.5% TEA.</div>
           <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:16px;">
             <span style="font-size:10px;padding:2px 8px;background:var(--bg2);border-radius:999px;color:var(--tx2);">Fuente: SBS</span>
@@ -509,6 +515,58 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
         </div>
 
       </div>
+      <!-- Carousel dots -->
+      <div class="carousel-dots" id="carousel-dots">
+        <div class="carousel-dot active"></div>
+        <div class="carousel-dot"></div>
+        <div class="carousel-dot"></div>
+        <div class="carousel-dot"></div>
+        <div class="carousel-dot"></div>
+        <div class="carousel-dot"></div>
+      </div>
+      <script>
+      (function(){
+        const carousel = document.querySelector('.modules-carousel');
+        const dots = document.querySelectorAll('.carousel-dot');
+        if(!carousel) return;
+        let autoTimer, currentIdx = 0, total = 6, paused = false;
+
+        function scrollToCard(idx){
+          currentIdx = (idx + total) % total;
+          const card = carousel.children[currentIdx];
+          if(card) carousel.scrollTo({left: card.offsetLeft - 16, behavior:'smooth'});
+          dots.forEach((d,i)=>d.classList.toggle('active', i===currentIdx));
+        }
+
+        function nextCard(){ scrollToCard(currentIdx + 1); }
+
+        function startAuto(){
+          clearInterval(autoTimer);
+          autoTimer = setInterval(()=>{ if(!paused) nextCard(); }, 3000);
+        }
+
+        // Update dot on manual scroll
+        carousel.addEventListener('scroll', ()=>{
+          const cardW = carousel.children[0]?.offsetWidth || 260;
+          const idx = Math.round(carousel.scrollLeft / (cardW + 12));
+          if(idx !== currentIdx){
+            currentIdx = idx;
+            dots.forEach((d,i)=>d.classList.toggle('active', i===currentIdx));
+          }
+        });
+
+        // Pause on touch
+        carousel.addEventListener('touchstart', ()=>{ paused=true; clearInterval(autoTimer); }, {passive:true});
+        carousel.addEventListener('touchend', ()=>{ paused=false; setTimeout(startAuto, 2000); }, {passive:true});
+
+        // Only run on mobile
+        function init(){
+          if(window.innerWidth <= 700) startAuto();
+        }
+        window.addEventListener('resize', ()=>{ clearInterval(autoTimer); init(); });
+        init();
+      })();
+      </script>
     </div>
   </div>
 
