@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- SMB v7.8 -->
+<!-- SMB v7.9 -->
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -1267,7 +1267,7 @@ function showLoggedInTopbar(user,name){
 function restoreTopbarActions(){
   const actions=document.getElementById('topbar-actions');
   if(actions){
-    actions.innerHTML='<button class="btn-login" onclick="openModal('login')">Iniciar sesión</button><button class="btn-signup" onclick="openModal('register')" style="margin-left:8px;">Comenzar gratis</button>';
+    actions.innerHTML='<button class="btn-login" onclick="openModal(&quot;login&quot;)">Iniciar sesión</button><button class="btn-signup" onclick="openModal(&quot;register&quot;)" style="margin-left:8px;">Comenzar gratis</button>';
   }
 }
 
