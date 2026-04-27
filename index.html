@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- SMB v8.6 -->
+<!-- SMB v8.7 -->
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -1609,62 +1609,76 @@ function goToModuleOrLogin(tab){
 }
 
 // ═══ TICKER — precios en tiempo real ═══
+// Solo acciones y cripto válidas en Finnhub gratuito
 const TICKER_SYMBOLS = [
-  {sym:'FOREXCOM:SPXUSD', label:'S&P 500', fmt:'idx'},
-  {sym:'FOREXCOM:NSXUSD', label:'NASDAQ',  fmt:'idx'},
-  {sym:'TVC:DJI',         label:'Dow Jones',fmt:'idx'},
-  {sym:'AAPL',            label:'AAPL',    fmt:'usd'},
-  {sym:'MSFT',            label:'MSFT',    fmt:'usd'},
-  {sym:'NVDA',            label:'NVDA',    fmt:'usd'},
-  {sym:'TSLA',            label:'TSLA',    fmt:'usd'},
-  {sym:'META',            label:'META',    fmt:'usd'},
-  {sym:'AMZN',            label:'AMZN',    fmt:'usd'},
-  {sym:'GOOGL',           label:'GOOGL',   fmt:'usd'},
-  {sym:'BINANCE:BTCUSDT', label:'BTC',     fmt:'crypto'},
-  {sym:'BINANCE:ETHUSDT', label:'ETH',     fmt:'crypto'},
-  {sym:'OANDA:EURUSD_CFD',label:'EUR/USD', fmt:'fx'},
-  {sym:'TVC:GOLD',        label:'ORO',     fmt:'usd'},
+  {sym:'AAPL',            label:'AAPL',     fmt:'usd'},
+  {sym:'MSFT',            label:'MSFT',     fmt:'usd'},
+  {sym:'NVDA',            label:'NVDA',     fmt:'usd'},
+  {sym:'TSLA',            label:'TSLA',     fmt:'usd'},
+  {sym:'META',            label:'META',     fmt:'usd'},
+  {sym:'AMZN',            label:'AMZN',     fmt:'usd'},
+  {sym:'GOOGL',           label:'GOOGL',    fmt:'usd'},
+  {sym:'BINANCE:BTCUSDT', label:'BTC',      fmt:'crypto'},
+  {sym:'BINANCE:ETHUSDT', label:'ETH',      fmt:'crypto'},
+  {sym:'BINANCE:SOLUSDT', label:'SOL',      fmt:'usd'},
+  {sym:'TVC:GOLD',        label:'ORO',      fmt:'usd'},
 ];
 
 function fmtTickerPrice(p, fmt){
-  if(!p) return '—';
-  if(fmt==='crypto') return '$'+p.toLocaleString('en-US',{maximumFractionDigits:0});
-  if(fmt==='idx')    return p.toLocaleString('en-US',{maximumFractionDigits:0});
-  if(fmt==='fx')     return p.toFixed(4);
+  if(!p||p<=0) return '—';
+  if(fmt==='crypto') return '$'+p.toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:0});
   return '$'+p.toFixed(2);
 }
 
 function renderTicker(data){
   const tickerEl=document.getElementById('ticker-inner');
   if(!tickerEl)return;
-  const items = data.map(t=>{
+  const valid = data.filter(t=>t.c>0);
+  if(!valid.length)return;
+  const items = valid.map(t=>{
     const up = t.dp >= 0;
     const sign = up ? '+' : '';
-    return `<div class="tick-item"><span class="tick-sym">${t.label}</span><span>${fmtTickerPrice(t.c, t.fmt)}</span><span class="${up?'up':'dn'}">${sign}${t.dp?.toFixed(2)||'0.00'}%</span></div>`;
+    const dp = t.dp!=null ? t.dp.toFixed(2) : '0.00';
+    return `<div class="tick-item"><span class="tick-sym">${t.label}</span><span>${fmtTickerPrice(t.c,t.fmt)}</span><span class="${up?'up':'dn'}">${sign}${dp}%</span></div>`;
   });
-  const doubled = [...items, ...items];
-  tickerEl.innerHTML = doubled.join('');
+  // Duplicate for seamless loop
+  tickerEl.innerHTML = [...items,...items].join('');
 }
+
+// Render static placeholder immediately so ticker isn't blank
+(function initTickerPlaceholder(){
+  const tickerEl=document.getElementById('ticker-inner');
+  if(!tickerEl)return;
+  const placeholder = TICKER_SYMBOLS.map(t=>
+    `<div class="tick-item"><span class="tick-sym">${t.label}</span><span>—</span><span>—%</span></div>`
+  );
+  tickerEl.innerHTML=[...placeholder,...placeholder].join('');
+})();
 
 async function loadTickerPrices(){
-  const results = [];
+  const results=[];
   for(const s of TICKER_SYMBOLS){
     try{
-      const fsym = s.sym.includes(':') ? s.sym : s.sym;
-      const r = await fetch(`https://finnhub.io/api/v1/quote?symbol=${fsym}&token=${FK}`);
-      if(r.status===429){await new Promise(res=>setTimeout(res,1500));continue;}
-      const d = await r.json();
-      if(d&&d.c>0) results.push({...s, c:d.c, dp:d.dp||0});
-      else results.push({...s, c:0, dp:0});
-    }catch(e){ results.push({...s, c:0, dp:0}); }
-    await new Promise(res=>setTimeout(res,120)); // avoid rate limit
+      const r=await fetch(`https://finnhub.io/api/v1/quote?symbol=${s.sym}&token=${FK}`);
+      if(r.status===429){
+        // Rate limited — wait 2s and skip this one
+        await new Promise(res=>setTimeout(res,2000));
+        results.push({...s,c:0,dp:0});
+        continue;
+      }
+      if(!r.ok){results.push({...s,c:0,dp:0});continue;}
+      const d=await r.json();
+      results.push({...s, c:d?.c||0, dp:d?.dp||0});
+    }catch(e){results.push({...s,c:0,dp:0});}
+    // 400ms between calls = ~2.5 calls/sec, well within free limit
+    await new Promise(res=>setTimeout(res,400));
   }
-  if(results.length) renderTicker(results);
+  renderTicker(results);
 }
 
-// Load on start and refresh every 2 minutes
-loadTickerPrices();
-setInterval(loadTickerPrices, 120000);
+// Delay initial load by 3s to avoid collision with other API calls on page load
+setTimeout(loadTickerPrices, 3000);
+setInterval(loadTickerPrices, 180000); // refresh every 3 min
 
 // ═══ LIVE PRICES (landing) ═══
 const liveRows=[{sym:'AAPL',name:'Apple',p:'$189.30',d:'+2.10%',u:true,b:[4,5,6,5,7,8,9]},{sym:'MSFT',name:'Microsoft',p:'$412.70',d:'+1.40%',u:true,b:[5,4,6,7,6,8,9]},{sym:'TSLA',name:'Tesla',p:'$172.40',d:'-3.20%',u:false,b:[9,8,6,7,5,4,3]},{sym:'NVDA',name:'NVIDIA',p:'$880.00',d:'+4.50%',u:true,b:[3,5,6,5,7,9,10]},{sym:'BTC',name:'Bitcoin',p:'$70,421',d:'+2.87%',u:true,b:[4,6,5,8,7,9,10]}];
