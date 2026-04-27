@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- SMB v7.9 -->
+<!-- SMB v8.0 -->
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -488,6 +488,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
     <div class="mini-disclaimer">
       <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="rgba(239,159,39,0.6)" stroke-width="1.2"/><path d="M8 5v4M8 10.5v.5" stroke="rgba(239,159,39,0.8)" stroke-width="1.4" stroke-linecap="round"/></svg>
       <div class="mini-disclaimer-text"><strong>Aviso importante:</strong> El contenido de StockMarketBro es exclusivamente con fines educativos e informativos. No constituye asesoramiento financiero, ni recomendación de compra o venta de ningún instrumento financiero.</div>
+      <button onclick="document.getElementById('risk-modal').style.display='flex'" style="flex-shrink:0;background:transparent;border:none;color:rgba(239,159,39,0.9);font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap;padding:0 4px;text-decoration:underline;text-underline-offset:2px;">Ver aviso de riesgo</button>
     </div>
     <div class="footer">
       <div class="footer-inner">
@@ -1985,7 +1986,35 @@ function switchHeatmap(source, btn){
   if(!container) return;
   const cfg = HEATMAP_CONFIGS[source] || HEATMAP_CONFIGS.spx;
   // Use srcdoc iframe to properly execute the TradingView script
-  const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><style>*{margin:0;padding:0;box-sizing:border-box;}body{overflow:hidden;}</style></head><body><div class="tradingview-widget-container" style="height:500px;"><div class="tradingview-widget-container__widget" style="height:100%;"></div><script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-stock-heatmap.js" async>${JSON.stringify(cfg)}<\/script></div></body></html>`;
+  const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><style>*{margin:0;padding:0;box-sizing:border-box;}body{overflow:hidden;}</style></head><body><div class="tradingview-widget-container" style="height:500px;"><div class="tradingview-widget-container__widget" style="height:100%;"></div><script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-stock-heatmap.js" async>${JSON.stringify(cfg)}<\/script></div>
+<!-- MODAL AVISO DE RIESGO -->
+<div id="risk-modal" onclick="if(event.target===this)this.style.display='none'" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:2000;align-items:center;justify-content:center;padding:20px;">
+  <div style="background:var(--bg);border-radius:16px;max-width:620px;width:100%;max-height:85vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 24px 64px rgba(0,0,0,0.3);">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 24px;border-bottom:0.5px solid var(--br);">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <svg width="18" height="18" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="rgba(239,159,39,0.9)" stroke-width="1.2"/><path d="M8 5v4M8 10.5v.5" stroke="rgba(239,159,39,0.9)" stroke-width="1.4" stroke-linecap="round"/></svg>
+        <div style="font-size:14px;font-weight:700;color:var(--tx);">Aviso legal y de riesgo — Leer antes de operar</div>
+      </div>
+      <button onclick="document.getElementById('risk-modal').style.display='none'" style="background:var(--bg2);border:0.5px solid var(--br);border-radius:8px;width:28px;height:28px;cursor:pointer;font-size:14px;color:var(--tx2);display:flex;align-items:center;justify-content:center;">✕</button>
+    </div>
+    <div style="padding:24px;overflow-y:auto;font-size:13px;color:var(--tx2);line-height:1.75;">
+      <p><strong style="color:var(--tx);">Fines exclusivamente educativos.</strong> Todo el contenido publicado en StockMarketBro — incluyendo análisis técnicos, análisis fundamentales, análisis macroeconómicos, señales, alertas, gráficos, simulaciones y cualquier otra información — tiene carácter <strong>estrictamente educativo e informativo</strong>. No constituye, bajo ninguna circunstancia, asesoramiento financiero, recomendación de inversión, ni sugerencia de compra o venta de ningún instrumento financiero, valor, acción, criptomoneda, divisa, materia prima u otro activo.</p>
+      <br>
+      <p><strong style="color:var(--tx);">No somos asesores financieros.</strong> Las opiniones expresadas en esta plataforma representan análisis técnicos, fundamentales y macroeconómicos de carácter personal y educativo. <strong>No estamos registrados como asesores de inversión</strong> ante ninguna autoridad regulatoria. Toda decisión de inversión que el usuario tome es de su exclusiva responsabilidad.</p>
+      <br>
+      <p><strong style="color:var(--tx);">Riesgo de pérdida.</strong> Invertir en mercados financieros implica un riesgo significativo de pérdida, incluyendo la pérdida total del capital invertido. El rendimiento pasado no garantiza resultados futuros. Antes de tomar cualquier decisión de inversión, le recomendamos consultar con un asesor financiero certificado y regulado en su jurisdicción.</p>
+      <br>
+      <p><strong style="color:var(--tx);">Simulación.</strong> El simulador de trading utiliza dinero ficticio con fines de práctica educativa. Los resultados obtenidos en la simulación no reflejan ni garantizan resultados reales en mercados financieros reales.</p>
+      <br>
+      <p style="color:var(--tx2);">Al acceder y utilizar StockMarketBro, el usuario reconoce haber leído, comprendido y aceptado este aviso legal en su totalidad.</p>
+    </div>
+    <div style="padding:16px 24px;border-top:0.5px solid var(--br);display:flex;justify-content:flex-end;">
+      <button onclick="document.getElementById('risk-modal').style.display='none'" style="padding:9px 22px;border-radius:8px;border:0.5px solid var(--br);background:var(--bg2);font-size:13px;font-weight:500;color:var(--tx);cursor:pointer;font-family:inherit;">Entendido</button>
+    </div>
+  </div>
+</div>
+
+</body></html>`;
   container.innerHTML = '<iframe srcdoc="' + html.replace(/"/g,'&quot;') + '" style="width:100%;height:500px;border:none;" scrolling="no" allowtransparency="true"></iframe>';
 }
 
@@ -2543,5 +2572,33 @@ function lCalcOtros(){
 
 function showToast(m){const t=document.getElementById('toast');t.textContent=m;t.style.display='block';setTimeout(()=>t.style.display='none',3500);}
 </script>
+
+<!-- MODAL AVISO DE RIESGO -->
+<div id="risk-modal" onclick="if(event.target===this)this.style.display='none'" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:2000;align-items:center;justify-content:center;padding:20px;">
+  <div style="background:var(--bg);border-radius:16px;max-width:620px;width:100%;max-height:85vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 24px 64px rgba(0,0,0,0.3);">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 24px;border-bottom:0.5px solid var(--br);">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <svg width="18" height="18" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="rgba(239,159,39,0.9)" stroke-width="1.2"/><path d="M8 5v4M8 10.5v.5" stroke="rgba(239,159,39,0.9)" stroke-width="1.4" stroke-linecap="round"/></svg>
+        <div style="font-size:14px;font-weight:700;color:var(--tx);">Aviso legal y de riesgo — Leer antes de operar</div>
+      </div>
+      <button onclick="document.getElementById('risk-modal').style.display='none'" style="background:var(--bg2);border:0.5px solid var(--br);border-radius:8px;width:28px;height:28px;cursor:pointer;font-size:14px;color:var(--tx2);display:flex;align-items:center;justify-content:center;">✕</button>
+    </div>
+    <div style="padding:24px;overflow-y:auto;font-size:13px;color:var(--tx2);line-height:1.75;">
+      <p><strong style="color:var(--tx);">Fines exclusivamente educativos.</strong> Todo el contenido publicado en StockMarketBro — incluyendo análisis técnicos, análisis fundamentales, análisis macroeconómicos, señales, alertas, gráficos, simulaciones y cualquier otra información — tiene carácter <strong>estrictamente educativo e informativo</strong>. No constituye, bajo ninguna circunstancia, asesoramiento financiero, recomendación de inversión, ni sugerencia de compra o venta de ningún instrumento financiero, valor, acción, criptomoneda, divisa, materia prima u otro activo.</p>
+      <br>
+      <p><strong style="color:var(--tx);">No somos asesores financieros.</strong> Las opiniones expresadas en esta plataforma representan análisis técnicos, fundamentales y macroeconómicos de carácter personal y educativo. <strong>No estamos registrados como asesores de inversión</strong> ante ninguna autoridad regulatoria. Toda decisión de inversión que el usuario tome es de su exclusiva responsabilidad.</p>
+      <br>
+      <p><strong style="color:var(--tx);">Riesgo de pérdida.</strong> Invertir en mercados financieros implica un riesgo significativo de pérdida, incluyendo la pérdida total del capital invertido. El rendimiento pasado no garantiza resultados futuros. Antes de tomar cualquier decisión de inversión, le recomendamos consultar con un asesor financiero certificado y regulado en su jurisdicción.</p>
+      <br>
+      <p><strong style="color:var(--tx);">Simulación.</strong> El simulador de trading utiliza dinero ficticio con fines de práctica educativa. Los resultados obtenidos en la simulación no reflejan ni garantizan resultados reales en mercados financieros reales.</p>
+      <br>
+      <p style="color:var(--tx2);">Al acceder y utilizar StockMarketBro, el usuario reconoce haber leído, comprendido y aceptado este aviso legal en su totalidad.</p>
+    </div>
+    <div style="padding:16px 24px;border-top:0.5px solid var(--br);display:flex;justify-content:flex-end;">
+      <button onclick="document.getElementById('risk-modal').style.display='none'" style="padding:9px 22px;border-radius:8px;border:0.5px solid var(--br);background:var(--bg2);font-size:13px;font-weight:500;color:var(--tx);cursor:pointer;font-family:inherit;">Entendido</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
