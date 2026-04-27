@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- SMB v7.7 -->
+<!-- SMB v7.8 -->
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -368,9 +368,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
       </div>
     </div>
     <div class="nav-links">
+      <button class="nav-link" onclick="goToModuleOrLogin('mercado')">Mercado</button>
+      <button class="nav-link" onclick="goToModuleOrLogin('senales')">Señales</button>
+      <button class="nav-link" onclick="goToModuleOrLogin('educacion')">Educación</button>
       <button class="nav-link" onclick="goToModuleOrLogin('simulador')">Simulador</button>
-      <button class="nav-link" onclick="goTo('#features-section')">Funciones</button>
-      <button class="nav-link" onclick="goTo('#modules-section')">Módulos</button>
+      <button class="nav-link" onclick="goToModuleOrLogin('calculadora')">Impuestos</button>
+    </div>
+    <div id="topbar-actions" style="display:flex;align-items:center;gap:8px;justify-content:flex-end;">
       <button class="btn-login" onclick="openModal('login')">Iniciar sesión</button>
       <button class="btn-signup" onclick="openModal('register')">Comenzar gratis</button>
     </div>
@@ -1253,12 +1257,17 @@ function showLoggedInTopbar(user,name){
     if(user.photoURL){av.innerHTML='<img src="'+user.photoURL+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">';}
     else{av.textContent=name.charAt(0).toUpperCase();}
   }
-  // Update right-side action buttons
-  const topbar=document.querySelector('.topbar');
-  if(!topbar)return;
-  const rightDiv=topbar.querySelector('div:last-child');
-  if(rightDiv){
-    rightDiv.innerHTML='<button class="btn-signup" onclick="goToDashboard()">Dashboard</button><button class="btn-login" onclick="doSignOut()" style="margin-left:8px;">Cerrar sesión</button>';
+  // Update right-side action buttons using ID
+  const actions=document.getElementById('topbar-actions');
+  if(actions){
+    actions.innerHTML='<button class="btn-signup" onclick="goToDashboard()">Dashboard</button><button class="btn-login" onclick="doSignOut()" style="margin-left:8px;">Cerrar sesión</button>';
+  }
+}
+
+function restoreTopbarActions(){
+  const actions=document.getElementById('topbar-actions');
+  if(actions){
+    actions.innerHTML='<button class="btn-login" onclick="openModal('login')">Iniciar sesión</button><button class="btn-signup" onclick="openModal('register')" style="margin-left:8px;">Comenzar gratis</button>';
   }
 }
 
@@ -1270,7 +1279,7 @@ function showLanding(){
   document.getElementById('landing').style.display='block';
   document.getElementById('app-ui').style.display='none';
   document.getElementById('app-ui').classList.remove('show');
-
+  restoreTopbarActions();
 }
 
 // onAuthStateChanged — espera el primer estado real de Firebase
