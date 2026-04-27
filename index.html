@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- SMB v8.8 -->
+<!-- SMB v8.9 -->
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -553,6 +553,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
       <button class="app-nav-btn" onclick="showAppTab('educacion')">Educación</button>
       <button class="app-nav-btn" onclick="showAppTab('simulador')">Simulador</button>
       <button class="app-nav-btn" onclick="showAppTab('calculadora')">🧮 Impuestos</button>
+      <button class="app-nav-btn" onclick="showAppTab('hipotecario')">🏠 Hipotecario</button>
       <button class="app-nav-btn" id="analytics-btn" onclick="showAppTab('analytics')" style="border:0.5px solid var(--br);display:none;">📊 Analytics</button>
       <button class="app-nav-btn" id="autor-btn" onclick="showAppTab('autor')" style="border:0.5px solid var(--br);display:none;">Panel autor</button>
     </div>
@@ -1172,6 +1173,101 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
     </div>
   </div>
 
+  <!-- HIPOTECARIO -->
+  <div id="tab-hipotecario" class="app-section-content">
+    <style>
+    .hip-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start;}
+    .hip-field{display:flex;flex-direction:column;gap:5px;margin-bottom:12px;}
+    .hip-field label{font-size:11px;font-weight:600;color:var(--tx2);text-transform:uppercase;letter-spacing:.06em;}
+    .hip-field .hint{font-size:11px;color:var(--tx2);opacity:.7;margin-top:-2px;}
+    .hip-inp{padding:9px 12px;border:0.5px solid var(--br);border-radius:var(--rad);font-size:13px;background:var(--bg2);color:var(--tx);font-family:inherit;outline:none;width:100%;box-sizing:border-box;transition:border-color .2s;}
+    .hip-inp:focus{border-color:var(--g);}
+    .hip-prefix-wrap{position:relative;}
+    .hip-prefix-wrap .prefix{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:12px;color:var(--tx2);pointer-events:none;}
+    .hip-prefix-wrap .suffix{position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:12px;color:var(--tx2);pointer-events:none;}
+    .hip-prefix-wrap input{padding-left:28px;}
+    .hip-prefix-wrap.suf input{padding-right:32px;}
+    .hip-toggle{display:flex;gap:0;border:0.5px solid var(--br);border-radius:var(--rad);overflow:hidden;}
+    .hip-toggle button{flex:1;padding:8px;border:none;background:var(--bg2);font-size:12px;font-family:inherit;cursor:pointer;transition:background .15s,color .15s;color:var(--tx2);}
+    .hip-toggle button.active{background:var(--g);color:#fff;font-weight:600;}
+    .hip-result-box{background:linear-gradient(135deg,#0a1a0d,#0f2a14);border-radius:var(--rad-xl);padding:24px;color:#fff;}
+    .hip-metric{background:rgba(255,255,255,0.07);border-radius:var(--rad-lg);padding:14px;text-align:center;margin-bottom:10px;}
+    .hip-metric .val{font-size:24px;font-weight:800;color:#fff;}
+    .hip-metric .lbl{font-size:10px;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:.06em;margin-top:4px;}
+    .hip-metric.accent .val{color:#1D9E75;}
+    .hip-metrics-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;}
+    .hip-table{width:100%;border-collapse:collapse;font-size:12px;}
+    .hip-table th{text-align:left;padding:7px 10px;background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.5);font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;}
+    .hip-table td{padding:7px 10px;border-top:0.5px solid rgba(255,255,255,0.07);color:rgba(255,255,255,0.75);}
+    .hip-table tr.double-month td{background:rgba(29,158,117,0.12);color:#7be3b0;}
+    .hip-table tr:last-child td{color:#fff;font-weight:600;border-top:1px solid rgba(255,255,255,0.2);}
+    @media(max-width:700px){.hip-grid{grid-template-columns:1fr;}.hip-metrics-grid{grid-template-columns:1fr 1fr;}}
+    </style>
+
+    <div style="font-size:17px;font-weight:700;letter-spacing:-.01em;margin-bottom:4px;">🏠 Calculadora hipotecaria</div>
+    <div style="font-size:12px;color:var(--tx2);margin-bottom:4px;">Simula tu cuota mensual, cuotas dobles y tabla de pagos anual</div>
+
+    <div class="hip-grid">
+      <!-- FORMULARIO -->
+      <div class="section-card">
+        <div class="hip-field">
+          <label>Valor total del inmueble</label>
+          <div class="hip-prefix-wrap">
+            <span class="prefix">S/</span>
+            <input class="hip-inp" type="number" id="hip-valor" placeholder="ej. 350,000" min="0" oninput="calcHip()">
+          </div>
+        </div>
+        <div class="hip-field">
+          <label>Cuota inicial (%)</label>
+          <div class="hip-prefix-wrap suf">
+            <input class="hip-inp" type="number" id="hip-cuota-pct" placeholder="ej. 20" min="0" max="100" step="0.1" oninput="calcHip()">
+            <span class="suffix">%</span>
+          </div>
+          <span class="hint" id="hip-cuota-hint">— Equivale a S/ 0</span>
+        </div>
+        <div class="hip-field">
+          <label>Tasa de interés anual (%)</label>
+          <div class="hip-prefix-wrap suf">
+            <input class="hip-inp" type="number" id="hip-tasa" placeholder="ej. 8.5" min="0" step="0.01" oninput="calcHip()">
+            <span class="suffix">%</span>
+          </div>
+          <span class="hint">Tasa efectiva anual (TEA)</span>
+        </div>
+        <div class="hip-field">
+          <label>Plazo</label>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <input class="hip-inp" type="number" id="hip-plazo" placeholder="ej. 20" min="1" oninput="calcHip()" style="flex:1;">
+            <div class="hip-toggle" style="flex:0;white-space:nowrap;">
+              <button class="active" id="hip-t-years" onclick="hipSetPlazo('years')">Años</button>
+              <button id="hip-t-months" onclick="hipSetPlazo('months')">Meses</button>
+            </div>
+          </div>
+        </div>
+        <div class="hip-field">
+          <label>Tipo de cuota</label>
+          <div class="hip-toggle">
+            <button class="active" id="hip-c-simple" onclick="hipSetCuota('simple')">Cuotas simples</button>
+            <button id="hip-c-double" onclick="hipSetCuota('double')">Cuotas dobles 🎁</button>
+          </div>
+          <span class="hint" id="hip-cuota-type-hint">Una cuota mensual fija durante todo el plazo</span>
+        </div>
+        <div style="background:var(--bl);border-radius:var(--rad);padding:10px 12px;font-size:11px;color:var(--tx2);line-height:1.6;margin-top:4px;">
+          💡 <strong style="color:var(--tx);">Cuotas dobles:</strong> En julio y diciembre pagas el doble de la cuota normal, como si fuera una mensualidad adicional. Esto reduce el capital más rápido y puede bajar el plazo real del préstamo.
+        </div>
+      </div>
+
+      <!-- RESULTADOS -->
+      <div>
+        <div id="hip-result">
+          <div style="text-align:center;padding:40px 20px;color:var(--tx2);">
+            <div style="font-size:32px;margin-bottom:10px;">🏠</div>
+            <div style="font-size:13px;">Ingresa los datos del préstamo para ver el cálculo</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- ANALYTICS -->
   <div id="tab-analytics" class="app-section-content">
     <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:4px;">
@@ -1281,6 +1377,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
               <span class="footer-link" onclick="showAppTab('educacion')" style="cursor:pointer;">Educación</span>
               <span class="footer-link" onclick="showAppTab('simulador')" style="cursor:pointer;">Simulador</span>
               <span class="footer-link" onclick="showAppTab('calculadora')" style="cursor:pointer;">Impuestos</span>
+              <span class="footer-link" onclick="showAppTab('hipotecario')" style="cursor:pointer;">Hipotecario</span>
             </div>
           </div>
           <div>
@@ -1697,7 +1794,7 @@ setTimeout(()=>{
 },400);
 
 // ═══ APP TABS ═══
-const APP_TABS=['mercado','senales','educacion','simulador','calculadora','analytics','autor'];
+const APP_TABS=['mercado','senales','educacion','simulador','calculadora','hipotecario','analytics','autor'];
 function showAppTab(t){
   APP_TABS.forEach(id=>{
     const el=document.getElementById('tab-'+id);
@@ -2784,6 +2881,143 @@ function lCalcOtros(){
   if(base===0){el.innerHTML='';return;}
   const {imp,det}=lCalcProgTax(base),{imp:impTrab}=lCalcProgTax(trabajo),impFE=imp-impTrab,tasaMedia=imp/base,limiteCred=totalFE*tasaMedia,credExt=Math.min(impExt,limiteCred),saldo=Math.max(0,imp-credExt);
   el.innerHTML=taxResultHTML([{label:'Total fuente ext.',value:taxFmt(totalFE)},{label:'Tasa media',value:taxPct(tasaMedia)},{label:'Impuesto a pagar',value:taxFmt(saldo),hi:true}],[{label:'Renta trabajo',value:taxFmt(trabajo)},...[alquiler>0?{label:'Alquileres',value:taxFmt(alquiler)}:null,intereses>0?{label:'Intereses',value:taxFmt(intereses)}:null,dividendos>0?{label:'Dividendos',value:taxFmt(dividendos)}:null,servicios>0?{label:'Servicios',value:taxFmt(servicios)}:null].filter(Boolean),{label:'Base total',value:taxFmt(base),cls:'total'},{label:'Impuesto progresivo',value:taxFmt(imp)},{label:'Impto. fuente ext.',value:taxFmt(impFE)},...(impExt>0?[{label:'Límite crédito',value:taxFmt(limiteCred)},{label:'Crédito aplicado',value:'– '+taxFmt(credExt),cls:'credit'}]:[]),{label:'Saldo a pagar',value:taxFmt(saldo),cls:'total'}],taxTramosHTML(det),`Formulario Virtual N° 709 · T/C compra del día · Art. 76° y 51° LIR`);
+}
+
+// ═══ CALCULADORA HIPOTECARIA ═══
+let hipPlazoMode = 'years';  // 'years' | 'months'
+let hipCuotaMode = 'simple'; // 'simple' | 'double'
+
+function hipSetPlazo(mode){
+  hipPlazoMode = mode;
+  document.getElementById('hip-t-years').classList.toggle('active', mode==='years');
+  document.getElementById('hip-t-months').classList.toggle('active', mode==='months');
+  calcHip();
+}
+function hipSetCuota(mode){
+  hipCuotaMode = mode;
+  document.getElementById('hip-c-simple').classList.toggle('active', mode==='simple');
+  document.getElementById('hip-c-double').classList.toggle('active', mode==='double');
+  const hint = document.getElementById('hip-cuota-type-hint');
+  if(hint) hint.textContent = mode==='simple'
+    ? 'Una cuota mensual fija durante todo el plazo'
+    : 'En julio y diciembre pagas el doble — reduce el plazo total';
+  calcHip();
+}
+function hipFmt(n){return'S/ '+Math.round(n).toLocaleString('es-PE');}
+function hipFmtD(n){return'S/ '+n.toLocaleString('es-PE',{minimumFractionDigits:2,maximumFractionDigits:2});}
+
+function calcHip(){
+  const valor = parseFloat(document.getElementById('hip-valor')?.value)||0;
+  const cuotaPct = parseFloat(document.getElementById('hip-cuota-pct')?.value)||0;
+  const tasaAnual = parseFloat(document.getElementById('hip-tasa')?.value)||0;
+  const plazoRaw = parseInt(document.getElementById('hip-plazo')?.value)||0;
+
+  // Update cuota hint
+  const cuotaHint = document.getElementById('hip-cuota-hint');
+  if(cuotaHint) cuotaHint.textContent = valor>0 && cuotaPct>0
+    ? `Equivale a ${hipFmt(valor*cuotaPct/100)}`
+    : '— Equivale a S/ 0';
+
+  const resEl = document.getElementById('hip-result');
+  if(!resEl) return;
+
+  if(!valor || !tasaAnual || !plazoRaw){
+    resEl.innerHTML='<div style="text-align:center;padding:40px 20px;color:var(--tx2);"><div style="font-size:32px;margin-bottom:10px;">🏠</div><div style="font-size:13px;">Ingresa los datos para ver el cálculo</div></div>';
+    return;
+  }
+
+  const cuotaInicial = valor * cuotaPct / 100;
+  const prestamo = valor - cuotaInicial;
+  const plazoMeses = hipPlazoMode==='years' ? plazoRaw*12 : plazoRaw;
+  const tasaMensual = Math.pow(1 + tasaAnual/100, 1/12) - 1;
+
+  // Cuota mensual base (sistema francés)
+  const cuotaMensual = prestamo * (tasaMensual * Math.pow(1+tasaMensual, plazoMeses)) / (Math.pow(1+tasaMensual, plazoMeses) - 1);
+
+  if(!isFinite(cuotaMensual)||cuotaMensual<=0){
+    resEl.innerHTML='<div style="padding:20px;text-align:center;color:var(--tx2);">Datos inválidos. Verifica la tasa y el plazo.</div>';
+    return;
+  }
+
+  // Amortización mes a mes
+  let saldo = prestamo;
+  let totalPagado = 0;
+  let totalIntereses = 0;
+  let totalCapital = 0;
+  let mesesReales = 0;
+  const cronograma = []; // por año
+
+  for(let mes=1; mes<=plazoMeses*2 && saldo>0.01; mes++){
+    const esMesDoble = hipCuotaMode==='double' && (mes%12===7 || mes%12===0);
+    const interesMes = saldo * tasaMensual;
+    const capitalMes = Math.min(cuotaMensual - interesMes, saldo);
+    const pagoBase = interesMes + capitalMes;
+    let pagoMes = esMesDoble ? pagoBase * 2 : pagoBase;
+    // Cap: no pagar más que el saldo restante
+    const capitalExtra = esMesDoble ? Math.min(capitalMes, saldo-capitalMes) : 0;
+    const pagoFinal = esMesDoble ? pagoBase + Math.min(pagoBase, saldo-capitalMes+interesMes) : pagoBase;
+    const capitalPagado = pagoFinal - interesMes - (esMesDoble?interesMes:0);
+    
+    // Simplified: for double months, extra payment goes to capital
+    const intFinal = interesMes * (esMesDoble ? 1.5 : 1); // approx
+    const capFinal = Math.min(pagoFinal - intFinal, saldo);
+    
+    saldo = Math.max(0, saldo - capFinal);
+    totalPagado += pagoFinal;
+    totalIntereses += intFinal;
+    totalCapital += capFinal;
+    mesesReales = mes;
+
+    // Group by year for table
+    const anio = Math.ceil(mes/12);
+    if(!cronograma[anio-1]) cronograma[anio-1]={anio,pagos:0,capital:0,intereses:0,saldoFinal:0,tieneDoble:false};
+    cronograma[anio-1].pagos += pagoFinal;
+    cronograma[anio-1].capital += capFinal;
+    cronograma[anio-1].intereses += intFinal;
+    cronograma[anio-1].saldoFinal = saldo;
+    if(esMesDoble) cronograma[anio-1].tieneDoble = true;
+
+    if(saldo<=0.01) break;
+  }
+
+  const plazoRealAnios = (mesesReales/12).toFixed(1);
+  const ahorroMeses = hipCuotaMode==='double' ? Math.max(0, plazoMeses - mesesReales) : 0;
+
+  // Render results
+  resEl.innerHTML=`
+    <div class="hip-result-box">
+      <div style="font-size:11px;font-weight:600;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:.08em;margin-bottom:16px;">Resumen del préstamo</div>
+      <div class="hip-metric" style="margin-bottom:16px;">
+        <div class="val" style="color:#1D9E75;font-size:28px;">${hipFmtD(cuotaMensual)}</div>
+        <div class="lbl">Cuota mensual base</div>
+      </div>
+      <div class="hip-metrics-grid">
+        <div class="hip-metric"><div class="val">${hipFmt(prestamo)}</div><div class="lbl">Monto del préstamo</div></div>
+        <div class="hip-metric"><div class="val">${hipFmt(cuotaInicial)}</div><div class="lbl">Cuota inicial (${cuotaPct}%)</div></div>
+        <div class="hip-metric"><div class="val">${hipFmt(totalIntereses)}</div><div class="lbl">Total intereses</div></div>
+        <div class="hip-metric"><div class="val">${hipFmt(totalPagado)}</div><div class="lbl">Total pagado</div></div>
+      </div>
+      ${hipCuotaMode==='double'?`
+      <div style="background:rgba(29,158,117,0.2);border:1px solid rgba(29,158,117,0.4);border-radius:var(--rad-lg);padding:12px;margin-bottom:16px;text-align:center;">
+        <div style="font-size:13px;font-weight:700;color:#7be3b0;">🎁 Ahorro con cuotas dobles</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.6);margin-top:4px;">Plazo real: <strong style="color:#fff;">${plazoRealAnios} años</strong> · Ahorras <strong style="color:#7be3b0;">${ahorroMeses} meses</strong></div>
+      </div>`:''}
+      <div style="font-size:11px;font-weight:600;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Tabla por año</div>
+      <div style="overflow-x:auto;max-height:320px;overflow-y:auto;">
+        <table class="hip-table">
+          <tr><th>Año</th><th>Cuota anual</th><th>Capital</th><th>Intereses</th><th>Saldo</th></tr>
+          ${cronograma.map((a,i)=>`<tr class="${a.tieneDoble?'double-month':''}">
+            <td>Año ${a.anio}${a.tieneDoble?' 🎁':''}</td>
+            <td>${hipFmt(a.pagos)}</td>
+            <td>${hipFmt(a.capital)}</td>
+            <td>${hipFmt(a.intereses)}</td>
+            <td>${a.saldoFinal>0?hipFmt(a.saldoFinal):'✓ Pagado'}</td>
+          </tr>`).join('')}
+          <tr><td colspan="2"><strong>TOTAL</strong></td><td>${hipFmt(totalCapital)}</td><td>${hipFmt(totalIntereses)}</td><td>${hipFmt(totalPagado)}</td></tr>
+        </table>
+      </div>
+      <div style="font-size:10px;color:rgba(255,255,255,0.25);margin-top:12px;line-height:1.6;">⚠️ Cálculo estimado con tasa fija y sistema francés (cuota constante). No incluye seguros, comisiones ni gastos notariales. Consulta con tu entidad financiera.</div>
+    </div>`;
 }
 
 function showToast(m){const t=document.getElementById('toast');t.textContent=m;t.style.display='block';setTimeout(()=>t.style.display='none',3500);}
