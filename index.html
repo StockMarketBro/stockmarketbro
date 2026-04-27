@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- SMB v8.4 -->
+<!-- SMB v8.5 -->
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -768,52 +768,67 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
   <!-- EDUCACIÓN -->
   <div id="tab-educacion" class="app-section-content">
 
-    <!-- CURSO CÓDIGO BOLSA -->
-    <div style="background:linear-gradient(135deg,#0a0a0a 0%,#1a1a2e 50%,#16213e 100%);border-radius:var(--rad-xl);overflow:hidden;position:relative;">
-      <div style="padding:20px 24px 16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
-        <div>
-          <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.1);padding:3px 10px;border-radius:999px;margin-bottom:10px;">
+    <!-- VIDEO + FLYER en 2 columnas -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start;">
+
+      <!-- VIDEO ACHICADO -->
+      <div style="background:linear-gradient(135deg,#0a0a0a 0%,#1a1a2e 50%,#16213e 100%);border-radius:var(--rad-xl);overflow:hidden;">
+        <div style="padding:16px 18px 12px;">
+          <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.1);padding:3px 10px;border-radius:999px;margin-bottom:8px;">
             <span style="width:6px;height:6px;border-radius:50%;background:#ff4444;display:inline-block;animation:pulse 1.5s infinite;"></span>
             <span style="font-size:10px;font-weight:600;color:rgba(255,255,255,0.8);text-transform:uppercase;letter-spacing:0.08em;">Curso exclusivo</span>
           </div>
-          <div style="font-size:22px;font-weight:800;color:#fff;letter-spacing:-0.02em;margin-bottom:4px;">
-            📈 CÓDIGO <span style="color:#1D9E75;">BOLSA</span>
+          <div style="font-size:18px;font-weight:800;color:#fff;letter-spacing:-0.02em;margin-bottom:3px;">📈 CÓDIGO <span style="color:#1D9E75;">BOLSA</span></div>
+          <div style="font-size:12px;color:rgba(255,255,255,0.5);">Sesión 1 — Introducción al mercado</div>
+        </div>
+        <div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;">
+          <iframe
+            src="https://www.youtube.com/embed/nSXTPARR5B0?rel=0&modestbranding=1&color=white"
+            style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;"
+            allowfullscreen
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture">
+          </iframe>
+        </div>
+        <div style="padding:10px 18px;display:flex;align-items:center;gap:12px;border-top:1px solid rgba(255,255,255,0.07);">
+          <span style="font-size:11px;color:rgba(255,255,255,0.4);">🎓 Principiante</span>
+          <span style="font-size:11px;color:rgba(255,255,255,0.4);">📡 StockMarketBro</span>
+        </div>
+      </div>
+
+      <!-- FLYER CURSO COMPLETO -->
+      <a href="https://hotmart.com/es/marketplace/productos/codigo-bolsa/S105462355W" target="_blank" rel="noopener"
+        style="display:block;text-decoration:none;background:linear-gradient(135deg,#0d1f0d 0%,#0a2a14 50%,#0d2010 100%);border-radius:var(--rad-xl);overflow:hidden;border:1px solid rgba(29,158,117,0.3);transition:transform .2s,border-color .2s;cursor:pointer;"
+        onmouseover="this.style.transform='translateY(-3px)';this.style.borderColor='rgba(29,158,117,0.7)'"
+        onmouseout="this.style.transform='';this.style.borderColor='rgba(29,158,117,0.3)'">
+        <div style="padding:24px 22px;">
+          <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(29,158,117,0.2);border:1px solid rgba(29,158,117,0.4);padding:4px 12px;border-radius:999px;margin-bottom:16px;">
+            <span style="font-size:12px;">🔥</span>
+            <span style="font-size:10px;font-weight:700;color:#1D9E75;text-transform:uppercase;letter-spacing:.1em;">Curso completo</span>
           </div>
-          <div style="font-size:13px;color:rgba(255,255,255,0.6);margin-bottom:12px;">Aprende a invertir desde cero · Por StockMarketBro</div>
-          <div style="display:inline-flex;align-items:center;gap:8px;background:rgba(29,158,117,0.2);border:1px solid rgba(29,158,117,0.4);padding:5px 12px;border-radius:999px;">
-            <span style="font-size:18px;">▶️</span>
-            <span style="font-size:13px;font-weight:600;color:#1D9E75;">Sesión 1 — Introducción al mercado</span>
+          <div style="font-size:26px;font-weight:900;color:#fff;letter-spacing:-.03em;line-height:1.1;margin-bottom:10px;">
+            Domina los<br>mercados<br><span style="color:#1D9E75;">financieros.</span>
+          </div>
+          <div style="font-size:12px;color:rgba(255,255,255,0.5);line-height:1.7;margin-bottom:20px;">
+            Aprende a invertir de forma inteligente con el curso Código BOLSA. Desde conceptos básicos hasta estrategias avanzadas de trading.
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px;">
+            <div style="display:flex;align-items:center;gap:8px;"><span style="color:#1D9E75;font-size:14px;">✓</span><span style="font-size:12px;color:rgba(255,255,255,0.65);">Análisis técnico y fundamental</span></div>
+            <div style="display:flex;align-items:center;gap:8px;"><span style="color:#1D9E75;font-size:14px;">✓</span><span style="font-size:12px;color:rgba(255,255,255,0.65);">Gestión del riesgo profesional</span></div>
+            <div style="display:flex;align-items:center;gap:8px;"><span style="color:#1D9E75;font-size:14px;">✓</span><span style="font-size:12px;color:rgba(255,255,255,0.65);">Estrategias de entrada y salida</span></div>
+            <div style="display:flex;align-items:center;gap:8px;"><span style="color:#1D9E75;font-size:14px;">✓</span><span style="font-size:12px;color:rgba(255,255,255,0.65);">Acceso de por vida al contenido</span></div>
+          </div>
+          <div style="background:#1D9E75;border-radius:999px;padding:12px 20px;text-align:center;">
+            <span style="font-size:13px;font-weight:700;color:#fff;">Inscribirme al curso →</span>
           </div>
         </div>
-        <div style="font-size:48px;opacity:0.15;position:absolute;right:24px;top:50%;transform:translateY(-50%);">📊</div>
-      </div>
-      <div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;">
-        <iframe
-          src="https://www.youtube.com/embed/nSXTPARR5B0?rel=0&modestbranding=1&color=white"
-          style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;"
-          allowfullscreen
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture">
-        </iframe>
-      </div>
-      <div style="padding:12px 24px;display:flex;align-items:center;gap:16px;border-top:1px solid rgba(255,255,255,0.07);">
-        <div style="display:flex;align-items:center;gap:6px;"><span style="font-size:14px;">🎓</span><span style="font-size:12px;color:rgba(255,255,255,0.5);">Nivel: Principiante</span></div>
-        <div style="display:flex;align-items:center;gap:6px;"><span style="font-size:14px;">⏱️</span><span style="font-size:12px;color:rgba(255,255,255,0.5);">Sesión 1 de N</span></div>
-        <div style="display:flex;align-items:center;gap:6px;"><span style="font-size:14px;">📡</span><span style="font-size:12px;color:rgba(255,255,255,0.5);">StockMarketBro</span></div>
-      </div>
+        <div style="padding:10px 22px;border-top:1px solid rgba(29,158,117,0.15);display:flex;align-items:center;gap:6px;">
+          <span style="font-size:11px;color:rgba(29,158,117,0.6);">🔒 Plataforma segura · Hotmart</span>
+        </div>
+      </a>
+
     </div>
 
-    <div style="font-size:13px;color:var(--tx2);">Haz clic en una lección para explorarla</div>
-    <div class="three-col">
-      <div class="feat-card" style="cursor:pointer;" onclick="openLesson('bolsa')"><div class="feat-icon" style="background:var(--gl);">📈</div><div class="feat-title">¿Qué es la bolsa?</div><div class="feat-desc">Conceptos básicos del mercado.</div><span style="display:inline-block;margin-top:6px;padding:2px 7px;border-radius:999px;font-size:10px;font-weight:500;background:var(--gl);color:var(--gd);">Básico</span></div>
-      <div class="feat-card" style="cursor:pointer;" onclick="openLesson('acciones')"><div class="feat-icon" style="background:var(--gl);">💹</div><div class="feat-title">Acciones y dividendos</div><div class="feat-desc">Cómo funcionan y cómo ganar.</div><span style="display:inline-block;margin-top:6px;padding:2px 7px;border-radius:999px;font-size:10px;font-weight:500;background:var(--gl);color:var(--gd);">Básico</span></div>
-      <div class="feat-card" style="cursor:pointer;" onclick="openLesson('etfs')"><div class="feat-icon" style="background:var(--gl);">🗂️</div><div class="feat-title">ETFs e índices</div><div class="feat-desc">Fondos cotizados y diversificación.</div><span style="display:inline-block;margin-top:6px;padding:2px 7px;border-radius:999px;font-size:10px;font-weight:500;background:var(--gl);color:var(--gd);">Básico</span></div>
-      <div class="feat-card" style="cursor:pointer;" onclick="openLesson('tecnico')"><div class="feat-icon" style="background:var(--al);">📊</div><div class="feat-title">Análisis técnico</div><div class="feat-desc">Gráficos, soportes y resistencias.</div><span style="display:inline-block;margin-top:6px;padding:2px 7px;border-radius:999px;font-size:10px;font-weight:500;background:var(--al);color:var(--ad);">Intermedio</span></div>
-      <div class="feat-card" style="cursor:pointer;" onclick="openLesson('fundamental')"><div class="feat-icon" style="background:var(--al);">🔍</div><div class="feat-title">Análisis fundamental</div><div class="feat-desc">P/E, ROE, deuda y balances.</div><span style="display:inline-block;margin-top:6px;padding:2px 7px;border-radius:999px;font-size:10px;font-weight:500;background:var(--al);color:var(--ad);">Intermedio</span></div>
-      <div class="feat-card" style="cursor:pointer;" onclick="openLesson('riesgo')"><div class="feat-icon" style="background:var(--al);">🛡️</div><div class="feat-title">Gestión del riesgo</div><div class="feat-desc">Stop-loss y reglas de capital.</div><span style="display:inline-block;margin-top:6px;padding:2px 7px;border-radius:999px;font-size:10px;font-weight:500;background:var(--al);color:var(--ad);">Intermedio</span></div>
-      <div class="feat-card" style="cursor:pointer;" onclick="openLesson('opciones')"><div class="feat-icon" style="background:var(--pl);">⚙️</div><div class="feat-title">Opciones financieras</div><div class="feat-desc">Calls, puts y derivados.</div><span style="display:inline-block;margin-top:6px;padding:2px 7px;border-radius:999px;font-size:10px;font-weight:500;background:var(--pl);color:var(--pd);">Avanzado</span></div>
-      <div class="feat-card" style="cursor:pointer;" onclick="openLesson('algo')"><div class="feat-icon" style="background:var(--pl);">🤖</div><div class="feat-title">Trading algorítmico</div><div class="feat-desc">Automatización y backtesting.</div><span style="display:inline-block;margin-top:6px;padding:2px 7px;border-radius:999px;font-size:10px;font-weight:500;background:var(--pl);color:var(--pd);">Avanzado</span></div>
-      <div class="feat-card" style="cursor:pointer;" onclick="openLesson('forex')"><div class="feat-icon" style="background:var(--pl);">💱</div><div class="feat-title">Forex y divisas</div><div class="feat-desc">Pares de divisas y apalancamiento.</div><span style="display:inline-block;margin-top:6px;padding:2px 7px;border-radius:999px;font-size:10px;font-weight:500;background:var(--pl);color:var(--pd);">Avanzado</span></div>
-    </div>
+    <!-- LESSON MODAL -->
     <div id="lesson-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:500;align-items:center;justify-content:center;padding:20px;">
       <div style="background:var(--bg);border-radius:var(--rad-xl);max-width:580px;width:100%;max-height:80vh;overflow-y:auto;padding:22px;position:relative;">
         <button onclick="closeLesson()" style="position:absolute;top:12px;right:12px;border:none;background:var(--bg2);border-radius:50%;width:26px;height:26px;cursor:pointer;font-size:13px;color:var(--tx2);">✕</button>
