@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- SMB v8.3 -->
+<!-- SMB v8.4 -->
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -637,37 +637,80 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 
   <!-- SEÑALES -->
   <div id="tab-senales" class="app-section-content">
-    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
-      <div><div style="font-size:15px;font-weight:600;">Centro de Alertas · StockMarketBro</div><div style="font-size:12px;color:var(--tx2);margin-top:2px;">Señales del autor + análisis técnico automático</div></div>
-      <button onclick="runScan()" id="scan-btn" style="padding:7px 14px;border-radius:var(--rad);border:0.5px solid var(--br);background:var(--bg);font-size:12px;cursor:pointer;font-family:inherit;">↻ Actualizar señales</button>
-    </div>
-    <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:9px;">
-      <div style="background:var(--bg2);border-radius:var(--rad);padding:11px;text-align:center;"><div style="font-size:20px;font-weight:700;" id="stat-total">—</div><div style="font-size:10px;color:var(--tx2);margin-top:2px;text-transform:uppercase;letter-spacing:.04em;">Analizadas</div></div>
-      <div style="background:var(--gl);border-radius:var(--rad);padding:11px;text-align:center;"><div style="font-size:20px;font-weight:700;color:var(--gd);" id="stat-buy">—</div><div style="font-size:10px;color:var(--gd);margin-top:2px;text-transform:uppercase;letter-spacing:.04em;">Compra</div></div>
-      <div style="background:var(--rl);border-radius:var(--rad);padding:11px;text-align:center;"><div style="font-size:20px;font-weight:700;color:var(--rd);" id="stat-sell">—</div><div style="font-size:10px;color:var(--rd);margin-top:2px;text-transform:uppercase;letter-spacing:.04em;">Venta</div></div>
-      <div style="background:var(--bg2);border-radius:var(--rad);padding:11px;text-align:center;"><div style="font-size:20px;font-weight:700;color:var(--rd);" id="stat-vh">—</div><div style="font-size:10px;color:var(--tx2);margin-top:2px;text-transform:uppercase;letter-spacing:.04em;">Nivel muy alta</div></div>
-      <div style="background:var(--bg2);border-radius:var(--rad);padding:11px;text-align:center;"><div style="font-size:20px;font-weight:700;color:var(--ad);" id="stat-h">—</div><div style="font-size:10px;color:var(--tx2);margin-top:2px;text-transform:uppercase;letter-spacing:.04em;">Nivel alta</div></div>
-      <div style="background:var(--bg2);border-radius:var(--rad);padding:11px;text-align:center;"><div style="font-size:13px;font-weight:600;" id="stat-upd">—</div><div style="font-size:10px;color:var(--tx2);margin-top:2px;text-transform:uppercase;letter-spacing:.04em;">Actualización</div></div>
-    </div>
-    <div class="progress-bar" id="scan-pb"><div class="progress-fill" id="scan-pf" style="width:0%"></div></div>
-    <div class="alerts-grid">
-      <div class="section-card">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:6px;">
-          <div class="section-card-title" style="margin:0;"><span class="live-dot"></span>Señales automáticas</div>
-          <div class="filter-tabs" id="auto-ftabs">
-            <button class="ftab active" onclick="filterAuto('all',this)">Todas</button>
-            <button class="ftab" onclick="filterAuto('buy',this)" style="background:var(--gl);color:var(--gd);border-color:var(--gl);">Compra</button>
-            <button class="ftab" onclick="filterAuto('sell',this)" style="background:var(--rl);color:var(--rd);border-color:var(--rl);">Venta</button>
-            <button class="ftab" onclick="filterAuto('very-high',this)">Muy alta</button>
-            <button class="ftab" onclick="filterAuto('high',this)">Alta</button>
-          </div>
-        </div>
-        <div id="auto-list"><div class="loading-state">Cargando análisis técnico...</div></div>
-        <div style="font-size:10px;color:var(--tx2);margin-top:8px;" id="auto-update"></div>
+
+    <!-- HEADER -->
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+      <div>
+        <div style="font-size:17px;font-weight:700;letter-spacing:-.01em;">Señales de inversión</div>
+        <div style="font-size:12px;color:var(--tx2);margin-top:3px;">Análisis técnico automático + señales del equipo SMB</div>
       </div>
+      <button onclick="runScan()" id="scan-btn" style="padding:8px 16px;border-radius:var(--rad);border:0.5px solid var(--br);background:var(--bg);font-size:12px;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:6px;"><span>↻</span> Actualizar análisis</button>
+    </div>
+
+    <!-- EXPLICACIÓN PARA PRINCIPIANTES -->
+    <div style="background:var(--bl);border-radius:var(--rad-lg);padding:14px 16px;border-left:3px solid var(--bd);display:flex;gap:12px;align-items:flex-start;">
+      <span style="font-size:18px;flex-shrink:0;">💡</span>
+      <div style="font-size:12px;color:var(--tx2);line-height:1.7;">
+        <strong style="color:var(--tx);">¿Cómo leer las señales?</strong> Cada señal indica si un activo muestra condiciones técnicas de <span style="color:var(--gd);font-weight:600;">compra</span> o <span style="color:var(--rd);font-weight:600;">venta</span> según indicadores como RSI, MACD y Stochastic RSI en múltiples temporalidades. <strong>Alta</strong> = señal en diario+semanal+mensual. <strong>Muy Alta</strong> = también en bimensual. <em>No son recomendaciones financieras — úsalas como referencia educativa.</em>
+      </div>
+    </div>
+
+    <!-- STATS ROW -->
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;">
+      <div style="background:var(--bg2);border-radius:var(--rad-lg);padding:12px;text-align:center;">
+        <div style="font-size:22px;font-weight:800;" id="stat-total">—</div>
+        <div style="font-size:10px;color:var(--tx2);margin-top:3px;text-transform:uppercase;letter-spacing:.05em;">Analizadas</div>
+      </div>
+      <div style="background:var(--gl);border-radius:var(--rad-lg);padding:12px;text-align:center;border:0.5px solid rgba(29,158,117,0.2);">
+        <div style="font-size:22px;font-weight:800;color:var(--gd);" id="stat-buy">—</div>
+        <div style="font-size:10px;color:var(--gd);margin-top:3px;text-transform:uppercase;letter-spacing:.05em;">🟢 Compra</div>
+      </div>
+      <div style="background:var(--rl);border-radius:var(--rad-lg);padding:12px;text-align:center;border:0.5px solid rgba(220,53,69,0.2);">
+        <div style="font-size:22px;font-weight:800;color:var(--rd);" id="stat-sell">—</div>
+        <div style="font-size:10px;color:var(--rd);margin-top:3px;text-transform:uppercase;letter-spacing:.05em;">🔴 Venta</div>
+      </div>
+      <div style="background:var(--bg2);border-radius:var(--rad-lg);padding:12px;text-align:center;">
+        <div style="font-size:22px;font-weight:800;color:var(--ad);" id="stat-h">—</div>
+        <div style="font-size:10px;color:var(--tx2);margin-top:3px;text-transform:uppercase;letter-spacing:.05em;">⚡ Alta</div>
+      </div>
+      <div style="background:var(--bg2);border-radius:var(--rad-lg);padding:12px;text-align:center;">
+        <div style="font-size:22px;font-weight:800;color:var(--rd);" id="stat-vh">—</div>
+        <div style="font-size:10px;color:var(--tx2);margin-top:3px;text-transform:uppercase;letter-spacing:.05em;">🔥 Muy Alta</div>
+      </div>
+    </div>
+
+    <!-- PROGRESS BAR -->
+    <div class="progress-bar" id="scan-pb"><div class="progress-fill" id="scan-pf" style="width:0%"></div></div>
+
+    <!-- SEÑALES AUTOMÁTICAS — full width -->
+    <div class="section-card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
+        <div>
+          <div style="font-size:13px;font-weight:700;display:flex;align-items:center;gap:6px;"><span class="live-dot"></span>Señales automáticas</div>
+          <div style="font-size:11px;color:var(--tx2);margin-top:2px;">Análisis técnico multi-temporalidad sobre 24 activos</div>
+        </div>
+        <div class="filter-tabs" id="auto-ftabs">
+          <button class="ftab active" onclick="filterAuto('all',this)">Todas</button>
+          <button class="ftab" onclick="filterAuto('buy',this)">🟢 Compra</button>
+          <button class="ftab" onclick="filterAuto('sell',this)">🔴 Venta</button>
+          <button class="ftab" onclick="filterAuto('very-high',this)">🔥 Muy Alta</button>
+          <button class="ftab" onclick="filterAuto('high',this)">⚡ Alta</button>
+        </div>
+      </div>
+      <div id="auto-list"><div class="loading-state">Cargando análisis técnico...</div></div>
+      <div style="font-size:10px;color:var(--tx2);margin-top:10px;" id="auto-update"></div>
+    </div>
+
+    <!-- SEÑALES DEL AUTOR + ALERTAS en grid -->
+    <div class="alerts-grid">
+
+      <!-- SEÑALES DEL AUTOR -->
       <div class="section-card">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:6px;">
-          <div class="section-card-title" style="margin:0;">Señales del autor</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
+          <div>
+            <div style="font-size:13px;font-weight:700;">📡 Señales del autor</div>
+            <div style="font-size:11px;color:var(--tx2);margin-top:2px;">Análisis manual del equipo SMB</div>
+          </div>
           <div class="filter-tabs" id="auth-ftabs">
             <button class="ftab active" onclick="filterAuthor('all',this)">Todas</button>
             <button class="ftab" onclick="filterAuthor('compra',this)">Compra</button>
@@ -677,17 +720,48 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
         </div>
         <div id="author-list"><div class="loading-state">Cargando señales...</div></div>
       </div>
-    </div>
-    <!-- MANUAL PRICE ALERTS -->
-    <div class="section-card">
-      <div class="section-card-title">Alertas de precio personalizadas</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:9px;align-items:end;margin-bottom:12px;">
-        <div><div style="font-size:11px;color:var(--tx2);margin-bottom:3px;">Símbolo</div><select id="al-sym" style="width:100%;padding:7px 9px;border:0.5px solid var(--br);border-radius:var(--rad);font-size:13px;background:var(--bg2);color:var(--tx);font-family:inherit;"><option value="AAPL">AAPL</option><option value="MSFT">MSFT</option><option value="TSLA">TSLA</option><option value="GOOGL">GOOGL</option><option value="NVDA">NVDA</option><option value="AMZN">AMZN</option><option value="META">META</option><option value="NFLX">NFLX</option></select></div>
-        <div><div style="font-size:11px;color:var(--tx2);margin-bottom:3px;">Condición</div><select id="al-type" style="width:100%;padding:7px 9px;border:0.5px solid var(--br);border-radius:var(--rad);font-size:13px;background:var(--bg2);color:var(--tx);font-family:inherit;"><option value="above">Sube encima de</option><option value="below">Cae debajo de</option></select></div>
-        <div><div style="font-size:11px;color:var(--tx2);margin-bottom:3px;">Precio ($)</div><input type="number" id="al-price" placeholder="ej. 200" style="width:100%;padding:7px 9px;border:0.5px solid var(--br);border-radius:var(--rad);font-size:13px;background:var(--bg2);color:var(--tx);outline:none;font-family:inherit;"></div>
-        <button onclick="addAlert()" style="padding:8px 14px;border-radius:var(--rad);border:none;background:var(--g);color:#fff;font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;white-space:nowrap;">+ Agregar</button>
+
+      <!-- ALERTAS DE PRECIO -->
+      <div class="section-card">
+        <div style="margin-bottom:14px;">
+          <div style="font-size:13px;font-weight:700;">🔔 Mis alertas de precio</div>
+          <div style="font-size:11px;color:var(--tx2);margin-top:2px;">Te avisamos cuando un activo llega a tu precio objetivo</div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+          <div>
+            <div style="font-size:11px;color:var(--tx2);margin-bottom:4px;">Activo</div>
+            <select id="al-sym" style="width:100%;padding:7px 9px;border:0.5px solid var(--br);border-radius:var(--rad);font-size:13px;background:var(--bg2);color:var(--tx);font-family:inherit;">
+              <option value="AAPL">AAPL · Apple</option>
+              <option value="MSFT">MSFT · Microsoft</option>
+              <option value="TSLA">TSLA · Tesla</option>
+              <option value="GOOGL">GOOGL · Alphabet</option>
+              <option value="NVDA">NVDA · NVIDIA</option>
+              <option value="AMZN">AMZN · Amazon</option>
+              <option value="META">META · Meta</option>
+              <option value="NFLX">NFLX · Netflix</option>
+              <option value="AMD">AMD · AMD</option>
+              <option value="COIN">COIN · Coinbase</option>
+            </select>
+          </div>
+          <div>
+            <div style="font-size:11px;color:var(--tx2);margin-bottom:4px;">Condición</div>
+            <select id="al-type" style="width:100%;padding:7px 9px;border:0.5px solid var(--br);border-radius:var(--rad);font-size:13px;background:var(--bg2);color:var(--tx);font-family:inherit;">
+              <option value="above">📈 Sube por encima de</option>
+              <option value="below">📉 Cae por debajo de</option>
+            </select>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;margin-bottom:12px;">
+          <div style="flex:1;">
+            <div style="font-size:11px;color:var(--tx2);margin-bottom:4px;">Precio objetivo (USD)</div>
+            <input type="number" id="al-price" placeholder="ej. 200.00" style="width:100%;padding:7px 9px;border:0.5px solid var(--br);border-radius:var(--rad);font-size:13px;background:var(--bg2);color:var(--tx);outline:none;font-family:inherit;box-sizing:border-box;">
+          </div>
+          <div style="display:flex;align-items:flex-end;">
+            <button onclick="addAlert()" style="padding:8px 16px;border-radius:var(--rad);border:none;background:var(--g);color:#fff;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap;">+ Crear alerta</button>
+          </div>
+        </div>
+        <div id="alerts-list"><div class="empty" style="font-size:12px;">Sin alertas configuradas. Crea una arriba 👆</div></div>
       </div>
-      <div id="alerts-list"><div class="empty">Sin alertas configuradas.</div></div>
     </div>
   </div>
 
@@ -1961,48 +2035,55 @@ async function runScan(){if(typeof WATCHLIST==='undefined')return;
   if(btn)btn.disabled=false;
 }
 function renderAutoSignals(){
-  const filtered=autoFilter==='all'?autoResults:autoResults.filter(r=>{
-    if(autoFilter==='buy') return r.dir==='buy'&&r.level!=='none';
-    if(autoFilter==='sell') return r.dir==='sell'&&r.level!=='none';
-    if(autoFilter==='very-high') return r.level==='very-high';
-    if(autoFilter==='high') return r.level==='high';
-    return true;
-  });
-  const order={'very-high':0,'high':1,'none':2};
-  filtered.sort((a,b)=>{
-    const lo=order[a.level]-order[b.level];
-    if(lo!==0)return lo;
-    if(a.dir==='buy'&&b.dir!=='buy')return -1;
-    if(a.dir!=='buy'&&b.dir==='buy')return 1;
-    return 0;
-  });
-  if(!filtered.length){document.getElementById('auto-list').innerHTML='<div class="empty">Sin señales activas.</div>';return;}
-  document.getElementById('auto-list').innerHTML='<div class="signal-list">'+filtered.map(r=>{
-    const stock=WATCHLIST.find(s=>s.sym===r.sym);const p=lp[r.sym];
-    const priceHtml=p?`<div style="text-align:right;"><div style="font-size:12px;font-weight:600;">$${p.c.toFixed(2)}</div><div style="font-size:11px;color:${p.dp>=0?'var(--gd)':'var(--rd)'};">${p.dp>=0?'+':''}${p.dp!=null?p.dp.toFixed(2):0}%</div></div>`:'';
-    const levelBadge=r.level==='very-high'
-      ?`<span class="level-badge level-very-high">Muy alta</span>`
-      :r.level==='high'
-      ?`<span class="level-badge level-high">Alta</span>`
-      :`<span class="level-badge level-none">—</span>`;
-    const dirBadge=r.dir==='buy'
-      ?`<span style="padding:3px 9px;border-radius:999px;font-size:11px;font-weight:700;background:var(--gl);color:var(--gd);margin-left:4px;">Compra</span>`
-      :r.dir==='sell'
-      ?`<span style="padding:3px 9px;border-radius:999px;font-size:11px;font-weight:700;background:var(--rl);color:var(--rd);margin-left:4px;">Venta</span>`
-      :'';
-    const cardBorder=r.level==='very-high'&&r.dir==='buy'?'border-left:3px solid var(--gd);background:rgba(225,245,238,0.3);'
-      :r.level==='very-high'&&r.dir==='sell'?'border-left:3px solid var(--rd);background:rgba(252,235,235,0.3);'
-      :r.level==='high'&&r.dir==='buy'?'border-left:3px solid var(--g);background:rgba(225,245,238,0.15);'
-      :r.level==='high'&&r.dir==='sell'?'border-left:3px solid var(--r);background:rgba(252,235,235,0.15);'
-      :'opacity:0.45;';
-    return`<div class="signal-card" style="${cardBorder}">
-      <div style="display:flex;align-items:center;gap:10px;">
-        <div><div style="font-size:13px;font-weight:700;">${r.sym}</div><div style="font-size:11px;color:var(--tx2);">${stock?.name||''}</div></div>
-        ${priceHtml}
+  const filtered = autoFilter==='all'
+    ? autoResults.filter(r=>r.level!=='none')
+    : autoResults.filter(r=>{
+        if(autoFilter==='buy') return r.dir==='buy'&&r.level!=='none';
+        if(autoFilter==='sell') return r.dir==='sell'&&r.level!=='none';
+        if(autoFilter==='very-high') return r.level==='very-high';
+        if(autoFilter==='high') return r.level==='high';
+        return r.level!=='none';
+      });
+
+  const el=document.getElementById('auto-list');
+  if(!el)return;
+  if(!filtered.length){
+    el.innerHTML='<div class="empty" style="padding:20px;text-align:center;font-size:13px;">Sin señales activas en este momento.<br><span style="color:var(--tx2);font-size:11px;">Los indicadores no muestran confluencia suficiente en ningún activo.</span></div>';
+    return;
+  }
+
+  el.innerHTML='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px;">'+filtered.map(r=>{
+    const isBuy=r.dir==='buy';
+    const isVH=r.level==='very-high';
+    const dirLabel = isBuy ? '🟢 Compra' : '🔴 Venta';
+    const levelLabel = isVH ? '🔥 Muy Alta' : '⚡ Alta';
+    const dirBg = isBuy
+      ? 'background:var(--gl);color:var(--gd);'
+      : 'background:var(--rl);color:var(--rd);';
+    const levelBg = isVH
+      ? 'background:var(--rl);color:var(--rd);'
+      : 'background:var(--al);color:var(--ad);';
+    const cardBorder = isBuy
+      ? 'border-left:3px solid var(--g);'
+      : 'border-left:3px solid var(--r);';
+    const priceNow=lp[r.sym]?.c;
+    const priceStr=priceNow?'$'+priceNow.toFixed(2):'';
+    return `<div class="signal-card" style="${cardBorder}flex-direction:column;align-items:flex-start;gap:8px;padding:14px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;width:100%;">
+        <div>
+          <div style="font-weight:700;font-size:14px;">${r.sym}</div>
+          <div style="font-size:11px;color:var(--tx2);">${r.name||''}</div>
+        </div>
+        ${priceStr?`<div style="font-size:13px;font-weight:600;">${priceStr}</div>`:''}
       </div>
-      <div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;">${levelBadge}${dirBadge}</div>
+      <div style="display:flex;gap:5px;flex-wrap:wrap;">
+        <span style="font-size:11px;font-weight:700;padding:4px 10px;border-radius:999px;${dirBg}">${dirLabel}</span>
+        <span style="font-size:11px;font-weight:600;padding:4px 10px;border-radius:999px;${levelBg}">${levelLabel}</span>
+      </div>
     </div>`;
-  }).join('')+'</div>';}
+  }).join('')+'</div>';
+}
+
 function filterAuto(f,btn){autoFilter=f;document.querySelectorAll('#auto-ftabs .ftab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderAutoSignals();}
 
 // ═══ AUTHOR SIGNALS ═══
