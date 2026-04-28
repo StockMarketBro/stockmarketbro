@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- SMB v9.5 -->
+<!-- SMB v9.6 -->
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -674,10 +674,33 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
   <div id="tab-mercado" class="app-section-content active">
 
     <!-- TICKER TAPE -->
-    <div style="border-radius:var(--rad-lg);overflow:hidden;border:0.5px solid var(--br);height:58px;">
-      <iframe srcdoc="<!DOCTYPE html><html><head><meta charset=&quot;UTF-8&quot;><style>*{margin:0;padding:0;box-sizing:border-box;}body{overflow:hidden;background:transparent;}</style></head><body><div class=&quot;tradingview-widget-container&quot; style=&quot;width:100%;height:100%;&quot;><div class=&quot;tradingview-widget-container__widget&quot; style=&quot;width:100%;height:100%;&quot;></div><script type=&quot;text/javascript&quot; src=&quot;https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js&quot; async>{&quot;symbols&quot;:[{&quot;proName&quot;:&quot;FOREXCOM:SPXUSD&quot;,&quot;title&quot;:&quot;S&P 500&quot;},{&quot;proName&quot;:&quot;FOREXCOM:NSXUSD&quot;,&quot;title&quot;:&quot;NASDAQ&quot;},{&quot;proName&quot;:&quot;TVC:DJI&quot;,&quot;title&quot;:&quot;Dow Jones&quot;},{&quot;proName&quot;:&quot;NASDAQ:AAPL&quot;,&quot;title&quot;:&quot;Apple&quot;},{&quot;proName&quot;:&quot;NASDAQ:MSFT&quot;,&quot;title&quot;:&quot;Microsoft&quot;},{&quot;proName&quot;:&quot;NASDAQ:NVDA&quot;,&quot;title&quot;:&quot;NVIDIA&quot;},{&quot;proName&quot;:&quot;NASDAQ:TSLA&quot;,&quot;title&quot;:&quot;Tesla&quot;},{&quot;proName&quot;:&quot;NASDAQ:META&quot;,&quot;title&quot;:&quot;Meta&quot;},{&quot;proName&quot;:&quot;BITSTAMP:BTCUSD&quot;,&quot;title&quot;:&quot;Bitcoin&quot;},{&quot;proName&quot;:&quot;BITSTAMP:ETHUSD&quot;,&quot;title&quot;:&quot;Ethereum&quot;},{&quot;proName&quot;:&quot;COINBASE:SOLUSD&quot;,&quot;title&quot;:&quot;Solana&quot;},{&quot;proName&quot;:&quot;TVC:GOLD&quot;,&quot;title&quot;:&quot;Oro&quot;}],&quot;showSymbolLogo&quot;:true,&quot;isTransparent&quot;:true,&quot;displayMode&quot;:&quot;adaptive&quot;,&quot;colorTheme&quot;:&quot;light&quot;,&quot;locale&quot;:&quot;es&quot;}</script></div></body></html>"
-        style="width:100%;height:58px;border:none;" scrolling="no" allowtransparency="true">
-      </iframe>
+    <div style="border-radius:var(--rad-lg);overflow:hidden;border:0.5px solid var(--br);">
+      <div class="tradingview-widget-container">
+        <div class="tradingview-widget-container__widget"></div>
+        <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
+        {
+          "symbols": [
+            {"proName": "FOREXCOM:SPXUSD", "title": "S&P 500"},
+            {"proName": "FOREXCOM:NSXUSD", "title": "NASDAQ"},
+            {"proName": "TVC:DJI", "title": "Dow Jones"},
+            {"proName": "NASDAQ:AAPL", "title": "Apple"},
+            {"proName": "NASDAQ:MSFT", "title": "Microsoft"},
+            {"proName": "NASDAQ:NVDA", "title": "NVIDIA"},
+            {"proName": "NASDAQ:TSLA", "title": "Tesla"},
+            {"proName": "NASDAQ:META", "title": "Meta"},
+            {"proName": "BITSTAMP:BTCUSD", "title": "Bitcoin"},
+            {"proName": "BITSTAMP:ETHUSD", "title": "Ethereum"},
+            {"proName": "COINBASE:SOLUSD", "title": "Solana"},
+            {"proName": "TVC:GOLD", "title": "Oro"}
+          ],
+          "showSymbolLogo": true,
+          "isTransparent": true,
+          "displayMode": "adaptive",
+          "colorTheme": "light",
+          "locale": "es"
+        }
+        </script>
+      </div>
     </div>
 
     <!-- GRÁFICO INTERACTIVO -->
@@ -710,15 +733,57 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
     <div class="two-col">
       <div class="section-card" style="padding:0;overflow:hidden;">
         <div style="padding:10px 14px;border-bottom:0.5px solid var(--br);font-size:12px;font-weight:600;">📈 Acciones e Índices</div>
-        <iframe srcdoc="<!DOCTYPE html><html><head><meta charset=&quot;UTF-8&quot;><style>*{margin:0;padding:0;box-sizing:border-box;}body{overflow:hidden;background:transparent;}</style></head><body><div class=&quot;tradingview-widget-container&quot; style=&quot;width:100%;height:100%;&quot;><div class=&quot;tradingview-widget-container__widget&quot; style=&quot;width:100%;height:100%;&quot;></div><script type=&quot;text/javascript&quot; src=&quot;https://s3.tradingview.com/external-embedding/embed-widget-market-quotes.js&quot; async>{&quot;symbols&quot;:[[&quot;Apple&quot;,&quot;NASDAQ:AAPL|1D&quot;],[&quot;Microsoft&quot;,&quot;NASDAQ:MSFT|1D&quot;],[&quot;NVIDIA&quot;,&quot;NASDAQ:NVDA|1D&quot;],[&quot;Tesla&quot;,&quot;NASDAQ:TSLA|1D&quot;],[&quot;Amazon&quot;,&quot;NASDAQ:AMZN|1D&quot;],[&quot;Meta&quot;,&quot;NASDAQ:META|1D&quot;],[&quot;Alphabet&quot;,&quot;NASDAQ:GOOGL|1D&quot;],[&quot;S&P 500&quot;,&quot;FOREXCOM:SPXUSD|1D&quot;],[&quot;Dow Jones&quot;,&quot;TVC:DJI|1D&quot;],[&quot;Oro&quot;,&quot;TVC:GOLD|1D&quot;]],&quot;showSymbolLogo&quot;:true,&quot;isTransparent&quot;:true,&quot;colorTheme&quot;:&quot;light&quot;,&quot;locale&quot;:&quot;es&quot;,&quot;width&quot;:&quot;100%&quot;,&quot;height&quot;:340}</script></div></body></html>"
-          style="width:100%;height:340px;border:none;" scrolling="no" allowtransparency="true">
-        </iframe>
+        <div class="tradingview-widget-container">
+          <div class="tradingview-widget-container__widget"></div>
+          <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-market-quotes.js" async>
+          {
+            "symbols": [
+              ["Apple", "NASDAQ:AAPL|1D"],
+              ["Microsoft", "NASDAQ:MSFT|1D"],
+              ["NVIDIA", "NASDAQ:NVDA|1D"],
+              ["Tesla", "NASDAQ:TSLA|1D"],
+              ["Amazon", "NASDAQ:AMZN|1D"],
+              ["Meta", "NASDAQ:META|1D"],
+              ["Alphabet", "NASDAQ:GOOGL|1D"],
+              ["S&P 500", "FOREXCOM:SPXUSD|1D"],
+              ["Dow Jones", "TVC:DJI|1D"],
+              ["Oro", "TVC:GOLD|1D"]
+            ],
+            "showSymbolLogo": true,
+            "isTransparent": true,
+            "colorTheme": "light",
+            "locale": "es",
+            "width": "100%",
+            "height": 340
+          }
+          </script>
+        </div>
       </div>
       <div class="section-card" style="padding:0;overflow:hidden;">
         <div style="padding:10px 14px;border-bottom:0.5px solid var(--br);font-size:12px;font-weight:600;">₿ Criptomonedas</div>
-        <iframe srcdoc="<!DOCTYPE html><html><head><meta charset=&quot;UTF-8&quot;><style>*{margin:0;padding:0;box-sizing:border-box;}body{overflow:hidden;background:transparent;}</style></head><body><div class=&quot;tradingview-widget-container&quot; style=&quot;width:100%;height:100%;&quot;><div class=&quot;tradingview-widget-container__widget&quot; style=&quot;width:100%;height:100%;&quot;></div><script type=&quot;text/javascript&quot; src=&quot;https://s3.tradingview.com/external-embedding/embed-widget-market-quotes.js&quot; async>{&quot;symbols&quot;:[[&quot;Bitcoin&quot;,&quot;BITSTAMP:BTCUSD|1D&quot;],[&quot;Ethereum&quot;,&quot;BITSTAMP:ETHUSD|1D&quot;],[&quot;Solana&quot;,&quot;COINBASE:SOLUSD|1D&quot;],[&quot;BNB&quot;,&quot;BINANCE:BNBUSD|1D&quot;],[&quot;XRP&quot;,&quot;BITSTAMP:XRPUSD|1D&quot;],[&quot;Cardano&quot;,&quot;COINBASE:ADAUSD|1D&quot;],[&quot;Dogecoin&quot;,&quot;BINANCE:DOGEUSDT|1D&quot;],[&quot;Avalanche&quot;,&quot;BINANCE:AVAXUSDT|1D&quot;]],&quot;showSymbolLogo&quot;:true,&quot;isTransparent&quot;:true,&quot;colorTheme&quot;:&quot;light&quot;,&quot;locale&quot;:&quot;es&quot;,&quot;width&quot;:&quot;100%&quot;,&quot;height&quot;:340}</script></div></body></html>"
-          style="width:100%;height:340px;border:none;" scrolling="no" allowtransparency="true">
-        </iframe>
+        <div class="tradingview-widget-container">
+          <div class="tradingview-widget-container__widget"></div>
+          <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-market-quotes.js" async>
+          {
+            "symbols": [
+              ["Bitcoin", "BITSTAMP:BTCUSD|1D"],
+              ["Ethereum", "BITSTAMP:ETHUSD|1D"],
+              ["Solana", "COINBASE:SOLUSD|1D"],
+              ["BNB", "BINANCE:BNBUSD|1D"],
+              ["XRP", "BITSTAMP:XRPUSD|1D"],
+              ["Cardano", "COINBASE:ADAUSD|1D"],
+              ["Dogecoin", "BINANCE:DOGEUSDT|1D"],
+              ["Avalanche", "BINANCE:AVAXUSDT|1D"]
+            ],
+            "showSymbolLogo": true,
+            "isTransparent": true,
+            "colorTheme": "light",
+            "locale": "es",
+            "width": "100%",
+            "height": 340
+          }
+          </script>
+        </div>
       </div>
     </div>
 
@@ -736,10 +801,27 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
         </div>
       </div>
       <div id="heatmap-container" style="height:520px;">
-        <iframe srcdoc="<!DOCTYPE html><html><head><meta charset=&quot;UTF-8&quot;><style>*{margin:0;padding:0;box-sizing:border-box;}body{overflow:hidden;background:transparent;}</style></head><body><div class=&quot;tradingview-widget-container&quot; style=&quot;width:100%;height:100%;&quot;><div class=&quot;tradingview-widget-container__widget&quot; style=&quot;width:100%;height:100%;&quot;></div><script type=&quot;text/javascript&quot; src=&quot;https://s3.tradingview.com/external-embedding/embed-widget-stock-heatmap.js&quot; async>{&quot;exchanges&quot;:[],&quot;dataSource&quot;:&quot;SPX500&quot;,&quot;grouping&quot;:&quot;sector&quot;,&quot;blockSize&quot;:&quot;market_cap_basic&quot;,&quot;blockColor&quot;:&quot;change&quot;,&quot;locale&quot;:&quot;es&quot;,&quot;colorTheme&quot;:&quot;light&quot;,&quot;hasTopBar&quot;:false,&quot;isDataSetEnabled&quot;:false,&quot;isZoomEnabled&quot;:true,&quot;hasSymbolTooltip&quot;:true,&quot;isMonoSize&quot;:false,&quot;width&quot;:&quot;100%&quot;,&quot;height&quot;:&quot;520&quot;}</script></div></body></html>"
-          id="heatmap-iframe"
-          style="width:100%;height:520px;border:none;" scrolling="no" allowtransparency="true">
-        </iframe>
+        <div class="tradingview-widget-container" style="height:100%;">
+          <div class="tradingview-widget-container__widget" style="height:100%;"></div>
+          <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-stock-heatmap.js" async>
+          {
+            "exchanges": [],
+            "dataSource": "SPX500",
+            "grouping": "sector",
+            "blockSize": "market_cap_basic",
+            "blockColor": "change",
+            "locale": "es",
+            "colorTheme": "light",
+            "hasTopBar": false,
+            "isDataSetEnabled": false,
+            "isZoomEnabled": true,
+            "hasSymbolTooltip": true,
+            "isMonoSize": false,
+            "width": "100%",
+            "height": "520"
+          }
+          </script>
+        </div>
       </div>
     </div>
   </div>
