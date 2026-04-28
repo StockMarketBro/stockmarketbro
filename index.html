@@ -2254,6 +2254,11 @@ function lCalcU(){const u=parseFloat(document.getElementById('l-qty-u').value)||
 function lSetU(v){document.getElementById('l-qty-u').value=v;lCalcU();}
 function fmtQ(q){return q<1?q.toFixed(6):q.toFixed(4);}
 async function lTrade(type){
+  if(typeof auth==='undefined'||!auth.currentUser){
+    showToast('Inicia sesión para operar en el simulador');
+    openModal('login');
+    return;
+  }
   if(!window.simSym){showToast('Selecciona una acción primero');return;}
   let price=lp[window.simSym]?.c;
   if(!price){await fetchP(window.simSym);price=lp[window.simSym]?.c;}
@@ -2285,12 +2290,7 @@ async function lTrade(type){
     showToast('✓ Vendiste '+fmtQ(qty)+' × '+window.simSym+' a $'+price.toFixed(2));
   }
   updateBothSimUIs();
-  if(typeof auth!=='undefined'&&auth.currentUser){
-    if(window.saveUserData)window.saveUserData();
-  } else {
-    // Guest mode — show save prompt after trade
-    showToast('Operación registrada · Inicia sesión para guardar tu portafolio');
-  }
+  if(window.saveUserData)window.saveUserData();
 }
 
 function updateBothSimUIs(){
