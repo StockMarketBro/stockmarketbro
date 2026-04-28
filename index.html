@@ -368,13 +368,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
       </div>
     </div>
     <div class="nav-links">
-      <button class="nav-link" onclick="goToModuleOrLogin('simulador')">Simulador</button>
-      <button class="nav-link" onclick="goToModuleOrLogin('calculadora')">Impuestos</button>
-      <button class="nav-link" onclick="goToModuleOrLogin('hipotecario')">Hipotecario</button>
-      <button class="nav-link" onclick="goToModuleOrLogin('educacion')">Educación</button>
-      <button class="nav-link" onclick="goToModuleOrLogin('mercado')">Mercado</button>
-      <button class="nav-link" onclick="goToModuleOrLogin('senales')">Señales</button>
-      <button class="nav-link" onclick="goToModuleOrLogin('plazos')">Plazos Fijos</button>
+      <button class="nav-link" onclick="goToModuleOrLogin('simulador')">💹 Simulador</button>
+      <button class="nav-link" onclick="goToModuleOrLogin('calculadora')">🧮 Impuestos</button>
+      <button class="nav-link" onclick="goToModuleOrLogin('hipotecario')">🏠 Hipotecario</button>
+      <button class="nav-link" onclick="goToModuleOrLogin('educacion')">🎓 Educación</button>
+      <button class="nav-link" onclick="goToModuleOrLogin('mercado')">📈 Mercado</button>
+      <button class="nav-link" onclick="goToModuleOrLogin('senales')">📡 Señales</button>
+      <button class="nav-link" onclick="goToModuleOrLogin('plazos')">💰 Plazos Fijos</button>
     </div>
     <div id="topbar-actions" style="display:flex;align-items:center;gap:8px;justify-content:flex-end;">
       <button class="btn-login" onclick="openModal('login')">Iniciar sesión</button>
@@ -409,30 +409,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
         .module-card{min-width:75vw;max-width:260px;flex-shrink:0;scroll-snap-align:start;padding:20px;}
         .module-card-title{font-size:16px;}
       }
-      /* Carousel dots */
       .carousel-dots{display:none;justify-content:center;gap:6px;margin-top:12px;}
       .carousel-dot{width:6px;height:6px;border-radius:50%;background:var(--br2);transition:background .2s,width .2s;}
       .carousel-dot.active{background:var(--g);width:18px;border-radius:3px;}
       @media(max-width:700px){.carousel-dots{display:flex;}}
       </style>
       <div class="modules-carousel">
-
-        <!-- MERCADO -->
-        <div class="module-card" onclick="goToModuleOrLogin('mercado')" onmouseover="this.style.borderColor='var(--g)';this.style.boxShadow='0 12px 32px rgba(29,158,117,0.12)'" onmouseout="this.style.borderColor='var(--br)';this.style.boxShadow=''">
-          <div style="position:absolute;right:-16px;bottom:-16px;font-size:80px;opacity:0.06;pointer-events:none;">📈</div>
-          <div style="display:inline-flex;align-items:center;gap:7px;background:var(--gl);padding:5px 11px;border-radius:999px;margin-bottom:16px;">
-            <span style="font-size:14px;">📈</span>
-            <span style="font-size:10px;font-weight:700;color:var(--gd);text-transform:uppercase;letter-spacing:.08em;">Mercado</span>
-          </div>
-          <div class="module-card-title">Mercados en<br>tiempo real</div>
-          <div style="font-size:12px;color:var(--tx2);line-height:1.6;margin-bottom:14px;flex:1;">Gráficos TradingView, heatmap S&P 500, criptomonedas y cotizaciones en vivo.</div>
-          <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:16px;">
-            <span style="font-size:10px;padding:2px 8px;background:var(--bg2);border-radius:999px;color:var(--tx2);">TradingView</span>
-            <span style="font-size:10px;padding:2px 8px;background:var(--bg2);border-radius:999px;color:var(--tx2);">Heatmap</span>
-            <span style="font-size:10px;padding:2px 8px;background:var(--bg2);border-radius:999px;color:var(--tx2);">Cripto</span>
-          </div>
-          <div style="display:flex;align-items:center;gap:5px;color:var(--g);font-size:12px;font-weight:600;">Ver mercados <span>→</span></div>
-        </div>
 
         <!-- SIMULADOR -->
         <div class="module-card" onclick="goToModuleOrLogin('simulador')" onmouseover="this.style.borderColor='#185FA5';this.style.boxShadow='0 12px 32px rgba(24,95,165,0.1)'" onmouseout="this.style.borderColor='var(--br)';this.style.boxShadow=''">
@@ -448,22 +430,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
             <span style="font-size:10px;padding:2px 8px;background:var(--bg2);border-radius:999px;color:var(--tx2);">Precios reales</span>
           </div>
           <div style="display:flex;align-items:center;gap:5px;color:#185FA5;font-size:12px;font-weight:600;">Ir al simulador <span>→</span></div>
-        </div>
-
-        <!-- EDUCACIÓN -->
-        <div class="module-card" onclick="goToModuleOrLogin('educacion')" onmouseover="this.style.borderColor='var(--ad)';this.style.boxShadow='0 12px 32px rgba(220,150,30,0.1)'" onmouseout="this.style.borderColor='var(--br)';this.style.boxShadow=''">
-          <div style="position:absolute;right:-16px;bottom:-16px;font-size:80px;opacity:0.06;pointer-events:none;">🎓</div>
-          <div style="display:inline-flex;align-items:center;gap:7px;background:var(--al);padding:5px 11px;border-radius:999px;margin-bottom:16px;">
-            <span style="font-size:14px;">🎓</span>
-            <span style="font-size:10px;font-weight:700;color:var(--ad);text-transform:uppercase;letter-spacing:.08em;">Educación</span>
-          </div>
-          <div class="module-card-title">Curso Código<br>BOLSA</div>
-          <div style="font-size:12px;color:var(--tx2);line-height:1.6;margin-bottom:14px;flex:1;">Videos exclusivos del equipo SMB + lecciones desde básico hasta avanzado.</div>
-          <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:16px;">
-            <span style="font-size:10px;padding:2px 8px;background:var(--bg2);border-radius:999px;color:var(--tx2);">Video Sesión 1</span>
-            <span style="font-size:10px;padding:2px 8px;background:var(--bg2);border-radius:999px;color:var(--tx2);">3 niveles</span>
-          </div>
-          <div style="display:flex;align-items:center;gap:5px;color:var(--ad);font-size:12px;font-weight:600;">Ver curso <span>→</span></div>
         </div>
 
         <!-- IMPUESTOS -->
@@ -496,6 +462,54 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
             <span style="font-size:10px;padding:2px 8px;background:var(--bg2);border-radius:999px;color:var(--tx2);">Tabla mensual</span>
           </div>
           <div style="display:flex;align-items:center;gap:5px;color:#0e7490;font-size:12px;font-weight:600;">Calcular préstamo <span>→</span></div>
+        </div>
+
+        <!-- EDUCACIÓN -->
+        <div class="module-card" onclick="goToModuleOrLogin('educacion')" onmouseover="this.style.borderColor='var(--ad)';this.style.boxShadow='0 12px 32px rgba(220,150,30,0.1)'" onmouseout="this.style.borderColor='var(--br)';this.style.boxShadow=''">
+          <div style="position:absolute;right:-16px;bottom:-16px;font-size:80px;opacity:0.06;pointer-events:none;">🎓</div>
+          <div style="display:inline-flex;align-items:center;gap:7px;background:var(--al);padding:5px 11px;border-radius:999px;margin-bottom:16px;">
+            <span style="font-size:14px;">🎓</span>
+            <span style="font-size:10px;font-weight:700;color:var(--ad);text-transform:uppercase;letter-spacing:.08em;">Educación</span>
+          </div>
+          <div class="module-card-title">Curso Código<br>BOLSA</div>
+          <div style="font-size:12px;color:var(--tx2);line-height:1.6;margin-bottom:14px;flex:1;">Videos exclusivos del equipo SMB + lecciones desde básico hasta avanzado.</div>
+          <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:16px;">
+            <span style="font-size:10px;padding:2px 8px;background:var(--bg2);border-radius:999px;color:var(--tx2);">Video Sesión 1</span>
+            <span style="font-size:10px;padding:2px 8px;background:var(--bg2);border-radius:999px;color:var(--tx2);">3 niveles</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:5px;color:var(--ad);font-size:12px;font-weight:600;">Ver curso <span>→</span></div>
+        </div>
+
+        <!-- MERCADO -->
+        <div class="module-card" onclick="goToModuleOrLogin('mercado')" onmouseover="this.style.borderColor='var(--g)';this.style.boxShadow='0 12px 32px rgba(29,158,117,0.12)'" onmouseout="this.style.borderColor='var(--br)';this.style.boxShadow=''">
+          <div style="position:absolute;right:-16px;bottom:-16px;font-size:80px;opacity:0.06;pointer-events:none;">📈</div>
+          <div style="display:inline-flex;align-items:center;gap:7px;background:var(--gl);padding:5px 11px;border-radius:999px;margin-bottom:16px;">
+            <span style="font-size:14px;">📈</span>
+            <span style="font-size:10px;font-weight:700;color:var(--gd);text-transform:uppercase;letter-spacing:.08em;">Mercado</span>
+          </div>
+          <div class="module-card-title">Mercados en<br>tiempo real</div>
+          <div style="font-size:12px;color:var(--tx2);line-height:1.6;margin-bottom:14px;flex:1;">Gráficos TradingView, heatmap S&P 500, criptomonedas y cotizaciones en vivo.</div>
+          <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:16px;">
+            <span style="font-size:10px;padding:2px 8px;background:var(--bg2);border-radius:999px;color:var(--tx2);">TradingView</span>
+            <span style="font-size:10px;padding:2px 8px;background:var(--bg2);border-radius:999px;color:var(--tx2);">Heatmap</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:5px;color:var(--g);font-size:12px;font-weight:600;">Ver mercados <span>→</span></div>
+        </div>
+
+        <!-- SEÑALES -->
+        <div class="module-card" onclick="goToModuleOrLogin('senales')" onmouseover="this.style.borderColor='#dc2626';this.style.boxShadow='0 12px 32px rgba(220,38,38,0.08)'" onmouseout="this.style.borderColor='var(--br)';this.style.boxShadow=''">
+          <div style="position:absolute;right:-16px;bottom:-16px;font-size:80px;opacity:0.06;pointer-events:none;">📡</div>
+          <div style="display:inline-flex;align-items:center;gap:7px;background:var(--rl);padding:5px 11px;border-radius:999px;margin-bottom:16px;">
+            <span style="font-size:14px;">📡</span>
+            <span style="font-size:10px;font-weight:700;color:var(--rd);text-transform:uppercase;letter-spacing:.08em;">Señales</span>
+          </div>
+          <div class="module-card-title">Señales de<br>inversión</div>
+          <div style="font-size:12px;color:var(--tx2);line-height:1.6;margin-bottom:14px;flex:1;">Análisis técnico automático + señales del equipo SMB. RSI, MACD, multi-temporalidad.</div>
+          <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:16px;">
+            <span style="font-size:10px;padding:2px 8px;background:var(--bg2);border-radius:999px;color:var(--tx2);">24 activos</span>
+            <span style="font-size:10px;padding:2px 8px;background:var(--bg2);border-radius:999px;color:var(--tx2);">Alertas precio</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:5px;color:var(--rd);font-size:12px;font-weight:600;">Ver señales <span>→</span></div>
         </div>
 
         <!-- PLAZOS FIJOS -->
