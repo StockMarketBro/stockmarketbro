@@ -1770,20 +1770,24 @@ function goToDashboard(){
   appui.style.display='flex';
   appui.classList.add('show');
   window.scrollTo(0,0);
-  // Show author-only buttons if author
+  // Update user menu if logged in
   if(typeof auth!=='undefined'&&auth.currentUser){
     const isAuthor=auth.currentUser.email===AUTHOR_EMAIL;
     const ab=document.getElementById('autor-btn');if(ab)ab.style.display=isAuthor?'block':'none';
     const anlb=document.getElementById('analytics-btn');if(anlb)anlb.style.display=isAuthor?'block':'none';
-    // Update user menu
     const name=auth.currentUser.displayName||auth.currentUser.email.split('@')[0];
     const un=document.getElementById('um-name');if(un)un.textContent=name;
     const ue=document.getElementById('um-email');if(ue)ue.textContent=auth.currentUser.email;
     const av=document.getElementById('user-avatar');
     if(av){if(auth.currentUser.photoURL){av.innerHTML='<img src="'+auth.currentUser.photoURL+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">';}else{av.textContent=name.charAt(0).toUpperCase();}}
+  } else {
+    // Guest — show guest avatar
+    const av=document.getElementById('user-avatar');
+    if(av){av.textContent='👤';av.style.fontSize='14px';}
+    const un=document.getElementById('um-name');if(un)un.textContent='Invitado';
+    const ue=document.getElementById('um-email');if(ue)ue.textContent='Sin sesión iniciada';
   }
   setTimeout(()=>{
-    try{showAppTab('mercado');}catch(e){}
     try{aRefreshPrices();}catch(e){}
     try{updateBothSimUIs();}catch(e){}
   },300);
@@ -2023,13 +2027,16 @@ function closeModal(){document.getElementById('modal-bg').classList.remove('open
 function switchM(tab){['login','register','reset'].forEach(t=>{document.getElementById('mf-'+t).style.display=t===tab?'block':'none';});document.getElementById('mt-login').classList.toggle('active',tab==='login');document.getElementById('mt-reg').classList.toggle('active',tab==='register');document.getElementById('merr').style.display='none';}
 function goTo(sel){document.querySelector(sel)?.scrollIntoView({behavior:'smooth'});}
 function goToModuleOrLogin(tab){
-  // If logged in go to dashboard module, else open login modal
-  if(typeof auth!=='undefined'&&auth.currentUser){
-    goToDashboard();
-    setTimeout(()=>showAppTab(tab),500);
-  }else{
-    openModal('register');
+  // Señales requires login
+  const requiresLogin = ['senales'];
+  if(requiresLogin.includes(tab) && (typeof auth==='undefined'||!auth.currentUser)){
+    showToast('Inicia sesión para acceder a Señales');
+    openModal('login');
+    return;
   }
+  // Go to dashboard (guest or logged in)
+  goToDashboard();
+  setTimeout(()=>showAppTab(tab),300);
 }
 
 // ═══ TICKER — precios en tiempo real ═══
@@ -2131,7 +2138,16 @@ function showAppTab(t){
   });
   try{if(t==='mercado'){initAppChart();setTimeout(()=>initHeatmap(),500);}}catch(e){}
   try{if(t==='simulador')aRefreshPrices();}catch(e){}
-  try{if(t==='senales'){if(window.fbLoadRecs)window.fbLoadRecs();const rd=document.getElementById('rec-dot');if(rd)rd.style.display='none';}}catch(e){}
+  try{if(t==='senales'){
+    if(typeof auth==='undefined'||!auth.currentUser){
+      showToast('Inicia sesión para ver las Señales');
+      setTimeout(()=>openModal('login'),400);
+      showAppTab('simulador');
+      return;
+    }
+    if(window.fbLoadRecs)window.fbLoadRecs();
+    const rd=document.getElementById('rec-dot');if(rd)rd.style.display='none';
+  }}catch(e){}
   try{if(t==='autor'&&window.fbLoadRecs)window.fbLoadRecs();}catch(e){}
   try{if(t==='analytics')loadAnalytics();}catch(e){}
   try{if(t==='plazos')pfRender();}catch(e){}
@@ -2269,7 +2285,12 @@ async function lTrade(type){
     showToast('✓ Vendiste '+fmtQ(qty)+' × '+window.simSym+' a $'+price.toFixed(2));
   }
   updateBothSimUIs();
-  if(window.saveUserData)window.saveUserData();
+  if(typeof auth!=='undefined'&&auth.currentUser){
+    if(window.saveUserData)window.saveUserData();
+  } else {
+    // Guest mode — show save prompt after trade
+    showToast('Operación registrada · Inicia sesión para guardar tu portafolio');
+  }
 }
 
 function updateBothSimUIs(){
