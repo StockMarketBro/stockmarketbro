@@ -173,7 +173,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .app-ui{display:none;flex-direction:column;min-height:100vh;}
 .app-ui.show{display:flex;}
 .app-topbar{display:flex;align-items:center;justify-content:space-between;padding:10px 20px;border-bottom:0.5px solid var(--br);background:var(--bg);position:sticky;top:0;z-index:100;flex-wrap:wrap;gap:8px;}
-.app-nav{display:flex;gap:2px;flex-wrap:wrap;}
+.app-nav{display:flex;gap:2px;flex-wrap:wrap;justify-content:flex-start;}@media(max-width:700px){.app-nav{justify-content:center;}.app-nav-btn{font-size:11px;padding:5px 8px;}}
 .app-nav-btn{padding:5px 10px;border-radius:var(--rad);border:none;background:transparent;cursor:pointer;font-size:12px;color:var(--tx2);font-family:inherit;}
 .app-nav-btn:hover{background:var(--bg2);}
 .app-nav-btn.active{background:var(--bg2);color:var(--tx);font-weight:500;}
@@ -368,12 +368,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
       </div>
     </div>
     <div class="nav-links">
-      <button class="nav-link" onclick="goToModuleOrLogin('mercado')">Mercado</button>
-      <button class="nav-link" onclick="goToModuleOrLogin('senales')">Señales</button>
-      <button class="nav-link" onclick="goToModuleOrLogin('educacion')">Educación</button>
       <button class="nav-link" onclick="goToModuleOrLogin('simulador')">Simulador</button>
       <button class="nav-link" onclick="goToModuleOrLogin('calculadora')">Impuestos</button>
       <button class="nav-link" onclick="goToModuleOrLogin('hipotecario')">Hipotecario</button>
+      <button class="nav-link" onclick="goToModuleOrLogin('educacion')">Educación</button>
+      <button class="nav-link" onclick="goToModuleOrLogin('mercado')">Mercado</button>
+      <button class="nav-link" onclick="goToModuleOrLogin('senales')">Señales</button>
       <button class="nav-link" onclick="goToModuleOrLogin('plazos')">Plazos Fijos</button>
     </div>
     <div id="topbar-actions" style="display:flex;align-items:center;gap:8px;justify-content:flex-end;">
@@ -650,12 +650,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
       </div>
     </div>
     <div class="app-nav">
-      <button class="app-nav-btn active" onclick="showAppTab('mercado')">Mercado</button>
-      <button class="app-nav-btn" onclick="showAppTab('senales')">Señales <span class="notif-dot" id="rec-dot" style="display:none;"></span></button>
-      <button class="app-nav-btn" onclick="showAppTab('educacion')">Educación</button>
-      <button class="app-nav-btn" onclick="showAppTab('simulador')">Simulador</button>
+      <button class="app-nav-btn active" onclick="showAppTab('simulador')">💹 Simulador</button>
       <button class="app-nav-btn" onclick="showAppTab('calculadora')">🧮 Impuestos</button>
       <button class="app-nav-btn" onclick="showAppTab('hipotecario')">🏠 Hipotecario</button>
+      <button class="app-nav-btn" onclick="showAppTab('educacion')">🎓 Educación</button>
+      <button class="app-nav-btn" onclick="showAppTab('mercado')">📈 Mercado</button>
+      <button class="app-nav-btn" onclick="showAppTab('senales')">📡 Señales <span class="notif-dot" id="rec-dot" style="display:none;"></span></button>
       <button class="app-nav-btn" onclick="showAppTab('plazos')">💰 Plazos Fijos</button>
       <button class="app-nav-btn" id="analytics-btn" onclick="showAppTab('analytics')" style="border:0.5px solid var(--br);display:none;">📊 Analytics</button>
       <button class="app-nav-btn" id="autor-btn" onclick="showAppTab('autor')" style="border:0.5px solid var(--br);display:none;">Panel autor</button>
@@ -671,7 +671,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
   </div>
 
   <!-- MERCADO -->
-  <div id="tab-mercado" class="app-section-content active">
+  <div id="tab-mercado" class="app-section-content">
 
     <!-- TICKER TAPE -->
     <div style="border-radius:var(--rad-lg);overflow:hidden;border:0.5px solid var(--br);">
@@ -1017,7 +1017,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
   </div>
 
   <!-- SIMULADOR -->
-  <div id="tab-simulador" class="app-section-content">
+  <div id="tab-simulador" class="app-section-content active">
     <!-- BALANCE ROW -->
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;">
       <div class="section-card"><div class="sim-label-sm">Saldo disponible</div><div style="font-size:22px;font-weight:700;" id="a-bal">$10,000.00</div></div>
@@ -2087,7 +2087,7 @@ setTimeout(()=>{
 },400);
 
 // ═══ APP TABS ═══
-const APP_TABS=['mercado','senales','educacion','simulador','calculadora','hipotecario','plazos','analytics','autor'];
+const APP_TABS=['simulador','calculadora','hipotecario','educacion','mercado','senales','plazos','analytics','autor'];
 function showAppTab(t){
   APP_TABS.forEach(id=>{
     const el=document.getElementById('tab-'+id);
