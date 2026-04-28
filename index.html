@@ -1920,6 +1920,8 @@ window.saveUserData=async()=>{
   const user=auth.currentUser;if(!user)return;
   try{
     await db.collection('userdata').doc(user.uid).set({
+      email:user.email,
+      displayName:user.displayName||'',
       balance:window.simBalance,
       portfolio:window.simPortfolio,
       history:window.simHistory.slice(0,50),
@@ -1934,6 +1936,12 @@ window.saveUserData=async()=>{
 window.loadUserData=async()=>{
   const user=auth.currentUser;if(!user)return;
   try{
+    // Always persist email/name so analytics can show it
+    await db.collection('userdata').doc(user.uid).set({
+      email:user.email,
+      displayName:user.displayName||'',
+      lastLogin:Date.now()
+    },{merge:true});
     const snap=await db.collection('userdata').doc(user.uid).get();
     if(snap.exists){
       const d=snap.data();
@@ -3062,32 +3070,68 @@ function renderVisitsChart(data){
   }).join('');
 }
 
+// Store users globally for download
+let _anlUsers = [];
+
 function renderUsersTable(users){
+  _anlUsers = users;
   const el=document.getElementById('anl-users-table');
   if(!el)return;
   if(!users.length){el.innerHTML='<div class="empty">Sin usuarios aún.</div>';return;}
-  // Sort by updatedAt desc
-  users.sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0));
-  el.innerHTML=`<table style="width:100%;border-collapse:collapse;font-size:12px;">
+  users.sort((a,b)=>(b.updatedAt||b.lastLogin||0)-(a.updatedAt||a.lastLogin||0));
+  el.innerHTML=`
+    <div style="display:flex;justify-content:flex-end;margin-bottom:8px;">
+      <button onclick="downloadUserData()" style="padding:6px 14px;border-radius:var(--rad);border:0.5px solid var(--g);background:var(--gl);color:var(--gd);font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:5px;">
+        ⬇ Descargar datos
+      </button>
+    </div>
+    <table style="width:100%;border-collapse:collapse;font-size:12px;">
     <thead><tr>
-      <th style="text-align:left;padding:5px 8px;color:var(--tx2);font-size:10px;font-weight:500;border-bottom:0.5px solid var(--br);text-transform:uppercase;">UID</th>
+      <th style="text-align:left;padding:5px 8px;color:var(--tx2);font-size:10px;font-weight:500;border-bottom:0.5px solid var(--br);text-transform:uppercase;">#</th>
+      <th style="text-align:left;padding:5px 8px;color:var(--tx2);font-size:10px;font-weight:500;border-bottom:0.5px solid var(--br);text-transform:uppercase;">Correo electrónico</th>
+      <th style="text-align:left;padding:5px 8px;color:var(--tx2);font-size:10px;font-weight:500;border-bottom:0.5px solid var(--br);text-transform:uppercase;">Nombre</th>
       <th style="text-align:left;padding:5px 8px;color:var(--tx2);font-size:10px;font-weight:500;border-bottom:0.5px solid var(--br);text-transform:uppercase;">Saldo</th>
       <th style="text-align:left;padding:5px 8px;color:var(--tx2);font-size:10px;font-weight:500;border-bottom:0.5px solid var(--br);text-transform:uppercase;">Posiciones</th>
       <th style="text-align:left;padding:5px 8px;color:var(--tx2);font-size:10px;font-weight:500;border-bottom:0.5px solid var(--br);text-transform:uppercase;">Última actividad</th>
     </tr></thead>
-    <tbody>${users.slice(0,20).map(u=>{
+    <tbody>${users.map((u,i)=>{
       const positions=u.portfolio?Object.keys(u.portfolio).length:0;
       const bal=typeof u.balance==='number'?'$'+u.balance.toFixed(2):'—';
-      const last=u.updatedAt?new Date(u.updatedAt).toLocaleDateString('es',{day:'2-digit',month:'short',year:'numeric'}):'—';
-      const uid=u.id.slice(0,12)+'...';
-      return`<tr>
-        <td style="padding:7px 8px;border-bottom:0.5px solid var(--br);font-family:monospace;font-size:11px;color:var(--tx2);">${uid}</td>
-        <td style="padding:7px 8px;border-bottom:0.5px solid var(--br);font-weight:500;">${bal}</td>
-        <td style="padding:7px 8px;border-bottom:0.5px solid var(--br);">${positions>0?positions+' activos':'Sin posiciones'}</td>
-        <td style="padding:7px 8px;border-bottom:0.5px solid var(--br);color:var(--tx2);">${last}</td>
-      </tr>`;
+      const ts=u.updatedAt||u.lastLogin||0;
+      const last=ts?new Date(ts).toLocaleDateString('es',{day:'2-digit',month:'short',year:'numeric'}):'—';
+      const email=u.email||'<span style="color:var(--tx2);font-style:italic;">Sin registro aún</span>';
+      const name=u.displayName||'—';
+      return\`<tr style="transition:background .1s;" onmouseover="this.style.background='var(--bg2)'" onmouseout="this.style.background=''">
+        <td style="padding:7px 8px;border-bottom:0.5px solid var(--br);color:var(--tx2);font-size:11px;">\${i+1}</td>
+        <td style="padding:7px 8px;border-bottom:0.5px solid var(--br);font-weight:500;">\${email}</td>
+        <td style="padding:7px 8px;border-bottom:0.5px solid var(--br);color:var(--tx2);">\${name}</td>
+        <td style="padding:7px 8px;border-bottom:0.5px solid var(--br);">\${bal}</td>
+        <td style="padding:7px 8px;border-bottom:0.5px solid var(--br);">\${positions>0?positions+' activos':'Sin posiciones'}</td>
+        <td style="padding:7px 8px;border-bottom:0.5px solid var(--br);color:var(--tx2);">\${last}</td>
+      </tr>\`;
     }).join('')}</tbody>
   </table>`;
+}
+
+function downloadUserData(){
+  if(!_anlUsers.length){showToast('Sin datos para descargar');return;}
+  const rows=[['#','Email','Nombre','UID','Saldo','Posiciones','Última actividad']];
+  _anlUsers.forEach((u,i)=>{
+    const positions=u.portfolio?Object.keys(u.portfolio).length:0;
+    const bal=typeof u.balance==='number'?u.balance.toFixed(2):'';
+    const ts=u.updatedAt||u.lastLogin||0;
+    const last=ts?new Date(ts).toLocaleDateString('es'):'';
+    rows.push([i+1, u.email||'', u.displayName||'', u.id, bal, positions, last]);
+  });
+  const csv=rows.map(r=>r.map(v=>\`"\${String(v).replace(/"/g,'""')}"\`).join(',')).join('\n');
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download='stockmarketbro_usuarios_'+new Date().toISOString().slice(0,10)+'.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('✓ CSV descargado');
 }
 
 function renderPortfolios(users){
