@@ -186,7 +186,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .app-ui{display:none;flex-direction:column;min-height:100vh;}
 .app-ui.show{display:flex;}
 .app-topbar{display:flex;align-items:center;justify-content:space-between;padding:10px 20px;border-bottom:0.5px solid var(--br);background:var(--bg);position:sticky;top:0;z-index:100;flex-wrap:wrap;gap:8px;}
-.app-nav{display:flex;gap:2px;flex-wrap:wrap;justify-content:flex-start;}@media(max-width:700px){.app-nav{justify-content:center;}.app-nav-btn{font-size:11px;padding:5px 8px;}}
+.app-nav{display:flex;gap:2px;flex-wrap:wrap;justify-content:flex-start;}@media(max-width:700px){.app-nav{justify-content:center;}.app-nav-btn{font-size:11px;padding:5px 8px;}#dash-signout-btn{display:block !important;}}
 .app-nav-btn{padding:5px 10px;border-radius:var(--rad);border:none;background:transparent;cursor:pointer;font-size:12px;color:var(--tx2);font-family:inherit;}
 .app-nav-btn:hover{background:var(--bg2);}
 .app-nav-btn.active{background:var(--bg2);color:var(--tx);font-weight:500;}
@@ -668,7 +668,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
       <button style="background:transparent;border:none;color:#fff;font-size:18px;cursor:pointer;" onclick="document.getElementById('install-banner').classList.remove('show')">✕</button>
     </div>
   </div>
-  <div class="app-topbar">
+  <div class="app-topbar" style="flex-wrap:wrap;">
     <div style="display:flex;align-items:center;">
       <div class="logo" onclick="goToLanding()" style="cursor:pointer;" title="Volver al inicio">
         <img src="logo.png" onerror="this.style.display='none'" alt="SMB">
@@ -686,12 +686,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
       <button class="app-nav-btn" id="analytics-btn" onclick="showAppTab('analytics')" style="border:0.5px solid var(--br);display:none;">📊 Analytics</button>
       <button class="app-nav-btn" id="autor-btn" onclick="showAppTab('autor')" style="border:0.5px solid var(--br);display:none;">Panel autor</button>
     </div>
-    <div style="position:relative;">
-      <div class="user-avatar" id="user-avatar" onclick="toggleUM()">?</div>
-      <div class="user-menu" id="user-menu">
-        <div class="um-name" id="um-name">—</div>
-        <div class="um-email" id="um-email">—</div>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <div style="position:relative;">
+        <div class="user-avatar" id="user-avatar" onclick="toggleUM()" style="cursor:pointer;">?</div>
+        <div class="user-menu" id="user-menu">
+          <div class="um-name" id="um-name">—</div>
+          <div class="um-email" id="um-email">—</div>
+          <div class="um-item" onclick="doSignOut()">🚪 Cerrar sesión</div>
+        </div>
       </div>
+      <!-- Mobile signout — hidden on desktop -->
+      <button id="dash-signout-btn" onclick="doSignOut()" style="display:none;padding:5px 12px;border-radius:var(--rad);border:0.5px solid var(--br);background:transparent;font-size:11px;cursor:pointer;font-family:inherit;color:var(--tx2);">Cerrar sesión</button>
     </div>
   </div>
 
@@ -2132,7 +2137,7 @@ function showAppTab(t){
   try{if(t==='plazos')pfRender();}catch(e){}
 }
 function toggleUM(){const um=document.getElementById('user-menu');if(um)um.classList.toggle('open');}
-document.addEventListener('click',e=>{const um=document.getElementById('user-menu');if(um&&!e.target.closest('#user-avatar')&&!e.target.closest('#user-menu'))um.classList.remove('open');});
+
 
 // ═══ APP CHART ═══
 let chartInited=false;
@@ -3529,6 +3534,7 @@ function closeMobileNav(){
   const d=document.getElementById('mobile-nav-drawer');
   if(d){d.classList.remove('open');document.body.style.overflow='';}
 }
+document.addEventListener('click',e=>{const um=document.getElementById('user-menu');if(um&&!e.target.closest('#user-avatar')&&!e.target.closest('#user-menu'))um.classList.remove('open');});
 function showToast(m){const t=document.getElementById('toast');t.textContent=m;t.style.display='block';setTimeout(()=>t.style.display='none',3500);}
 </script>
 
