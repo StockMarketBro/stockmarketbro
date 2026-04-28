@@ -2396,6 +2396,11 @@ function aCalcS(){const q=parseFloat(document.getElementById('a-qty-s')?.value)|
 function aCalcU(){const u=parseFloat(document.getElementById('a-qty-u')?.value)||0;const p=aSym?lp[aSym]?.c:null;const fu=document.getElementById('a-tot-u');const ff=document.getElementById('a-frac');const fc=document.getElementById('a-calc-box');if(!p||!u){if(fu)fu.textContent='—';if(ff)ff.textContent='— acciones';if(fc)fc.style.display='none';return;}if(ff)ff.textContent=(u/p).toFixed(6)+' acciones';if(fu)fu.textContent='$'+u.toFixed(2);if(fc)fc.style.display='block';}
 function aSetU(v){const el=document.getElementById('a-qty-u');if(el){el.value=v;aCalcU();}}
 async function aTradeNew(type){
+  if(typeof auth==='undefined'||!auth.currentUser){
+    showToast('Inicia sesión para operar en el simulador');
+    openModal('login');
+    return;
+  }
   if(!aSym){showToast('Selecciona una acción primero');return;}
   let price=lp[aSym]?.c;
   if(!price){await fetchP(aSym);price=lp[aSym]?.c;}
