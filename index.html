@@ -751,7 +751,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
         <div class="tradingview-widget-container">
           <div class="tradingview-widget-container__widget"></div>
           <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js" async>
-          {"symbol":"TVC:DJI","width":"100%","height":150,"locale":"es","dateRange":"1D","colorTheme":"light","isTransparent":true,"autosize":true,"largeChartUrl":""}
+          {"symbol":"DJ:DJI","width":"100%","height":150,"locale":"es","dateRange":"1D","colorTheme":"light","isTransparent":true,"autosize":true,"largeChartUrl":""}
           </script>
         </div>
       </div>
@@ -759,7 +759,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
         <div class="tradingview-widget-container">
           <div class="tradingview-widget-container__widget"></div>
           <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js" async>
-          {"symbol":"TVC:RUT","width":"100%","height":150,"locale":"es","dateRange":"1D","colorTheme":"light","isTransparent":true,"autosize":true,"largeChartUrl":""}
+          {"symbol":"AMEX:IWM","width":"100%","height":150,"locale":"es","dateRange":"1D","colorTheme":"light","isTransparent":true,"autosize":true,"largeChartUrl":""}
           </script>
         </div>
       </div>
@@ -780,11 +780,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
           <div class="section-card-title" style="margin:0;">🔥 Mapa de calor del mercado</div>
           <div style="font-size:11px;color:var(--tx2);margin-top:2px;">Verde = sube · Rojo = baja · Tamaño = capitalización de mercado</div>
         </div>
-        <div style="display:flex;gap:5px;" id="heatmap-filters">
-          <button class="app-nav-btn active" id="hm-sp500" onclick="switchHeatmap('sp500',this)">S&P 500</button>
-          <button class="app-nav-btn" id="hm-crypto" onclick="switchHeatmap('crypto',this)">Cripto</button>
-          <button class="app-nav-btn" id="hm-etf" onclick="switchHeatmap('etf',this)">ETFs</button>
-        </div>
+        <div style="font-size:11px;color:var(--tx2);">S&P 500 · Por sector</div>
       </div>
       <div id="heatmap-container" style="height:520px;">
         <div class="tradingview-widget-container" style="height:100%;">
