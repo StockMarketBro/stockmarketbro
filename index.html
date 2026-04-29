@@ -1541,7 +1541,22 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
         <div><div style="font-size:11px;color:var(--tx2);margin-bottom:3px;">Stop loss</div><input type="text" id="rec-stop" placeholder="ej. $175" style="width:100%;padding:7px 9px;border:0.5px solid var(--br);border-radius:var(--rad);font-size:13px;background:var(--bg2);color:var(--tx);outline:none;font-family:inherit;"></div>
         <div style="display:flex;align-items:center;gap:5px;padding-bottom:1px;"><input type="checkbox" id="rec-pinned" style="width:13px;height:13px;"><label for="rec-pinned" style="font-size:12px;color:var(--tx2);cursor:pointer;">Fijar</label></div>
       </div>
-      <div style="margin-bottom:12px;"><div style="font-size:11px;color:var(--tx2);margin-bottom:3px;">URL de imagen / gráfico (opcional)</div><input type="text" id="rec-image" placeholder="https://... (Imgur, TradingView screenshot, etc.)" style="width:100%;padding:7px 9px;border:0.5px solid var(--br);border-radius:var(--rad);font-size:13px;background:var(--bg2);color:var(--tx);outline:none;font-family:inherit;"></div>
+      <div style="margin-bottom:12px;">
+        <div style="font-size:11px;color:var(--tx2);margin-bottom:6px;">Imagen / Gráfico (opcional)</div>
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px;">
+          <input type="file" id="rec-image-file" accept="image/*" style="display:none;" onchange="uploadSignalImage(this)">
+          <button type="button" onclick="document.getElementById('rec-image-file').click()" id="rec-upload-btn"
+            style="padding:7px 14px;border-radius:var(--rad);border:0.5px solid var(--br);background:var(--bg2);font-size:12px;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:6px;color:var(--tx);">
+            📷 Subir imagen
+          </button>
+          <span id="rec-upload-status" style="font-size:11px;color:var(--tx2);">Sin imagen seleccionada</span>
+        </div>
+        <input type="text" id="rec-image" placeholder="O pega una URL de imagen aquí"
+          style="width:100%;padding:7px 9px;border:0.5px solid var(--br);border-radius:var(--rad);font-size:13px;background:var(--bg2);color:var(--tx);outline:none;font-family:inherit;box-sizing:border-box;">
+        <div id="rec-image-preview" style="display:none;margin-top:8px;">
+          <img id="rec-image-preview-img" src="" alt="Preview" style="max-width:100%;max-height:200px;border-radius:var(--rad);border:0.5px solid var(--br);object-fit:cover;">
+        </div>
+      </div>
       <div style="display:flex;gap:7px;">
         <button onclick="publishRec()" style="flex:1;padding:9px;border-radius:var(--rad);border:none;background:var(--g);color:#fff;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;">Publicar señal</button>
         <button onclick="clearRecForm()" style="padding:9px 14px;border-radius:var(--rad);border:0.5px solid var(--br);background:transparent;font-size:13px;cursor:pointer;font-family:inherit;">Limpiar</button>
@@ -1801,7 +1816,7 @@ window.fbLoadRecs=async()=>{
     window.allRecs=snap.docs.map(d=>({id:d.id,...d.data()}));
   }catch(e){window.allRecs=[];}
   renderAuthorSignals();
-  renderAuthorList();
+  renderAuthorListPanel();
 };
 window.loadAuthorRecs=window.fbLoadRecs;
 
@@ -2531,6 +2546,26 @@ function renderAutoSignals(){
 function filterAuto(f,btn){autoFilter=f;document.querySelectorAll('#auto-ftabs .ftab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderAutoSignals();}
 
 // ═══ AUTHOR SIGNALS ═══
+function renderAuthorListPanel(){
+  const el=document.getElementById('rec-list-author');
+  if(!el)return;
+  const recs=window.allRecs||[];
+  if(!recs.length){el.innerHTML='<div class="empty">Sin señales publicadas.</div>';return;}
+  el.innerHTML=recs.map(r=>{
+    let tsDate=null;
+    if(r.tsNum){tsDate=new Date(r.tsNum);}
+    else if(r.ts&&r.ts.seconds){tsDate=new Date(r.ts.seconds*1000);}
+    const tsStr=tsDate?tsDate.toLocaleDateString('es',{day:'2-digit',month:'short',year:'numeric'}):'';
+    return '<div style="padding:10px 0;border-bottom:0.5px solid var(--br);display:flex;align-items:flex-start;justify-content:space-between;gap:10px;">'+
+      '<div>'+
+        '<div style="font-size:12px;font-weight:600;">'+r.title+'</div>'+
+        '<div style="font-size:11px;color:var(--tx2);">'+(r.symbol||r.sym||'')+' · '+tsStr+'</div>'+
+      '</div>'+
+      '<button onclick="deleteRec(''+r.id+'')" style="font-size:10px;padding:3px 8px;border-radius:var(--rad);border:0.5px solid var(--rd);background:transparent;color:var(--rd);cursor:pointer;font-family:inherit;flex-shrink:0;">Borrar</button>'+
+    '</div>';
+  }).join('');
+}
+
 function renderAuthorSignals(){
   if(typeof authorFilter==='undefined')return;
   const recs=window.allRecs||[];
@@ -2549,7 +2584,12 @@ function renderAuthorSignals(){
     const col=typeColor[r.type]||typeColor.neutral;
     const bg=typeBg[r.type]||typeBg.neutral;
     const lbl=typeLabel[r.type]||'ℹ️ Info';
-    const ts=r.ts?new Date(r.ts).toLocaleDateString('es',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}):'';
+    let tsDate=null;
+    if(r.tsNum){tsDate=new Date(r.tsNum);}
+    else if(r.ts&&r.ts.seconds){tsDate=new Date(r.ts.seconds*1000);}
+    else if(typeof r.ts==='number'){tsDate=new Date(r.ts);}
+    const ts=tsDate?tsDate.toLocaleDateString('es',{day:'2-digit',month:'short',year:'numeric'})+' '+tsDate.toLocaleTimeString('es',{hour:'2-digit',minute:'2-digit'}):'';
+
     r.sym=r.sym||r.symbol||'';
     const imgHtml=r.imageUrl?'<img src="'+r.imageUrl+'" alt="Gráfico" style="width:100%;border-radius:var(--rad);margin-top:12px;max-height:320px;object-fit:cover;border:0.5px solid var(--br);">':'';
     return '<div style="border:0.5px solid var(--br);border-left:3px solid '+col+';border-radius:var(--rad-lg);padding:16px;background:var(--bg);">'+
@@ -2574,7 +2614,58 @@ function renderAuthorSignals(){
 
 
 function filterAuthor(f,btn){authorFilter=f;document.querySelectorAll('#auth-ftabs .ftab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderAuthorSignals();}
-function clearRecForm(){['rec-title','rec-body','rec-symbol','rec-target','rec-stop','rec-image'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});const pin=document.getElementById('rec-pinned');if(pin)pin.checked=false;const rt=document.getElementById('rec-type');if(rt)rt.value='compra';}
+const CLOUDINARY_CLOUD = 'dlao5hyql';
+const CLOUDINARY_PRESET = 'smb_images';
+
+async function uploadSignalImage(input){
+  const file = input.files[0];
+  if(!file) return;
+  const status = document.getElementById('rec-upload-status');
+  const btn = document.getElementById('rec-upload-btn');
+  const preview = document.getElementById('rec-image-preview');
+  const previewImg = document.getElementById('rec-image-preview-img');
+  const urlInput = document.getElementById('rec-image');
+
+  // Validate size (max 5MB)
+  if(file.size > 5 * 1024 * 1024){
+    showToast('Imagen demasiado grande. Máximo 5MB.');
+    return;
+  }
+
+  if(status) status.textContent = 'Subiendo...';
+  if(btn){ btn.disabled=true; btn.textContent='⏳ Subiendo...'; }
+
+  try{
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('upload_preset', CLOUDINARY_PRESET);
+    formData.append('folder', 'smb_signals');
+
+    const res = await fetch('https://api.cloudinary.com/v1_1/'+CLOUDINARY_CLOUD+'/image/upload', {
+      method: 'POST',
+      body: formData
+    });
+    const data = await res.json();
+
+    if(data.secure_url){
+      urlInput.value = data.secure_url;
+      if(status) status.textContent = '✓ '+file.name;
+      if(preview){ preview.style.display='block'; }
+      if(previewImg){ previewImg.src = data.secure_url; }
+      showToast('✓ Imagen subida correctamente');
+    } else {
+      throw new Error(data.error?.message || 'Error al subir');
+    }
+  } catch(e){
+    showToast('Error al subir imagen: '+e.message);
+    if(status) status.textContent = 'Error al subir';
+  } finally {
+    if(btn){ btn.disabled=false; btn.innerHTML='📷 Subir imagen'; }
+    input.value = ''; // reset input
+  }
+}
+
+function clearRecForm(){['rec-title','rec-body','rec-symbol','rec-target','rec-stop','rec-image'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});const pin=document.getElementById('rec-pinned');if(pin)pin.checked=false;const rt=document.getElementById('rec-type');if(rt)rt.value='compra';const st=document.getElementById('rec-upload-status');if(st)st.textContent='Sin imagen seleccionada';const pv=document.getElementById('rec-image-preview');if(pv)pv.style.display='none';}
 
 // ═══ MANUAL ALERTS ═══
 window.manualAlerts=[];window.alertHistory=[];window.alertIdCounter=0;
