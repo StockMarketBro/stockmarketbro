@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StockQuest — Aprende a invertir jugando | StockMarketBro</title>
+<meta name="description" content="Simulador de inversiones con acciones peruanas e internacionales. Aprende finanzas personales jugando.">
+<style>
+:root{
+  --color-background-primary:#ffffff;--color-background-secondary:#f5f5f0;--color-background-tertiary:#eeede8;
+  --color-background-info:#e6f1fb;--color-background-success:#e1f5ee;--color-background-danger:#fcebeb;--color-background-warning:#faeeda;
+  --color-text-primary:#1a1a1a;--color-text-secondary:#6b6b6b;--color-text-info:#185FA5;--color-text-success:#0F6E56;
+  --color-text-danger:#A32D2D;--color-text-warning:#854F0B;
+  --color-border-tertiary:rgba(0,0,0,0.1);--color-border-secondary:rgba(0,0,0,0.2);--color-border-primary:rgba(0,0,0,0.35);
+  --color-border-info:#B5D4F4;--color-border-success:#9FE1CB;--color-border-danger:#F7C1C1;--color-border-warning:#FAC775;
+  --border-radius-md:8px;--border-radius-lg:12px;--border-radius-xl:16px;
+  --font-sans:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+}
+@media(prefers-color-scheme:dark){
+  :root{
+    --color-background-primary:#1c1c1e;--color-background-secondary:#2c2c2e;--color-background-tertiary:#111113;
+    --color-background-info:#0c2a4a;--color-background-success:#0a2a1a;--color-background-danger:#3a1010;--color-background-warning:#3a2500;
+    --color-text-primary:#f0f0f0;--color-text-secondary:#ababab;--color-text-info:#85B7EB;--color-text-success:#5DCAA5;
+    --color-text-danger:#F09595;--color-text-warning:#EF9F27;
+    --color-border-tertiary:rgba(255,255,255,0.1);--color-border-secondary:rgba(255,255,255,0.2);--color-border-primary:rgba(255,255,255,0.35);
+    --color-border-info:#185FA5;--color-border-success:#0F6E56;--color-border-danger:#A32D2D;--color-border-warning:#854F0B;
+  }
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:var(--font-sans);background:var(--color-background-tertiary);min-height:100vh;padding:0;}
+.top-bar{background:var(--color-background-primary);border-bottom:0.5px solid var(--color-border-tertiary);padding:11px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
+.logo-name{font-size:14px;font-weight:600;color:var(--color-text-primary);letter-spacing:-.01em;}
+.logo-name span{color:#1D9E75;}
+.top-links{display:flex;align-items:center;gap:12px;}
+.top-links a{font-size:12px;color:var(--color-text-secondary);text-decoration:none;}
+.top-links a:hover{color:#1D9E75;}
+.beta{font-size:10px;padding:2px 8px;border-radius:999px;background:var(--color-background-success);color:var(--color-text-success);font-weight:600;}
+.page{max-width:720px;margin:0 auto;padding:16px;}
+.disclaimer{font-size:11px;color:var(--color-text-secondary);text-align:center;padding:12px 16px;border-top:0.5px solid var(--color-border-tertiary);margin-top:8px;}
+
+/* GAME STYLES */
+#game{padding:0;}
+.hud{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px;}
+.hud-card{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:9px 11px;}
+.hud-label{font-size:10px;color:var(--color-text-secondary);margin-bottom:2px;}
+.hud-val{font-size:16px;font-weight:500;color:var(--color-text-primary);}
+.hud-val.green{color:#1D9E75;}.hud-val.red{color:#E24B4A;}
+.section{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:14px;margin-bottom:10px;}
+.sec-title{font-size:11px;font-weight:500;color:var(--color-text-secondary);margin-bottom:10px;text-transform:uppercase;letter-spacing:.06em;}
+.evt-box{border-radius:var(--border-radius-md);padding:12px;margin-bottom:12px;border:0.5px solid;transition:background .4s,border-color .4s;}
+.tabs{display:flex;gap:3px;margin-bottom:12px;flex-wrap:wrap;}
+.tab{padding:5px 11px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-tertiary);font-size:11px;cursor:pointer;background:var(--color-background-secondary);color:var(--color-text-secondary);font-family:var(--font-sans);}
+.tab.active{background:var(--color-background-primary);color:var(--color-text-primary);border-color:var(--color-border-primary);font-weight:500;}
+.stock-card{border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:10px;margin-bottom:7px;transition:border-color .3s;}
+.stock-card.flash-up{animation:fup .5s;}
+.stock-card.flash-dn{animation:fdn .5s;}
+@keyframes fup{0%{background:transparent}40%{background:rgba(29,158,117,.1)}100%{background:transparent}}
+@keyframes fdn{0%{background:transparent}40%{background:rgba(226,75,74,.08)}100%{background:transparent}}
+.btn-g{padding:5px 10px;border-radius:var(--border-radius-md);border:none;background:#1D9E75;color:#fff;font-size:11px;cursor:pointer;font-family:var(--font-sans);}
+.btn-r{padding:5px 10px;border-radius:var(--border-radius-md);border:none;background:#E24B4A;color:#fff;font-size:11px;cursor:pointer;font-family:var(--font-sans);}
+.btn-b{padding:5px 10px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-info);background:var(--color-background-info);color:var(--color-text-info);font-size:11px;cursor:pointer;font-family:var(--font-sans);}
+.btn-g:disabled,.btn-r:disabled,.btn-b:disabled{opacity:.3;cursor:not-allowed;}
+.btn-next{width:100%;padding:12px;border-radius:var(--border-radius-md);border:none;background:#1D9E75;color:#fff;font-size:13px;font-weight:500;cursor:pointer;font-family:var(--font-sans);margin-top:4px;}
+.btn-next:hover{opacity:.9;}
+.pill{display:inline-block;padding:2px 7px;border-radius:999px;font-size:10px;font-weight:500;}
+.pill-up{background:#E1F5EE;color:#0F6E56;}.pill-dn{background:#FCEBEB;color:#A32D2D;}.pill-neu{background:var(--color-background-secondary);color:var(--color-text-secondary);}
+.pill-warn{background:var(--color-background-warning);color:var(--color-text-warning);}
+.stag{display:inline-block;padding:1px 6px;border-radius:999px;font-size:9px;background:var(--color-background-secondary);color:var(--color-text-secondary);}
+.m-dot{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;}
+.m-done{background:#E1F5EE;color:#0F6E56;}.m-todo{background:var(--color-background-secondary);color:var(--color-text-secondary);}
+.xp-wrap{background:var(--color-background-secondary);border-radius:999px;height:4px;margin-top:4px;}
+.xp-fill{background:#1D9E75;height:4px;border-radius:999px;transition:width .7s;}
+.badge{display:inline-flex;align-items:center;background:var(--color-background-warning);border-radius:var(--border-radius-md);padding:3px 9px;font-size:11px;font-weight:500;color:var(--color-text-warning);}
+.avatar-ring{width:40px;height:40px;border-radius:50%;border:2px solid #1D9E75;display:flex;align-items:center;justify-content:center;font-size:20px;background:var(--color-background-secondary);cursor:pointer;}
+.avatar-picker{display:none;position:absolute;right:0;top:50px;background:var(--color-background-primary);border:0.5px solid var(--color-border-primary);border-radius:var(--border-radius-lg);padding:8px;z-index:100;}
+.avatar-picker.open{display:grid;grid-template-columns:repeat(6,1fr);gap:5px;}
+.av-opt{font-size:20px;cursor:pointer;padding:3px;border-radius:var(--border-radius-md);text-align:center;}
+.av-opt:hover{background:var(--color-background-secondary);}
+.life-row{display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:0.5px solid var(--color-border-tertiary);}
+.life-row:last-child{border-bottom:none;}
+.ef-bar{background:var(--color-background-secondary);border-radius:999px;height:6px;flex:1;margin:0 8px;}
+.ef-fill{height:6px;border-radius:999px;transition:width .5s;}
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;align-items:center;justify-content:center;padding:16px;}
+.modal-bg.open{display:flex;}
+.modal-box{background:var(--color-background-primary);border-radius:var(--border-radius-lg);padding:18px;width:100%;max-width:440px;}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) scale(.95);background:var(--color-background-primary);border:0.5px solid var(--color-border-primary);border-radius:var(--border-radius-md);padding:9px 18px;font-size:12px;font-weight:500;color:var(--color-text-primary);opacity:0;transition:opacity .25s,transform .25s;pointer-events:none;z-index:999;}
+.toast.show{opacity:1;transform:translateX(-50%) scale(1);}
+.pup{color:#1D9E75;font-size:11px;}.pdn{color:#E24B4A;font-size:11px;}
+.psumm{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-bottom:12px;}
+.pm{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:8px;text-align:center;}
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <div style="display:flex;align-items:center;gap:10px;">
+    <div class="logo-name">STOCK<span>QUEST</span></div>
+    <span class="beta">BETA</span>
+  </div>
+  <div class="top-links">
+    <a href="https://stockmarketbro.app">StockMarketBro</a>
+    <a href="https://stockmarketbro.app" style="background:#1D9E75;color:#fff;padding:5px 12px;border-radius:999px;font-weight:500;">Crear cuenta gratis</a>
+  </div>
+</div>
+
+<div class="page">
+
+  <!-- HERO -->
+  <div style="text-align:center;padding:20px 0 16px;">
+    <div style="font-size:24px;font-weight:700;color:var(--color-text-primary);letter-spacing:-.02em;margin-bottom:6px;">Aprende a invertir jugando</div>
+    <div style="font-size:13px;color:var(--color-text-secondary);">24 meses de vida financiera real · Acciones peruanas e internacionales · Sin dinero real</div>
+  </div>
+
+  <!-- GAME -->
+  <div id="game">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+      <div style="display:flex;align-items:center;gap:9px;">
+        <div style="position:relative;">
+          <div class="avatar-ring" id="av-btn" onclick="togglePicker()"><span id="av-disp">😎</span></div>
+          <div class="avatar-picker" id="av-picker">
+            <div class="av-opt" onclick="setAv('😎')">😎</div><div class="av-opt" onclick="setAv('🦁')">🦁</div>
+            <div class="av-opt" onclick="setAv('🦊')">🦊</div><div class="av-opt" onclick="setAv('🐉')">🐉</div>
+            <div class="av-opt" onclick="setAv('🚀')">🚀</div><div class="av-opt" onclick="setAv('💎')">💎</div>
+            <div class="av-opt" onclick="setAv('🦈')">🦈</div><div class="av-opt" onclick="setAv('🔥')">🔥</div>
+            <div class="av-opt" onclick="setAv('🌟')">🌟</div><div class="av-opt" onclick="setAv('🐺')">🐺</div>
+            <div class="av-opt" onclick="setAv('🦅')">🦅</div><div class="av-opt" onclick="setAv('🐻')">🐻</div>
+          </div>
+        </div>
+        <div>
+          <div style="font-size:15px;font-weight:500;color:var(--color-text-primary);">StockQuest</div>
+          <div style="font-size:11px;color:var(--color-text-secondary);" id="month-lbl">Mes 1 de 24 — Año 1</div>
+        </div>
+      </div>
+      <div style="text-align:right;">
+        <div class="badge" id="lvl-badge">Nivel 1 — Ahorrista</div>
+        <div class="xp-wrap" style="width:120px;margin-top:4px;"><div class="xp-fill" id="xp-fill" style="width:5%;"></div></div>
+      </div>
+    </div>
+
+    <div class="hud">
+      <div class="hud-card"><div class="hud-label">Efectivo</div><div class="hud-val" id="hud-cash">S/ 10,000</div></div>
+      <div class="hud-card"><div class="hud-label">Portafolio</div><div class="hud-val" id="hud-port">S/ 0</div></div>
+      <div class="hud-card"><div class="hud-label">Fondo emerg.</div><div class="hud-val" id="hud-ef" style="color:#185FA5;">S/ 0</div></div>
+      <div class="hud-card"><div class="hud-label">Rendimiento</div><div class="hud-val" id="hud-ret">0.0%</div></div>
+    </div>
+
+    <div class="evt-box" id="evt-box" style="background:var(--color-background-info);border-color:var(--color-border-info);">
+      <div style="font-size:13px;font-weight:500;color:var(--color-text-info);margin-bottom:3px;" id="evt-title">Bienvenido a StockQuest</div>
+      <div style="font-size:12px;color:var(--color-text-secondary);" id="evt-desc">Tienes S/ 10,000, gastos mensuales reales y 24 meses para alcanzar la libertad financiera.</div>
+    </div>
+
+    <div class="tabs">
+      <button class="tab active" onclick="showTab('mercado',this)">Mercado</button>
+      <button class="tab" onclick="showTab('vida',this)">Vida</button>
+      <button class="tab" onclick="showTab('portafolio',this)">Portafolio</button>
+      <button class="tab" onclick="showTab('banco',this)">Banco</button>
+      <button class="tab" onclick="showTab('noticias',this)">Noticias</button>
+      <button class="tab" onclick="showTab('misiones',this)">Misiones</button>
+      <button class="tab" onclick="showTab('aprender',this)">Aprender</button>
+    </div>
+
+    <div id="tab-mercado"><div class="section"><div class="sec-title">Acciones — toca el gráfico para ampliar</div><div id="stocks-list"></div></div></div>
+    <div id="tab-vida" style="display:none;"></div>
+    <div id="tab-portafolio" style="display:none;"><div class="section"><div class="sec-title">Mis posiciones</div><div id="port-list"></div></div></div>
+    <div id="tab-banco" style="display:none;"></div>
+    <div id="tab-noticias" style="display:none;"><div class="section"><div class="sec-title">Historial de noticias</div><div id="news-hist"></div></div></div>
+    <div id="tab-misiones" style="display:none;"><div class="section"><div class="sec-title">Misiones</div><div id="missions-list"></div></div></div>
+    <div id="tab-aprender" style="display:none;"><div class="section"><div class="sec-title">Conceptos</div><div id="learn-list"></div></div></div>
+
+    <button class="btn-next" id="btn-next" onclick="nextMonth()">Avanzar al mes 2 →</button>
+  </div>
+
+  <div class="disclaimer">
+    StockQuest es un simulador educativo con datos ficticios. No constituye asesoramiento financiero. ·
+    <a href="https://stockmarketbro.app" style="color:#1D9E75;">stockmarketbro.app</a>
+  </div>
+</div>
+
+<!-- CHART MODAL -->
+<div class="modal-bg" id="chart-modal" onclick="if(event.target===this)closeChart()">
+  <div class="modal-box">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+      <div><div style="font-size:14px;font-weight:500;" id="chart-title"></div><div style="font-size:11px;color:var(--color-text-secondary);" id="chart-sub"></div></div>
+      <button onclick="closeChart()" style="background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:4px 9px;cursor:pointer;font-size:12px;font-family:var(--font-sans);">✕</button>
+    </div>
+    <canvas id="chart-canvas" width="400" height="180" style="width:100%;height:180px;display:block;"></canvas>
+    <div id="chart-stats" style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px;margin-top:10px;"></div>
+  </div>
+</div>
+
+<!-- EMERGENCY MODAL -->
+<div class="modal-bg" id="emerg-modal" onclick="if(event.target===this)closeEmerg()">
+  <div class="modal-box">
+    <div style="font-size:20px;text-align:center;margin-bottom:8px;" id="emerg-icon">🚨</div>
+    <div style="font-size:14px;font-weight:500;text-align:center;margin-bottom:6px;" id="emerg-title"></div>
+    <div style="font-size:12px;color:var(--color-text-secondary);text-align:center;margin-bottom:16px;" id="emerg-desc"></div>
+    <div id="emerg-options"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const STOCKS=[
+  {id:'BVN', name:'Buenaventura',  sector:'Minería',    flag:'🇵🇪',base:28,  div:0},
+  {id:'BAP', name:'Credicorp',     sector:'Finanzas',   flag:'🇵🇪',base:180, div:2.5},
+  {id:'CPAC',name:'Pacasmayo',     sector:'Construc.',  flag:'🇵🇪',base:12,  div:0.8},
+  {id:'TELE',name:'Entel Perú',    sector:'Telecom',    flag:'🇵🇪',base:20,  div:0.5},
+  {id:'SIDE',name:'Siderperú',     sector:'Siderurgia', flag:'🇵🇪',base:15,  div:0},
+  {id:'AAPL',name:'Apple',         sector:'Tecnología', flag:'🇺🇸',base:190, div:1.0},
+  {id:'NVDA',name:'NVIDIA',        sector:'Tecnología', flag:'🇺🇸',base:880, div:0.2},
+  {id:'JPM', name:'JPMorgan',      sector:'Finanzas',   flag:'🇺🇸',base:200, div:4.2},
+  {id:'JNJ', name:'Johnson & J.',  sector:'Salud',      flag:'🇺🇸',base:155, div:3.1},
+  {id:'XOM', name:'ExxonMobil',    sector:'Energía',    flag:'🇺🇸',base:115, div:3.4},
+  {id:'BTC', name:'Bitcoin ETF',   sector:'Cripto',     flag:'🌐',base:680, div:0},
+  {id:'GOLD',name:'Oro (ETF)',      sector:'Commodity',  flag:'🌐',base:220, div:0},
+  {id:'SPY', name:'S&P 500',       sector:'Índice ETF', flag:'🌐',base:520, div:1.6},
+];
+
+const LIFE_LEVELS=[
+  {month:1, alquiler:1200,comida:600,transporte:200,otros:200,label:'Departamento básico'},
+  {month:7, alquiler:1800,comida:800,transporte:300,otros:400,label:'Departamento mejorado'},
+  {month:13,alquiler:2400,comida:1000,transporte:400,otros:600,label:'Departamento con vista'},
+];
+
+const EMERGENCIES=[
+  {icon:'🏥',title:'Emergencia médica',desc:'Un accidente requiere S/ 3,000 en gastos hospitalarios.',cost:3000},
+  {icon:'🚗',title:'Tu carro se averió',desc:'La reparación cuesta S/ 1,800.',cost:1800},
+  {icon:'💻',title:'Se rompió tu laptop',desc:'Necesitas una laptop nueva: S/ 2,500.',cost:2500},
+  {icon:'🏠',title:'Daño en el departamento',desc:'Una tubería reventó. El arreglo cuesta S/ 2,000.',cost:2000},
+];
+
+const EVENTS=[
+  {title:'Cobre sube a US$4.80/lb',desc:'Máximos por demanda china.',tag:'up',effect:{BVN:+22,SIDE:+12},lesson:'Los commodities impactan a empresas extractoras.'},
+  {title:'Credicorp reporta utilidades récord',desc:'Supera expectativas con S/ 1,800M.',tag:'up',effect:{BAP:+15},lesson:'Los resultados trimestrales mueven los precios.'},
+  {title:'NVIDIA: ventas IA disparan ingresos 120%',desc:'Chips H100 generan ingresos históricos.',tag:'up',effect:{NVDA:+38,AAPL:+8},lesson:'Las megatendencias como IA generan retornos extraordinarios.'},
+  {title:'FED sube tasas 0.25%',desc:'Activos de riesgo caen globalmente.',tag:'dn',effect:{BTC:-18,SPY:-7,NVDA:-10},lesson:'Las tasas de EEUU afectan a todos los mercados del mundo.'},
+  {title:'Bitcoin supera US$80,000',desc:'Adopción institucional impulsa el precio.',tag:'up',effect:{BTC:+32},lesson:'Alta volatilidad: grandes ganancias o grandes pérdidas.'},
+  {title:'Recorte presupuesto infraestructura',desc:'MEF anuncia reducción del 20%.',tag:'dn',effect:{CPAC:-18,SIDE:-10},lesson:'Las políticas públicas afectan sectores específicos.'},
+  {title:'Oro sube por tensiones geopolíticas',desc:'Conflictos disparan la demanda de refugio.',tag:'up',effect:{GOLD:+16,BVN:+8},lesson:'El oro sube cuando hay incertidumbre global.'},
+  {title:'Entel gana licitación del Estado',desc:'Contrato de fibra óptica por S/ 2,400M.',tag:'up',effect:{TELE:+22},lesson:'Los contratos estratégicos crean valor de largo plazo.'},
+  {title:'Apple lanza iPhone con IA integrada',desc:'Ventas récord en Asia.',tag:'up',effect:{AAPL:+20,NVDA:+10},lesson:'Los lanzamientos exitosos son catalizadores de precio.'},
+  {title:'Corrección general del mercado',desc:'Toma de ganancias arrastra bolsas globales.',tag:'dn',effect:{SPY:-9,AAPL:-8,NVDA:-13,BTC:-12},lesson:'Las correcciones son normales. El inversor paciente las aprovecha.'},
+  {title:'Inflación en Perú sube a 4.8%',desc:'BCRP podría subir tasas.',tag:'dn',effect:{BAP:-8,TELE:-6,CPAC:-7},lesson:'La inflación erosiona el valor real.'},
+  {title:'FMI mejora proyección de Perú a 3.2%',desc:'Mejor crecimiento en Latinoamérica.',tag:'up',effect:{BAP:+10,BVN:+8,CPAC:+12},lesson:'Los fundamentos macro afectan a todo el mercado nacional.'},
+  {title:'JPMorgan anuncia recompra $20B',desc:'Señal alcista del banco.',tag:'up',effect:{JPM:+14},lesson:'Los buybacks aumentan el valor por acción.'},
+  {title:'ExxonMobil eleva dividendo 12%',desc:'Los inversores de renta celebran.',tag:'up',effect:{XOM:+15},lesson:'Los dividendos crecientes señalan una empresa sólida.'},
+  {title:'Semana sin catalizadores',desc:'Mercado con bajo volumen.',tag:'neu',effect:{},lesson:'La paciencia y mantener la estrategia es fundamental.'},
+];
+
+const LEARN=[
+  {title:'¿Qué es una acción?',body:'Representa propiedad en una empresa. Cuando crece y gana más, tu acción vale más.'},
+  {title:'Fondo de emergencia',body:'Antes de invertir, guarda 3-6 meses de gastos en una cuenta líquida. Si no tienes fondo y ocurre algo, tendrás que vender inversiones en mal momento.'},
+  {title:'Dividendos',body:'Algunas empresas (BAP, JPM, XOM) pagan parte de sus ganancias a los accionistas cada trimestre. Son ingresos pasivos sin vender nada.'},
+  {title:'Préstamos e interés compuesto',body:'Un préstamo al 18% anual significa pagar 1.5% mensual del saldo. El interés compuesto trabaja en tu contra cuando debes, y a tu favor cuando inviertes.'},
+  {title:'Diversificación',body:'Mezcla sectores: minería, finanzas, tecnología, salud. Una pérdida en un sector se compensa con ganancias en otro.'},
+  {title:'La FED y las tasas',body:'Cuando la FED sube tasas, las acciones de alto crecimiento (NVDA, BTC) caen más. La FED mueve todos los mercados del mundo.'},
+  {title:'Dollar-cost averaging',body:'Invierte una cantidad fija cada mes sin importar el precio. Supera al 80% de inversores que intentan adivinar el mercado.'},
+];
+
+const MISSIONS_DEF=[
+  {id:'first_buy',    text:'Compra tu primera acción',              pts:40, done:false},
+  {id:'build_ef',     text:'Construye tu fondo de emergencia (S/ 3,000)', pts:100,done:false},
+  {id:'ef_full',      text:'Fondo de emergencia completo (S/ 6,000)',pts:150,done:false},
+  {id:'div_income',   text:'Recibe dividendos por primera vez',      pts:80, done:false},
+  {id:'diversify3',   text:'Ten acciones en 3 sectores distintos',   pts:100,done:false},
+  {id:'pay_loan',     text:'Paga un préstamo completo',              pts:120,done:false},
+  {id:'profit15',     text:'Alcanza +15% de rendimiento total',      pts:150,done:false},
+  {id:'survive_emerg',text:'Sobrevive una emergencia con fondo',     pts:200,done:false},
+  {id:'buy_etf',      text:'Compra el S&P 500 ETF (SPY)',            pts:70, done:false},
+  {id:'read3',        text:'Lee 3 conceptos de inversión',           pts:80, done:false},
+];
+
+const LEVELS=['Ahorrista','Inversionista','Trader','Portfolio Mgr','Libre Financiero'];
+
+let G={cash:10000,month:1,xp:5,level:1,avatar:'😎',prices:{},prev:{},hist:{},portfolio:{},start:10000,ef:0,efTarget:6000,loan:0,loanRate:0.018,totalDivReceived:0,loanPaidOff:false,news_history:[],missions:JSON.parse(JSON.stringify(MISSIONS_DEF)),learnRead:new Set(),_wasNeg:false,_emergSurvived:false};
+STOCKS.forEach(s=>{G.prices[s.id]=s.base;G.prev[s.id]=s.base;G.hist[s.id]=[s.base];});
+
+const fmt=n=>'S/ '+Math.round(n).toLocaleString('es-PE');
+const fmtP=n=>(n>=0?'+':'')+n.toFixed(1)+'%';
+const pv=()=>Object.keys(G.portfolio).reduce((a,id)=>a+(G.portfolio[id].qty*G.prices[id]),0);
+const lifeLevel=()=>LIFE_LEVELS.slice().reverse().find(l=>G.month>=l.month)||LIFE_LEVELS[0];
+const monthlyExp=()=>{const l=lifeLevel();return l.alquiler+l.comida+l.transporte+l.otros;};
+
+function setAv(a){G.avatar=a;document.getElementById('av-disp').textContent=a;document.getElementById('av-picker').classList.remove('open');showToast('Avatar: '+a);}
+function togglePicker(){document.getElementById('av-picker').classList.toggle('open');}
+document.addEventListener('click',e=>{if(!e.target.closest('#av-btn')&&!e.target.closest('#av-picker'))document.getElementById('av-picker').classList.remove('open');});
+
+function updateHUD(){
+  const v=pv(),total=G.cash+v+G.ef,ret=(total-G.start)/G.start*100;
+  document.getElementById('hud-cash').textContent=fmt(G.cash);
+  document.getElementById('hud-port').textContent=fmt(v);
+  document.getElementById('hud-ef').textContent=fmt(G.ef);
+  const rv=document.getElementById('hud-ret');rv.textContent=fmtP(ret);rv.className='hud-val '+(ret>=0?'green':'red');
+  const yr=Math.ceil(G.month/12);
+  document.getElementById('month-lbl').textContent='Mes '+G.month+' de 24 — Año '+yr+' '+G.avatar;
+  document.getElementById('xp-fill').style.width=Math.min(100,G.xp)+'%';
+  document.getElementById('lvl-badge').textContent='Nivel '+G.level+' — '+LEVELS[G.level-1];
+  if(ret<0)G._wasNeg=true;
+  checkMissions(total,ret);
+}
+
+function drawSpark(canvas,data,color){
+  const ctx=canvas.getContext('2d'),w=canvas.width,h=canvas.height;
+  ctx.clearRect(0,0,w,h);if(data.length<2)return;
+  const mn=Math.min(...data),mx=Math.max(...data),range=mx-mn||1;
+  ctx.beginPath();ctx.strokeStyle=color;ctx.lineWidth=1.5;ctx.lineJoin='round';
+  data.forEach((v,i)=>{const x=(i/(data.length-1))*w,y=h-((v-mn)/range)*(h*.8)-h*.1;i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);});
+  ctx.stroke();
+}
+
+function openChart(id){
+  const s=STOCKS.find(x=>x.id===id),data=G.hist[id],p=G.prices[id],p0=data[0],ret=(p-p0)/p0*100,color=ret>=0?'#1D9E75':'#E24B4A';
+  document.getElementById('chart-title').textContent=s.flag+' '+id+' — '+s.name;
+  document.getElementById('chart-sub').textContent='Actual: '+fmt(p)+' · Desde inicio: '+fmtP(ret)+(s.div>0?' · Div: '+s.div+'%/año':'');
+  const cv=document.getElementById('chart-canvas');cv.width=400;cv.height=180;
+  const ctx=cv.getContext('2d');ctx.clearRect(0,0,400,180);
+  if(data.length>=2){
+    const mn=Math.min(...data),mx=Math.max(...data),range=mx-mn||1;
+    ctx.strokeStyle='rgba(128,128,128,0.1)';ctx.lineWidth=0.5;
+    [.25,.5,.75].forEach(f=>{const y=180-(f*140)-20;ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(400,y);ctx.stroke();});
+    ctx.beginPath();ctx.strokeStyle=color;ctx.lineWidth=2;ctx.lineJoin='round';
+    data.forEach((v,i)=>{const x=(i/(Math.max(data.length-1,1)))*380+10,y=180-((v-mn)/range)*140-20;i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);});
+    ctx.stroke();
+  }
+  document.getElementById('chart-stats').innerHTML=[{l:'Inicio',v:fmt(data[0])},{l:'Actual',v:fmt(p)},{l:'Mínimo',v:fmt(Math.min(...data))},{l:'Máximo',v:fmt(Math.max(...data))}].map(x=>`<div style="background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:6px 8px;"><div style="font-size:9px;color:var(--color-text-secondary);">${x.l}</div><div style="font-size:12px;font-weight:500;">${x.v}</div></div>`).join('');
+  document.getElementById('chart-modal').classList.add('open');
+}
+function closeChart(){document.getElementById('chart-modal').classList.remove('open');}
+
+function renderStocks(){
+  document.getElementById('stocks-list').innerHTML=STOCKS.map(s=>{
+    const p=G.prices[s.id],pp=G.prev[s.id],chg=(p-pp)/pp*100,pos=G.portfolio[s.id];
+    return`<div class="stock-card" id="sc-${s.id}"><div style="display:flex;align-items:center;gap:7px;">
+      <div style="flex:1;"><div style="font-size:12px;font-weight:500;color:var(--color-text-primary);">${s.flag} ${s.id} <span class="stag">${s.sector}</span>${s.div>0?` <span class="pill pill-up">div ${s.div}%</span>`:''}</div>
+      <div style="font-size:11px;color:var(--color-text-secondary);">${s.name}${pos?' · '+pos.qty+' acc.':''}</div></div>
+      <canvas width="50" height="24" id="spark-${s.id}" onclick="openChart('${s.id}')" style="cursor:pointer;"></canvas>
+      <div style="text-align:right;min-width:68px;"><div style="font-size:12px;font-weight:500;">${fmt(p)}</div><div style="font-size:10px;color:${chg>=0?'#1D9E75':'#E24B4A'};">${fmtP(chg)}</div></div>
+      <button class="btn-g" ${G.cash>=p?'':'disabled'} onclick="buy('${s.id}')">Comprar</button>
+      <button class="btn-r" ${pos&&pos.qty>0?'':'disabled'} onclick="sell('${s.id}')">Vender</button>
+    </div></div>`;
+  }).join('');
+  requestAnimationFrame(()=>{STOCKS.forEach(s=>{const cv=document.getElementById('spark-'+s.id);if(cv){const d=G.hist[s.id],r=(d[d.length-1]-d[0])/d[0]*100;drawSpark(cv,d,r>=0?'#1D9E75':'#E24B4A');}});});
+}
+
+function renderVida(){
+  const l=lifeLevel(),exp=monthlyExp(),efPct=Math.min(100,G.ef/G.efTarget*100);
+  let loanHtml='';
+  if(G.loan>0){const int=+(G.loan*G.loanRate).toFixed(0);loanHtml=`<div style="background:var(--color-background-danger);border:0.5px solid var(--color-border-danger);border-radius:var(--border-radius-md);padding:10px;margin-top:10px;"><div style="font-size:12px;font-weight:500;color:var(--color-text-danger);margin-bottom:4px;">Préstamo activo</div><div style="font-size:11px;color:var(--color-text-secondary);">Saldo: ${fmt(G.loan)} · Interés mensual: ${fmt(int)}</div><div style="display:flex;gap:6px;margin-top:8px;"><button class="btn-r" onclick="payLoan(${int+500})">Cuota mínima (${fmt(int+500)})</button><button class="btn-r" onclick="payLoan(G.loan)" ${G.cash>=G.loan?'':'disabled'}>Cancelar deuda (${fmt(G.loan)})</button></div></div>`;}
+  document.getElementById('tab-vida').innerHTML=`
+    <div class="section"><div class="sec-title">Gastos del mes</div>
+      <div style="background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:8px 10px;margin-bottom:10px;font-size:11px;color:var(--color-text-secondary);">Estilo de vida: <strong style="color:var(--color-text-primary);">${l.label}</strong> — Se descuenta automáticamente cada mes</div>
+      <div class="life-row"><span style="font-size:12px;">🏠 Alquiler</span><span style="font-size:12px;font-weight:500;color:#E24B4A;">–${fmt(l.alquiler)}</span></div>
+      <div class="life-row"><span style="font-size:12px;">🍽 Comida</span><span style="font-size:12px;font-weight:500;color:#E24B4A;">–${fmt(l.comida)}</span></div>
+      <div class="life-row"><span style="font-size:12px;">🚌 Transporte</span><span style="font-size:12px;font-weight:500;color:#E24B4A;">–${fmt(l.transporte)}</span></div>
+      <div class="life-row"><span style="font-size:12px;">📱 Otros</span><span style="font-size:12px;font-weight:500;color:#E24B4A;">–${fmt(l.otros)}</span></div>
+      <div class="life-row" style="border-top:1px solid var(--color-border-secondary);margin-top:4px;padding-top:8px;"><span style="font-size:13px;font-weight:500;">Total mensual</span><span style="font-size:13px;font-weight:500;color:#E24B4A;">–${fmt(exp)}</span></div>
+    </div>
+    <div class="section"><div class="sec-title">Fondo de emergencia</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;"><span style="font-size:12px;color:var(--color-text-secondary);">${fmt(G.ef)} de ${fmt(G.efTarget)}</span><span class="pill ${efPct>=100?'pill-up':efPct>=50?'pill-warn':'pill-dn'}">${efPct>=100?'Completo':Math.round(efPct)+'%'}</span></div>
+      <div class="ef-bar"><div class="ef-fill" style="width:${efPct}%;background:${efPct>=100?'#1D9E75':efPct>=50?'#BA7517':'#E24B4A'};"></div></div>
+      <div style="font-size:11px;color:var(--color-text-secondary);margin:8px 0 10px;">Objetivo: 3 meses de gastos (${fmt(G.efTarget)}). Rinde 5.5% anual si supera S/ 1,000.</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;">
+        <button class="btn-b" onclick="addToEF(500)" ${G.cash>500?'':'disabled'}>+S/ 500</button>
+        <button class="btn-b" onclick="addToEF(1000)" ${G.cash>1000?'':'disabled'}>+S/ 1,000</button>
+        <button class="btn-b" onclick="addToEF(2000)" ${G.cash>2000?'':'disabled'}>+S/ 2,000</button>
+        <button class="btn-r" onclick="withdrawEF(500)" ${G.ef>=500?'':'disabled'} style="background:transparent;color:#E24B4A;border:0.5px solid #E24B4A;">Retirar S/ 500</button>
+      </div>
+    </div>${loanHtml}`;
+}
+
+function renderBanco(){
+  document.getElementById('tab-banco').innerHTML=`
+    <div class="section"><div class="sec-title">Préstamos disponibles</div>
+      <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:12px;">Tasa: 1.8% mensual (≈ 21.6% anual). Útil en emergencias, pero encarece tu vida financiera.</div>
+      ${G.loan>0?`<div style="padding:10px;background:var(--color-background-danger);border-radius:var(--border-radius-md);font-size:12px;color:var(--color-text-danger);">Ya tienes un préstamo activo de ${fmt(G.loan)}.</div>`:`
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          ${[3000,5000,8000].map(amt=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:10px;border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);"><div><div style="font-size:12px;font-weight:500;">Préstamo S/ ${amt.toLocaleString()}</div><div style="font-size:11px;color:var(--color-text-secondary);">Cuota mínima: ${fmt(amt*0.018+500)}/mes</div></div><button class="btn-b" onclick="takeLoan(${amt})">Solicitar</button></div>`).join('')}
+        </div>`}
+    </div>
+    <div class="section"><div class="sec-title">Depósito a plazo fijo</div>
+      <div style="padding:10px;border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);">
+        <div style="font-size:12px;font-weight:500;margin-bottom:4px;">Rendimiento de tu fondo de emergencia</div>
+        <div style="font-size:11px;color:var(--color-text-secondary);">Tu fondo (${fmt(G.ef)}) genera ${fmt(G.ef*0.055/12)}/mes si supera S/ 1,000.</div>
+        <div style="font-size:11px;color:#1D9E75;margin-top:4px;">Proyección anual: +${fmt(G.ef*0.055)}</div>
+      </div>
+    </div>`;
+}
+
+function addToEF(amt){if(G.cash<amt){showToast('Sin efectivo');return;}G.cash-=amt;G.ef+=amt;showToast('Añadiste '+fmt(amt)+' al fondo');updateHUD();renderVida();}
+function withdrawEF(amt){if(G.ef<amt){showToast('Fondo insuficiente');return;}G.ef-=amt;G.cash+=amt;showToast('Retiraste '+fmt(amt)+' del fondo');updateHUD();renderVida();}
+function takeLoan(amt){G.loan+=amt;G.cash+=amt;showToast('Préstamo de '+fmt(amt)+' acreditado');updateHUD();renderBanco();renderVida();}
+function payLoan(amt){
+  const pay=Math.min(amt,G.cash);if(pay<10){showToast('Sin efectivo');return;}
+  const principal=Math.min(pay,G.loan);G.cash-=pay;G.loan=Math.max(0,G.loan-principal);
+  if(G.loan===0){showToast('Préstamo pagado. +50 XP');G.loanPaidOff=true;G.xp=Math.min(100,G.xp+50);}
+  else showToast('Pagaste '+fmt(pay)+'. Saldo: '+fmt(G.loan));
+  updateHUD();renderVida();renderBanco();
+}
+
+function triggerEmergency(){
+  const e=EMERGENCIES[Math.floor(Math.random()*EMERGENCIES.length)];
+  document.getElementById('emerg-icon').textContent=e.icon;
+  document.getElementById('emerg-title').textContent=e.title;
+  document.getElementById('emerg-desc').textContent=e.desc;
+  const canEF=G.ef>=e.cost,canCash=G.cash>=e.cost;
+  document.getElementById('emerg-options').innerHTML=`
+    <button class="btn-b" style="width:100%;margin-bottom:8px;" ${canEF?'':'disabled'} onclick="resolveEmerg('ef',${e.cost})">${canEF?'Usar fondo de emergencia ('+fmt(e.cost)+')':'Fondo insuficiente (tienes '+fmt(G.ef)+')'}</button>
+    <button class="btn-r" style="width:100%;margin-bottom:8px;" ${canCash?'':'disabled'} onclick="resolveEmerg('cash',${e.cost})">Pagar con efectivo (${fmt(e.cost)})</button>
+    <button class="btn-b" style="width:100%;" onclick="resolveEmerg('loan',${e.cost})">Tomar préstamo (interés 1.8%/mes)</button>`;
+  document.getElementById('emerg-modal').classList.add('open');
+}
+function resolveEmerg(method,cost){
+  document.getElementById('emerg-modal').classList.remove('open');
+  if(method==='ef'){G.ef-=cost;if(!G._emergSurvived){G._emergSurvived=true;}showToast('Emergencia resuelta con fondo de emergencia.');}
+  else if(method==='cash'){G.cash-=cost;showToast('Emergencia pagada con efectivo.');}
+  else{takeLoan(cost);}
+  updateHUD();
+}
+function closeEmerg(){document.getElementById('emerg-modal').classList.remove('open');}
+
+function applyDividends(){
+  let total=0;
+  STOCKS.forEach(s=>{if(s.div>0&&G.portfolio[s.id]?.qty>0){const qty=G.portfolio[s.id].qty,divAmt=+(G.prices[s.id]*qty*(s.div/100)/4).toFixed(2);G.cash+=divAmt;total+=divAmt;}});
+  if(total>0){G.totalDivReceived+=total;showToast('Dividendos: +'+fmt(total));}
+  return total;
+}
+
+function renderPortfolio(){
+  const el=document.getElementById('port-list');
+  const ids=Object.keys(G.portfolio).filter(id=>G.portfolio[id].qty>0);
+  const v=pv(),total=G.cash+v+G.ef,ret=(total-G.start)/G.start*100;
+  if(!ids.length){el.innerHTML='<div style="font-size:12px;color:var(--color-text-secondary);padding:8px 0;">Sin posiciones. Ve al Mercado y compra tu primera acción.</div>';return;}
+  el.innerHTML=`<div class="psumm">
+    <div class="pm"><div style="font-size:9px;color:var(--color-text-secondary);">INVERTIDO</div><div style="font-size:13px;font-weight:500;">${fmt(v)}</div></div>
+    <div class="pm"><div style="font-size:9px;color:var(--color-text-secondary);">EFECTIVO</div><div style="font-size:13px;font-weight:500;">${fmt(G.cash)}</div></div>
+    <div class="pm"><div style="font-size:9px;color:var(--color-text-secondary);">RETORNO</div><div style="font-size:13px;font-weight:500;color:${ret>=0?'#1D9E75':'#E24B4A'};">${fmtP(ret)}</div></div>
+  </div>`+ids.map(id=>{
+    const s=STOCKS.find(x=>x.id===id),pos=G.portfolio[id],val=pos.qty*G.prices[id],cost=pos.qty*pos.avg,pnl=val-cost,pnlP=(pnl/cost)*100;
+    return`<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:0.5px solid var(--color-border-tertiary);">
+      <div style="flex:1;"><div style="font-size:12px;font-weight:500;">${s.flag} ${id}${s.div>0?' <span class="pill pill-up">div</span>':''}</div>
+      <div style="font-size:11px;color:var(--color-text-secondary);">${pos.qty} acc · avg ${fmt(pos.avg)}</div></div>
+      <canvas width="44" height="22" id="pspark-${id}" onclick="openChart('${id}')" style="cursor:pointer;margin-right:8px;"></canvas>
+      <div style="text-align:right;"><div style="font-size:12px;font-weight:500;">${fmt(val)}</div>
+      <div style="font-size:11px;color:${pnl>=0?'#1D9E75':'#E24B4A'};">${pnl>=0?'+':''}${fmt(pnl)}</div></div>
+    </div>`;
+  }).join('');
+  requestAnimationFrame(()=>{ids.forEach(id=>{const cv=document.getElementById('pspark-'+id);if(cv){const d=G.hist[id],pos=G.portfolio[id],r=(G.prices[id]-pos.avg)/pos.avg*100;drawSpark(cv,d,r>=0?'#1D9E75':'#E24B4A');}});});
+}
+
+function renderNews(){
+  const el=document.getElementById('news-hist');
+  if(!G.news_history.length){el.innerHTML='<div style="font-size:12px;color:var(--color-text-secondary);">Avanza meses para ver el historial.</div>';return;}
+  el.innerHTML=[...G.news_history].reverse().map(n=>`<div style="padding:9px 0;border-bottom:0.5px solid var(--color-border-tertiary);">
+    <div style="display:flex;align-items:center;gap:5px;margin-bottom:3px;flex-wrap:wrap;">
+      <span class="pill ${n.tag==='up'?'pill-up':n.tag==='dn'?'pill-dn':'pill-neu'}">${n.tag==='up'?'Alcista':n.tag==='dn'?'Bajista':'Neutral'}</span>
+      <span style="font-size:12px;font-weight:500;color:var(--color-text-primary);">${n.title}</span>
+      <span style="font-size:10px;color:var(--color-text-secondary);margin-left:auto;">Mes ${n.month}</span>
+    </div>
+    <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:3px;">${n.desc}</div>
+    <div style="font-size:11px;color:#1D9E75;">Aprendizaje: ${n.lesson}</div>
+  </div>`).join('');
+}
+
+function renderLearn(){
+  document.getElementById('learn-list').innerHTML=LEARN.map((c,i)=>`<div style="padding:9px 0;border-bottom:0.5px solid var(--color-border-tertiary);">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+      <div style="font-size:12px;font-weight:500;color:var(--color-text-primary);">${c.title}</div>
+      ${G.learnRead.has(i)?'<span class="pill pill-up">Leído</span>':''}
+    </div>
+    <div style="font-size:11px;color:var(--color-text-secondary);line-height:1.6;margin-bottom:5px;">${c.body}</div>
+    ${!G.learnRead.has(i)?`<button onclick="markRead(${i})" style="padding:3px 10px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-tertiary);background:var(--color-background-secondary);font-size:10px;cursor:pointer;font-family:var(--font-sans);color:var(--color-text-secondary);">Marcar como leído +10 XP</button>`:''}
+  </div>`).join('');
+}
+function markRead(i){if(G.learnRead.has(i))return;G.learnRead.add(i);G.xp=Math.min(100,G.xp+10);if(G.learnRead.size>=3){const m=G.missions.find(x=>x.id==='read3');if(m&&!m.done){m.done=true;G.xp=Math.min(100,G.xp+80);showToast('Misión: Leíste 3 conceptos +80 XP');}}updateHUD();renderLearn();}
+
+function renderMissions(){
+  const done=G.missions.filter(m=>m.done).length;
+  document.getElementById('missions-list').innerHTML=`<div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:8px;">${done}/${G.missions.length} completadas</div>`+
+    G.missions.map(m=>`<div style="display:flex;align-items:center;gap:9px;padding:6px 0;border-bottom:0.5px solid var(--color-border-tertiary);">
+      <div class="m-dot ${m.done?'m-done':'m-todo'}">${m.done?'✓':'○'}</div>
+      <div style="flex:1;font-size:11px;color:var(--color-text-primary);${m.done?'text-decoration:line-through;opacity:.5;':''}">${m.text}</div>
+      <div style="font-size:10px;color:var(--color-text-secondary);">${m.pts} XP</div>
+    </div>`).join('');
+}
+
+function checkMissions(total,ret){
+  const ids=Object.keys(G.portfolio).filter(id=>G.portfolio[id].qty>0);
+  const sectors=[...new Set(ids.map(id=>STOCKS.find(s=>s.id===id)?.sector))];
+  let gained=0;
+  G.missions.forEach(m=>{
+    if(m.done)return;let done=false;
+    if(m.id==='first_buy'    && ids.length>=1) done=true;
+    if(m.id==='build_ef'     && G.ef>=3000) done=true;
+    if(m.id==='ef_full'      && G.ef>=6000) done=true;
+    if(m.id==='div_income'   && G.totalDivReceived>0) done=true;
+    if(m.id==='diversify3'   && sectors.length>=3) done=true;
+    if(m.id==='pay_loan'     && G.loanPaidOff) done=true;
+    if(m.id==='profit15'     && ret>=15) done=true;
+    if(m.id==='survive_emerg'&& G._emergSurvived) done=true;
+    if(m.id==='buy_etf'      && G.portfolio['SPY']?.qty>0) done=true;
+    if(done){m.done=true;gained+=m.pts;showToast('Misión: '+m.text+' +'+m.pts+' XP');}
+  });
+  if(gained>0){G.xp=Math.min(100,G.xp+gained);if(G.xp>=100&&G.level<5){G.level++;G.xp=0;showToast('Subiste al Nivel '+G.level+': '+LEVELS[G.level-1]);}}
+  renderMissions();
+}
+
+function buy(id){
+  const p=G.prices[id];if(G.cash<p){showToast('Efectivo insuficiente');return;}
+  G.cash=+(G.cash-p).toFixed(2);
+  if(!G.portfolio[id])G.portfolio[id]={qty:0,avg:p};
+  const pos=G.portfolio[id];pos.avg=+((pos.avg*pos.qty+p)/(pos.qty+1)).toFixed(2);pos.qty++;
+  G.xp=Math.min(100,G.xp+5);
+  const el=document.getElementById('sc-'+id);if(el){el.classList.remove('flash-up','flash-dn');void el.offsetWidth;el.classList.add('flash-up');}
+  showToast('Compraste 1 acc. '+id+' a '+fmt(p));updateHUD();renderStocks();
+}
+function sell(id){
+  const pos=G.portfolio[id];if(!pos||pos.qty<1){showToast('Sin acciones');return;}
+  const pnl=G.prices[id]-pos.avg;G.cash=+(G.cash+G.prices[id]).toFixed(2);pos.qty--;if(pos.qty===0)delete G.portfolio[id];
+  G.xp=Math.min(100,G.xp+3);
+  const el=document.getElementById('sc-'+id);if(el){el.classList.remove('flash-up','flash-dn');void el.offsetWidth;el.classList.add(pnl>=0?'flash-up':'flash-dn');}
+  showToast((pnl>=0?'Ganaste ':'Perdiste ')+fmt(Math.abs(pnl))+' en '+id);updateHUD();renderStocks();
+}
+
+function showTab(name,btn){
+  ['mercado','vida','portafolio','banco','noticias','misiones','aprender'].forEach(t=>{document.getElementById('tab-'+t).style.display=t===name?'block':'none';});
+  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');
+  if(name==='vida')renderVida();if(name==='portafolio')renderPortfolio();if(name==='banco')renderBanco();
+  if(name==='noticias')renderNews();if(name==='misiones')renderMissions();if(name==='aprender')renderLearn();
+}
+
+function nextMonth(){
+  if(G.month>=24){endGame();return;}
+  const exp=monthlyExp();
+  if(G.cash>=exp){G.cash=+(G.cash-exp).toFixed(2);}
+  else{const gap=exp-G.cash;G.cash=0;if(G.ef>=gap){G.ef-=gap;showToast('Gastos: usaste '+fmt(gap)+' del fondo de emergencia');}else{G.loan+=gap;showToast('Sin efectivo — deuda automática: '+fmt(gap));}}
+  if(G.loan>0){const int=+(G.loan*G.loanRate).toFixed(2);G.loan+=int;}
+  if(G.ef>=1000){G.ef=+(G.ef*(1+0.055/12)).toFixed(2);}
+  if(G.month%3===0){const divs=applyDividends();if(divs>0)setTimeout(()=>showToast('Dividendos trimestrales: +'+fmt(divs)),800);}
+  const trigEmerg=G.month>3&&Math.random()<0.15;
+  STOCKS.forEach(s=>G.prev[s.id]=G.prices[s.id]);
+  const evt=EVENTS[Math.floor(Math.random()*EVENTS.length)];
+  STOCKS.forEach(s=>{
+    const d=evt.effect[s.id]||0,noise=(Math.random()-.47)*7;
+    G.prices[s.id]=Math.max(1,+(G.prices[s.id]*(1+(d+noise)/100)).toFixed(2));G.hist[s.id].push(G.prices[s.id]);
+    const el=document.getElementById('sc-'+s.id);if(el){el.classList.remove('flash-up','flash-dn');void el.offsetWidth;el.classList.add(G.prices[s.id]>=G.prev[s.id]?'flash-up':'flash-dn');}
+  });
+  G.news_history.push({...evt,month:G.month});G.month++;G.xp=Math.min(100,G.xp+6);
+  const C={up:['var(--color-background-success)','var(--color-border-success)','var(--color-text-success)'],dn:['var(--color-background-danger)','var(--color-border-danger)','var(--color-text-danger)'],neu:['var(--color-background-secondary)','var(--color-border-tertiary)','var(--color-text-secondary)']};
+  const [bg,bc,tc]=C[evt.tag]||C.neu;
+  const box=document.getElementById('evt-box');box.style.background=bg;box.style.borderColor=bc;
+  document.getElementById('evt-title').style.color=tc;document.getElementById('evt-title').textContent=evt.title;
+  document.getElementById('evt-desc').textContent=evt.desc+' | Gastos: –'+fmt(exp);
+  document.getElementById('btn-next').textContent=G.month<=24?'Avanzar al mes '+(G.month+1)+' →':'Ver resultado final →';
+  if(G.month>24)document.getElementById('btn-next').textContent='Ver resultado final →';
+  updateHUD();renderStocks();
+  if(document.getElementById('tab-portafolio').style.display!=='none')renderPortfolio();
+  if(document.getElementById('tab-vida').style.display!=='none')renderVida();
+  if(document.getElementById('tab-banco').style.display!=='none')renderBanco();
+  if(trigEmerg)setTimeout(triggerEmergency,700);
+}
+
+function endGame(){
+  const total=G.cash+pv()+G.ef,ret=(total-G.start)/G.start*100,done=G.missions.filter(m=>m.done).length;
+  alert('Juego terminado!\n\nNivel final: '+LEVELS[G.level-1]+'\nPortafolio: '+fmt(total)+' ('+fmtP(ret)+')\nDividendos: '+fmt(G.totalDivReceived)+'\nMisiones: '+done+'/'+G.missions.length+'\n\nVe a stockmarketbro.app para seguir aprendiendo!');
+}
+
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
+
+updateHUD();renderStocks();renderMissions();
+</script>
+</body>
+</html>
