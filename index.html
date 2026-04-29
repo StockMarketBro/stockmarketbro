@@ -1027,7 +1027,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
       <div style="display:flex;flex-direction:column;gap:10px;">
         <div class="section-card">
           <div class="section-card-title">Mi portafolio</div>
-          <table class="ptable"><thead><tr><th>Activo</th><th>Acciones</th><th>Precio</th><th>Valor</th><th>P&L</th></tr></thead>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+              <div style="font-size:10px;color:var(--tx2);" id="port-updated">Precios en tiempo real · Finnhub</div>
+              <button onclick="aRefreshPrices()" style="font-size:10px;padding:2px 8px;border-radius:var(--rad);border:0.5px solid var(--br);background:transparent;cursor:pointer;font-family:inherit;color:var(--tx2);">↻ Actualizar</button>
+            </div>
+            <table class="ptable"><thead><tr><th>Activo</th><th>Acciones</th><th>Precio actual</th><th>Valor</th><th>P&L</th></tr></thead>
           <tbody id="a-ptbody"><tr><td colspan="5" class="empty">Aún sin posiciones.</td></tr></tbody></table>
           <div style="margin-top:9px;padding-top:9px;border-top:0.5px solid var(--br);display:flex;justify-content:space-between;">
             <div style="font-size:11px;color:var(--tx2);">Valor total portafolio</div>
@@ -2232,6 +2236,9 @@ function updateBothSimUIs(){
       return`<div class="hist-item"><div style="display:flex;align-items:center;gap:7px;"><span class="hist-badge" style="background:${isC?'var(--gl)':'var(--rl)'};color:${isC?'var(--gd)':'var(--rd)'};">${isC?'Compra':'Venta'}</span><div><div style="font-size:12px;font-weight:600;">${h.sym}</div><div style="font-size:10px;color:var(--tx2);">${fmtQ(h.qty)} × $${h.price.toFixed(2)}</div></div></div><div style="text-align:right;"><div style="font-size:12px;font-weight:600;">$${h.cost.toFixed(2)}</div><div style="font-size:10px;color:var(--tx2);">${dt}</div></div></div>`;
     }).join('');}
   }
+  // Update last-updated timestamp
+  const puEl=document.getElementById('port-updated');
+  if(puEl){const now=new Date().toLocaleTimeString('es',{hour:'2-digit',minute:'2-digit'});puEl.textContent='Actualizado: '+now+' · Finnhub';}
   // Update dashboard panel (same data)
   const aBal=document.getElementById('a-bal');if(aBal)aBal.textContent='$'+window.simBalance.toLocaleString('es',{minimumFractionDigits:2,maximumFractionDigits:2});
   const apv=document.getElementById('a-portval');if(apv)apv.textContent='$'+tv.toFixed(2);
@@ -2336,9 +2343,27 @@ function aUpdateTotal(){}
 function aResetSim(){if(!confirm('¿Reiniciar simulación?'))return;window.simBalance=10000;window.simPortfolio={};window.simHistory=[];updateBothSimUIs();if(window.saveUserData)window.saveUserData();showToast('Simulación reiniciada · $10,000');}
 async function aRefreshPrices(){
   try{
+    // 1. Refresh current selected symbol
     const rsym=aSym||window.simSym;
-    if(rsym){await fetchP(rsym);const p=lp[aSym];if(p){const pe=document.getElementById('a-price');if(pe)pe.textContent='$'+p.c.toFixed(2);aCalcS();aCalcU();}}
-    aUpdatePortfolioPnl();
+    if(rsym){
+      await fetchP(rsym);
+      const p=lp[rsym];
+      if(p){
+        const pe=document.getElementById('a-price');if(pe)pe.textContent='$'+p.c.toFixed(2);
+        aCalcS();aCalcU();
+      }
+    }
+    // 2. Refresh all portfolio symbols to get live P&L
+    const portfolioSyms=Object.keys(window.simPortfolio).filter(s=>window.simPortfolio[s]?.qty>0);
+    for(const sym of portfolioSyms){
+      if(sym===rsym) continue; // already fetched
+      try{
+        await fetchP(sym);
+        await new Promise(r=>setTimeout(r,300)); // respect rate limit
+      }catch(e){}
+    }
+    // 3. Update UI with fresh prices
+    updateBothSimUIs();
   }catch(e){}
 }
 function aUpdateSimUI(){updateBothSimUIs();return;//
@@ -2350,7 +2375,7 @@ function aUpdateSimUI(){updateBothSimUIs();return;//
   if(!aTradeHistory.length){hist.innerHTML='<div class="empty">Aún sin operaciones.</div>';return;}
   hist.innerHTML=aTradeHistory.slice(0,10).map(h=>{const dt=new Date(h.ts).toLocaleString('es',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});const isC=h.type==='compra';return`<div class="hist-item"><div style="display:flex;align-items:center;gap:7px;"><span class="hist-badge" style="background:${isC?'var(--gl)':'var(--rl)'};color:${isC?'var(--gd)':'var(--rd)'};">${isC?'Compra':'Venta'}</span><div><div style="font-size:12px;font-weight:600;">${h.sym}</div><div style="font-size:10px;color:var(--tx2);">${fmtQ(h.qty)} × $${h.price.toFixed(2)}</div></div></div><div style="text-align:right;"><div style="font-size:12px;font-weight:600;">$${h.cost.toFixed(2)}</div><div style="font-size:10px;color:var(--tx2);">${dt}</div></div></div>`;}).join('');
 }
-setInterval(aRefreshPrices,30000);
+setInterval(aRefreshPrices,60000); // refresh all portfolio prices every 60s
 
 // ═══ AUTO SIGNALS
 // ═══ AUTO SIGNALS (Twelve Data) ═══
