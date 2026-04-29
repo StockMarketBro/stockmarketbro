@@ -2561,7 +2561,7 @@ function renderAuthorListPanel(){
         '<div style="font-size:12px;font-weight:600;">'+r.title+'</div>'+
         '<div style="font-size:11px;color:var(--tx2);">'+(r.symbol||r.sym||'')+' · '+tsStr+'</div>'+
       '</div>'+
-      '<button onclick="deleteRec(''+r.id+'')" style="font-size:10px;padding:3px 8px;border-radius:var(--rad);border:0.5px solid var(--rd);background:transparent;color:var(--rd);cursor:pointer;font-family:inherit;flex-shrink:0;">Borrar</button>'+
+      '<button onclick="deleteRec(&quot;'+r.id+'&quot;)" style="font-size:10px;padding:3px 8px;border-radius:var(--rad);border:0.5px solid var(--rd);background:transparent;color:var(--rd);cursor:pointer;font-family:inherit;flex-shrink:0;">Borrar</button>'+
     '</div>';
   }).join('');
 }
