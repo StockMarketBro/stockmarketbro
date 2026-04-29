@@ -2460,6 +2460,43 @@ function isMACDDown(d){if(!d?.values||d.values.length<2)return false;return pars
 function isStochDown(d){if(!d?.values||d.values.length<2)return false;return parseFloat(d.values[0].k)<parseFloat(d.values[1].k);}
 function allUp(rsi,macd,stoch){return isRSIUp(rsi)&&isMACDUp(macd)&&isStochUp(stoch);}
 function allDown(rsi,macd,stoch){return isRSIDown(rsi)&&isMACDDown(macd)&&isStochDown(stoch);}
+// Fallback: manual scan when Firestore has no data yet
+async function runManualScan(){
+  const btn=document.getElementById('scan-btn');
+  const pb=document.getElementById('scan-pb');
+  const pf=document.getElementById('scan-pf');
+  if(pf)pf.style.width='10%';
+  autoResults=[];
+  const results=[];
+  let done=0;
+  for(let i=0;i<WATCHLIST.length;i+=1){
+    const s=WATCHLIST[i];
+    try{
+      const r=await analyzeStock(s.sym,s.name);
+      if(r)results.push(r);
+      autoResults=[...results,...WATCHLIST.slice(i+1).map(w=>({sym:w.sym,name:w.name,dir:'none',level:'none'}))];
+    }catch(e){}
+    done++;
+    if(pf)pf.style.width=Math.round(10+(done/WATCHLIST.length)*85)+'%';
+    if(i+1<WATCHLIST.length)await new Promise(r=>setTimeout(r,2500));
+  }
+  autoResults=results;
+  // Update stats
+  const buyc=results.filter(r=>r.dir==='buy').length;
+  const sellc=results.filter(r=>r.dir==='sell').length;
+  const highc=results.filter(r=>r.level==='high').length;
+  const vhc=results.filter(r=>r.level==='very-high').length;
+  const el1=document.getElementById('stat-total');if(el1)el1.textContent=WATCHLIST.length;
+  const el2=document.getElementById('stat-buy');if(el2)el2.textContent=buyc;
+  const el3=document.getElementById('stat-sell');if(el3)el3.textContent=sellc;
+  const el4=document.getElementById('stat-h');if(el4)el4.textContent=highc;
+  const el5=document.getElementById('stat-vh');if(el5)el5.textContent=vhc;
+  const now=new Date().toLocaleTimeString('es',{hour:'2-digit',minute:'2-digit'});
+  const updEl=document.getElementById('auto-update');
+  if(updEl)updEl.textContent='Escaneo manual: '+now;
+  renderAutoSignals();
+}
+
 async function analyzeStock(sym){
   // Fetch all timeframes in parallel: daily, weekly, monthly, 2month
   const[
@@ -2501,48 +2538,57 @@ async function analyzeStock(sym){
 function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
 let _scanRunning=false;
 async function runScan(){
-  if(typeof WATCHLIST==='undefined')return;
-  if(_scanRunning){showToast('El análisis ya está en curso...');return;}
+  if(_scanRunning){showToast('Cargando señales...');return;}
   _scanRunning=true;
   const btn=document.getElementById('scan-btn');
-  if(btn)btn.disabled=true;
-  const pb=document.getElementById('scan-pb');const pf=document.getElementById('scan-pf');
-  if(pb){pb.style.display='block';pf.style.width='0%';}
-  document.getElementById('auto-list').innerHTML='<div class="loading-state">Analizando indicadores técnicos...</div>';
-  await Promise.all(WATCHLIST.map(s=>fetchP(s.sym)));
-  autoResults=[];
-  // 12 API calls per stock × 24 stocks = 288 total
-  // Twelve Data free: 800 calls/day, 8/min → batch of 1 with 1.5s delay
-  const BATCH=1;
-  for(let i=0;i<WATCHLIST.length;i+=BATCH){
-    const batch=WATCHLIST.slice(i,i+BATCH);
-    const results=await Promise.all(batch.map(s=>analyzeStock(s.sym)));
-    autoResults.push(...results);
-    if(pf)pf.style.width=Math.round(((i+BATCH)/WATCHLIST.length)*100)+'%';
-    if(i+BATCH<WATCHLIST.length)await sleep(2500);
+  if(btn){btn.disabled=true;btn.textContent='⏳ Cargando...';}
+  const pb=document.getElementById('scan-pb');
+  const pf=document.getElementById('scan-pf');
+  if(pb)pb.style.display='block';
+  if(pf)pf.style.width='30%';
+
+  try{
+    // Read pre-computed signals from Firestore (updated every hour by cron job)
+    const snap=await db.collection('auto_signals').doc('latest').get();
+    if(snap.exists){
+      const data=snap.data();
+      autoResults=data.signals||[];
+      if(pf)pf.style.width='100%';
+
+      // Update stats
+      const total=data.total||0;
+      const buyc=data.buyCount||0;
+      const sellc=data.sellCount||0;
+      const highc=data.highCount||0;
+      const vhc=data.veryHighCount||0;
+      const el1=document.getElementById('stat-total');if(el1)el1.textContent=total;
+      const el2=document.getElementById('stat-buy');if(el2)el2.textContent=buyc;
+      const el3=document.getElementById('stat-sell');if(el3)el3.textContent=sellc;
+      const el4=document.getElementById('stat-h');if(el4)el4.textContent=highc;
+      const el5=document.getElementById('stat-vh');if(el5)el5.textContent=vhc;
+
+      // Show scan time
+      const scannedAt=data.scannedAt?new Date(data.scannedAt).toLocaleTimeString('es',{hour:'2-digit',minute:'2-digit'}):'—';
+      const updEl=document.getElementById('auto-update');
+      if(updEl)updEl.textContent='Último escaneo: '+scannedAt+' · Actualización automática cada hora';
+
+      renderAutoSignals();
+    } else {
+      // No data yet — fallback to manual scan
+      await runManualScan();
+    }
+  }catch(e){
+    console.warn('Firestore signals unavailable, running manual scan',e);
+    await runManualScan();
+  }finally{
+    if(pb)pb.style.display='none';
+    if(pf)pf.style.width='0%';
+    if(btn){btn.disabled=false;btn.textContent='↻ Actualizar análisis';}
+    _scanRunning=false;
   }
-  if(pb)setTimeout(()=>{pb.style.display='none';},500);
-  renderAutoSignals();
-  const vhc=autoResults.filter(r=>r.level==='very-high').length;
-  const hc=autoResults.filter(r=>r.level==='high').length;
-  const buyc=autoResults.filter(r=>r.dir==='buy'&&r.level!=='none').length;
-  const sellc=autoResults.filter(r=>r.dir==='sell'&&r.level!=='none').length;
-  document.getElementById('stat-total').textContent=autoResults.length;
-  document.getElementById('stat-vh').textContent=vhc;
-  document.getElementById('stat-h').textContent=hc;
-  const statUpd=document.getElementById('stat-upd');
-  if(statUpd){
-    const buyEl=document.getElementById('stat-buy');
-    const sellEl=document.getElementById('stat-sell');
-    if(buyEl) buyEl.textContent=buyc;
-    if(sellEl) sellEl.textContent=sellc;
-  }
-  const now=new Date().toLocaleTimeString('es',{hour:'2-digit',minute:'2-digit'});
-  document.getElementById('stat-upd').textContent=now;
-  document.getElementById('auto-update').textContent='Actualizado: '+now;
-  if(btn)btn.disabled=false;
-  _scanRunning=false;
 }
+
+
 function renderAutoSignals(){
   const filtered = autoFilter==='all'
     ? autoResults.filter(r=>r.level!=='none')
