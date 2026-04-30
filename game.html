@@ -45,7 +45,7 @@ window.login = async () => {
 class GameScene extends Phaser.Scene {
 
   preload() {
-    this.load.spritesheet("player","assets/player.png",{frameWidth:64,frameHeight:64});
+    this.load.image("player","assets/player.png");
     this.load.spritesheet("enemy","assets/enemy.png",{frameWidth:64,frameHeight:64});
 
     this.load.image("particle","assets/particle.png");
@@ -86,7 +86,7 @@ class GameScene extends Phaser.Scene {
   }
 
   createCharacters(){
-    this.player = this.add.sprite(200,300,"player").setScale(2).play("idle");
+    this.player = this.add.image(200, 300, "player").setScale(2);.play("idle");
     this.enemy = this.add.sprite(600,300,"enemy").setScale(2).play("enemy_idle");
   }
 
