@@ -1,547 +1,208 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
+<title>StockQuest Ultimate</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>StockQuest RPG — StockMarketBro</title>
+
+<script src="https://cdn.jsdelivr.net/npm/phaser@3/dist/phaser.js"></script>
+
 <style>
-:root{--dk:#0d1117;--dk2:#161b22;--dk3:#21262d;--g:#1D9E75;--g2:#5DCAA5;--gold:#EF9F27;--gold2:#FAC775;--bl:#378ADD;--pu:#7F77DD;--re:#E24B4A;--br:rgba(255,255,255,0.08);--tx:#e6edf3;--tx2:#8b949e;--font:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;--rad:8px;--radl:12px;--radxl:16px;}
-*{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:var(--font);background:var(--dk);color:var(--tx);min-height:100vh;}
-.topbar{background:var(--dk2);border-bottom:1px solid var(--br);padding:10px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
-.logo{font-size:14px;font-weight:600;letter-spacing:-.01em;color:#fff;}.logo span{color:var(--gold);}
-.beta-pill{font-size:10px;padding:2px 8px;border-radius:999px;background:rgba(239,159,39,.15);color:var(--gold2);font-weight:500;margin-left:8px;}
-.topbar-right{display:flex;align-items:center;gap:12px;}
-.topbar-right a{font-size:12px;color:var(--tx2);text-decoration:none;}
-.topbar-right a:hover{color:var(--g2);}
-#screen-select{display:block;}#screen-game{display:none;}
-.sel-wrap{padding:20px;max-width:720px;margin:0 auto;}
-.hero-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px;}
-.hcard{background:var(--dk2);border:1px solid var(--br);border-radius:var(--radxl);padding:14px;cursor:pointer;transition:transform .15s,border-color .2s;text-align:center;position:relative;overflow:hidden;}
-.hcard:hover{transform:translateY(-2px);}
-.hcard.sel{border-width:1.5px;}
-.hcard-topline{position:absolute;top:0;left:0;right:0;height:3px;border-radius:var(--radxl) var(--radxl) 0 0;}
-.rar-badge{position:absolute;top:9px;right:9px;font-size:9px;font-weight:500;padding:2px 7px;border-radius:999px;}
-.rar-L{background:rgba(239,159,39,.18);color:var(--gold2);}
-.rar-E{background:rgba(127,119,221,.18);color:#AFA9EC;}
-.rar-R{background:rgba(55,138,221,.18);color:#85B7EB;}
-.mbar{display:flex;align-items:center;gap:5px;margin-bottom:3px;}
-.mbar-lbl{font-size:9px;color:var(--tx2);width:34px;text-align:right;}
-.mbar-bg{flex:1;height:3px;background:var(--dk3);border-radius:999px;overflow:hidden;}
-.mbar-fg{height:3px;border-radius:999px;}
-.mbar-val{font-size:9px;color:var(--tx2);width:18px;}
-.det-panel{background:var(--dk2);border-radius:var(--radxl);padding:18px;margin-bottom:18px;display:none;border:1px solid var(--br);}
-.det-panel.show{display:block;}
-.det-head{display:flex;gap:14px;margin-bottom:14px;}
-.det-lore{font-size:12px;color:var(--tx2);line-height:1.6;}
-.det-attrs{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:12px;}
-.dattr{background:var(--dk3);border-radius:var(--rad);padding:7px 9px;text-align:center;}
-.dattr-l{font-size:9px;color:var(--tx2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px;}
-.dattr-v{font-size:14px;font-weight:500;}
-.dattr-bar{height:3px;border-radius:999px;background:rgba(255,255,255,.07);margin-top:3px;overflow:hidden;}
-.dattr-fill{height:3px;border-radius:999px;}
-.bonuses{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;}
-.bon{font-size:10px;padding:3px 9px;border-radius:999px;font-weight:500;}
-.btn-start{width:100%;padding:13px;border-radius:999px;border:none;font-size:14px;font-weight:500;cursor:pointer;font-family:var(--font);color:#0d1117;transition:opacity .2s;}
-.btn-start:hover{opacity:.88;}
-.game-wrap{max-width:720px;margin:0 auto;padding:16px;}
-.rpg-scene{position:relative;height:140px;overflow:hidden;border-radius:var(--radxl);margin-bottom:14px;border:1px solid var(--br);}
-.s-sky{position:absolute;inset:0;background:#1a3a5c;}
-.s-hills{position:absolute;bottom:0;left:0;right:0;height:55px;background:#2a5f3a;}
-.s-h1{position:absolute;bottom:28px;left:-20px;width:160px;height:80px;border-radius:50%;background:#3a7a4a;}
-.s-h2{position:absolute;bottom:22px;left:100px;width:200px;height:90px;border-radius:50%;background:#2f6b3f;}
-.s-h3{position:absolute;bottom:24px;right:-20px;width:180px;height:80px;border-radius:50%;background:#3a7a4a;}
-.s-sun{position:absolute;top:14px;right:40px;width:30px;height:30px;background:var(--gold);border-radius:50%;}
-.hero-char{position:absolute;bottom:40px;left:40px;}
-.building{position:absolute;bottom:40px;display:flex;flex-direction:column;align-items:center;cursor:pointer;}
-.building:hover .b-roof{filter:brightness(1.25);}
-.b-roof{width:44px;height:44px;border-radius:8px 8px 0 0;display:flex;align-items:center;justify-content:center;font-size:18px;transition:filter .2s;}
-.b-base{width:50px;height:16px;border-radius:0 0 4px 4px;background:rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;}
-.b-base span{font-size:8px;color:#fff;font-weight:500;text-transform:uppercase;}
-.scene-hp{position:absolute;bottom:8px;left:14px;display:flex;align-items:center;gap:6px;}
-.hp-bar{width:80px;height:5px;background:rgba(0,0,0,.4);border-radius:999px;overflow:hidden;}
-.hp-fill{height:5px;background:var(--re);border-radius:999px;transition:width .5s;}
-.xp-row{display:flex;align-items:center;gap:8px;margin-bottom:12px;}
-.xp-lbl{font-size:11px;color:var(--tx2);}
-.xp-bar-bg{flex:1;height:5px;background:var(--dk3);border-radius:999px;overflow:hidden;}
-.xp-bar-fg{height:5px;background:var(--bl);border-radius:999px;transition:width .6s;}
-.lvl-badge{font-size:11px;font-weight:500;padding:2px 10px;border-radius:999px;background:rgba(239,159,39,.12);color:var(--gold2);}
-.hud{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:12px;}
-.hc{background:var(--dk2);border:1px solid var(--br);border-radius:var(--rad);padding:9px 10px;}
-.hc-l{font-size:9px;color:var(--tx2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px;}
-.hc-v{font-size:15px;font-weight:500;color:#fff;}
-.hc-v.g{color:var(--g2);}.hc-v.r{color:var(--re);}.hc-v.b{color:var(--bl);}
-.evt-box{border-radius:var(--radl);border:1px solid var(--br);overflow:hidden;margin-bottom:12px;}
-.evt-hdr{padding:10px 14px;display:flex;align-items:center;gap:10px;}
-.evt-icon-box{width:34px;height:34px;border-radius:var(--rad);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
-.evt-title{font-size:12px;font-weight:500;color:#fff;}
-.evt-month{font-size:10px;color:var(--tx2);margin-top:2px;}
-.evt-lesson{padding:8px 14px;font-size:11px;color:var(--tx2);border-top:1px solid var(--br);}
-.evt-lesson b{color:var(--g2);}
-.tabs{display:flex;gap:0;border-bottom:1px solid var(--br);margin-bottom:12px;}
-.tab{padding:8px 12px;font-size:12px;cursor:pointer;border:none;background:transparent;color:var(--tx2);font-family:var(--font);border-bottom:2px solid transparent;margin-bottom:-1px;transition:color .15s;}
-.tab:hover{color:var(--tx);}
-.tab.active{color:var(--g2);border-bottom-color:var(--g2);font-weight:500;}
-.mkt-zone-label{font-size:11px;color:var(--tx2);margin-bottom:10px;}
-.mkt-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
-.mkt-card{background:var(--dk2);border:1px solid var(--br);border-radius:var(--radl);padding:11px;transition:border-color .2s,transform .15s;position:relative;}
-.mkt-card:hover{border-color:rgba(255,255,255,.2);transform:translateY(-1px);}
-.mkt-card.fu{animation:fup .5s;}
-.mkt-card.fd{animation:fdn .5s;}
-@keyframes fup{0%{background:var(--dk2)}40%{background:rgba(29,158,117,.12)}100%{background:var(--dk2)}}
-@keyframes fdn{0%{background:var(--dk2)}40%{background:rgba(226,75,74,.09)}100%{background:var(--dk2)}}
-.mkt-row{display:flex;align-items:center;gap:6px;margin-bottom:3px;}
-.mkt-btns{display:flex;gap:5px;margin-top:8px;}
-.btn-buy{padding:5px 10px;border-radius:999px;border:none;background:var(--g);color:#fff;font-size:11px;cursor:pointer;font-family:var(--font);}
-.btn-buy:hover{opacity:.85;}
-.btn-sell{padding:5px 10px;border-radius:999px;border:none;background:var(--re);color:#fff;font-size:11px;cursor:pointer;font-family:var(--font);}
-.btn-sell:hover{opacity:.85;}
-.btn-buy:disabled,.btn-sell:disabled{opacity:.3;cursor:not-allowed;}
-.float-txt{position:absolute;font-size:12px;font-weight:500;pointer-events:none;animation:fltup 1.4s ease-out forwards;z-index:10;}
-@keyframes fltup{0%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-36px)}}
-.port-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:12px;}
-.ps{background:var(--dk2);border:1px solid var(--br);border-radius:var(--rad);padding:8px;text-align:center;}
-.ps-l{font-size:9px;color:var(--tx2);margin-bottom:2px;text-transform:uppercase;}
-.port-item{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--br);}
-.port-item:last-child{border-bottom:none;}
-.port-icon{width:32px;height:32px;border-radius:var(--rad);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
-.kgd-section{background:var(--dk2);border:1px solid var(--br);border-radius:var(--radl);padding:14px;margin-bottom:10px;}
-.kgd-title{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
-.kgd-title span{font-size:18px;}
-.kgd-title div{font-size:13px;font-weight:500;color:#fff;}
-.kgd-btns{display:flex;gap:6px;flex-wrap:wrap;}
-.btn-kgd{padding:6px 12px;border-radius:999px;border:1px solid rgba(55,138,221,.4);background:rgba(55,138,221,.1);color:#85B7EB;font-size:11px;cursor:pointer;font-family:var(--font);}
-.btn-kgd:hover{background:rgba(55,138,221,.18);}
-.btn-kgd:disabled{opacity:.3;cursor:not-allowed;}
-.btn-danger{border-color:rgba(226,75,74,.4);background:rgba(226,75,74,.1);color:#F09595;}
-.btn-danger:hover{background:rgba(226,75,74,.18);}
-.expense-row{display:flex;justify-content:space-between;padding:4px 0;font-size:12px;color:var(--tx2);}
-.expense-row span{color:var(--re);}
-.bar-row2{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
-.bar-bg2{flex:1;height:6px;background:var(--dk3);border-radius:999px;overflow:hidden;}
-.bar-fg2{height:6px;border-radius:999px;transition:width .5s;}
-.mission{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--br);}
-.mission:last-child{border-bottom:none;}
-.mis-gem{width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;}
-.mis-done{background:rgba(29,158,117,.15);}
-.mis-todo{background:var(--dk3);}
-.learn-item{padding:12px 0;border-bottom:1px solid var(--br);}
-.learn-item:last-child{border-bottom:none;}
-.btn-read{padding:3px 11px;border-radius:999px;border:1px solid var(--br);background:transparent;color:var(--tx2);font-size:10px;cursor:pointer;font-family:var(--font);}
-.btn-read:hover{background:var(--dk3);}
-.btn-next{width:100%;padding:13px;border-radius:999px;border:none;background:var(--g);color:#fff;font-size:13px;font-weight:500;cursor:pointer;font-family:var(--font);margin-top:4px;}
-.btn-next:hover{opacity:.9;}
-.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:200;align-items:center;justify-content:center;padding:20px;}
-.modal-bg.open{display:flex;}
-.modal-box{background:var(--dk2);border:1px solid var(--br);border-radius:var(--radxl);padding:22px;width:100%;max-width:400px;}
-.btn-modal{width:100%;padding:11px;border-radius:999px;border:none;font-size:12px;font-weight:500;cursor:pointer;font-family:var(--font);margin-bottom:8px;}
-.btn-modal:last-child{margin-bottom:0;}
-.btn-modal:hover{opacity:.88;}
-.btn-modal:disabled{opacity:.3;cursor:not-allowed;}
-.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%) scale(.95);background:var(--dk2);border:1px solid var(--br);border-radius:var(--radl);padding:9px 18px;font-size:12px;font-weight:500;color:var(--tx);opacity:0;transition:opacity .25s,transform .25s;pointer-events:none;z-index:999;}
-.toast.show{opacity:1;transform:translateX(-50%) scale(1);}
-.disc{font-size:10px;color:var(--tx2);text-align:center;padding:12px 0;line-height:1.5;}
+body { margin:0; background:black; }
+#login { position:absolute; top:10px; right:10px; z-index:10; }
+button { padding:8px; }
 </style>
 </head>
+
 <body>
-<div class="topbar">
-  <div style="display:flex;align-items:center;">
-    <div class="logo">STOCK<span>QUEST</span> RPG</div>
-    <span class="beta-pill">BETA</span>
-  </div>
-  <div class="topbar-right">
-    <a href="https://stockmarketbro.app">StockMarketBro</a>
-    <a href="https://stockmarketbro.app" style="background:var(--g);color:#fff;padding:5px 14px;border-radius:999px;font-weight:500;">Crear cuenta</a>
-  </div>
+
+<div id="login">
+<button onclick="login()">Login</button>
 </div>
 
-<div id="screen-select">
-  <div class="sel-wrap">
-    <div style="text-align:center;padding:20px 0 16px;">
-      <div style="font-size:28px;margin-bottom:10px;">⚔️</div>
-      <div style="font-size:24px;font-weight:500;color:#fff;margin-bottom:6px;letter-spacing:-.02em;">Elige tu héroe</div>
-      <div style="font-size:13px;color:var(--tx2);">6 guerreros mitológicos · Habilidades únicas de inversión</div>
-    </div>
-    <div class="det-panel" id="det-panel"></div>
-    <div class="hero-grid" id="hero-grid"></div>
-    <div class="disc">StockQuest RPG es un simulador educativo. No constituye asesoramiento financiero. · stockmarketbro.app</div>
-  </div>
-</div>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-<div id="screen-game" style="display:none;">
-  <div class="game-wrap">
-    <div class="rpg-scene">
-      <div class="s-sky"></div>
-      <div class="s-h1"></div><div class="s-h2"></div><div class="s-h3"></div>
-      <div class="s-hills"></div>
-      <div class="s-sun"></div>
-      <div class="hero-char" id="hero-char"><svg id="hero-svg" width="48" height="60" viewBox="0 0 48 60"></svg></div>
-      <div class="building" style="right:200px;" onclick="filterZone('mineria')"><div class="b-roof" style="background:#854F0B;">⛏️</div><div class="b-base"><span>Minas</span></div></div>
-      <div class="building" style="right:140px;" onclick="filterZone('finanzas')"><div class="b-roof" style="background:#185FA5;">🏦</div><div class="b-base"><span>Banco</span></div></div>
-      <div class="building" style="right:80px;" onclick="filterZone('tech')"><div class="b-roof" style="background:#534AB7;">💻</div><div class="b-base"><span>Tech</span></div></div>
-      <div class="building" style="right:20px;" onclick="filterZone('cripto')"><div class="b-roof" style="background:#3B6D11;">₿</div><div class="b-base"><span>Cripto</span></div></div>
-      <div class="scene-hp">
-        <div style="font-size:9px;color:#fff;font-weight:500;">HP</div>
-        <div class="hp-bar"><div class="hp-fill" id="hp-fill" style="width:100%;"></div></div>
-        <div style="font-size:9px;color:#fff;" id="hp-txt">100</div>
-      </div>
-      <div style="position:absolute;bottom:8px;right:14px;font-size:9px;color:rgba(255,255,255,.5);">Toca edificios para filtrar</div>
-    </div>
-    <div class="xp-row">
-      <div class="lvl-badge" id="lvl-badge">Nivel 1 — Ahorrista</div>
-      <div class="xp-bar-bg"><div class="xp-bar-fg" id="xp-bar" style="width:5%;"></div></div>
-      <div class="xp-lbl" id="xp-lbl">5 XP</div>
-    </div>
-    <div class="hud">
-      <div class="hc"><div class="hc-l">Oro</div><div class="hc-v b" id="hud-cash">S/ 10,000</div></div>
-      <div class="hc"><div class="hc-l">Portafolio</div><div class="hc-v" id="hud-port">S/ 0</div></div>
-      <div class="hc"><div class="hc-l">Escudo</div><div class="hc-v b" id="hud-ef">S/ 0</div></div>
-      <div class="hc"><div class="hc-l">Gloria</div><div class="hc-v g" id="hud-ret">+0.0%</div></div>
-    </div>
-    <div class="evt-box" id="evt-box">
-      <div class="evt-hdr" style="background:rgba(24,95,165,.15);" id="evt-hdr">
-        <div class="evt-icon-box" style="background:rgba(24,95,165,.2);" id="evt-icon">📜</div>
-        <div><div class="evt-title" id="evt-title">Inicio de la aventura</div><div class="evt-month" id="evt-month">Mes 1 de 24 · Año 1</div></div>
-      </div>
-      <div class="evt-lesson" id="evt-lesson">Tienes <b>S/ 10,000</b> de oro. Explora el mundo, captura activos y construye tu legado financiero.</div>
-    </div>
-    <div class="tabs">
-      <button class="tab active" onclick="showTab('mercado',this)">⚔️ Mercado</button>
-      <button class="tab" onclick="showTab('portafolio',this)">🎒 Mochila</button>
-      <button class="tab" onclick="showTab('reino',this)">🏰 Reino</button>
-      <button class="tab" onclick="showTab('misiones',this)">📜 Misiones</button>
-      <button class="tab" onclick="showTab('aprender',this)">📖 Aprender</button>
-    </div>
-    <div id="tab-mercado">
-      <div class="mkt-zone-label" id="zone-lbl">Todos los activos · Toca edificios del mapa para filtrar</div>
-      <div class="mkt-grid" id="mkt-grid"></div>
-    </div>
-    <div id="tab-portafolio" style="display:none;">
-      <div class="port-summary">
-        <div class="ps"><div class="ps-l">Invertido</div><div style="font-size:13px;font-weight:500;color:#fff;" id="p-inv">S/ 0</div></div>
-        <div class="ps"><div class="ps-l">Efectivo</div><div style="font-size:13px;font-weight:500;color:#fff;" id="p-cash">S/ 10,000</div></div>
-        <div class="ps"><div class="ps-l">Retorno</div><div style="font-size:13px;font-weight:500;" id="p-ret">+0.0%</div></div>
-      </div>
-      <div id="port-items"><div style="text-align:center;padding:24px;font-size:12px;color:var(--tx2);">Tu mochila está vacía.</div></div>
-    </div>
-    <div id="tab-reino" style="display:none;"></div>
-    <div id="tab-misiones" style="display:none;"><div id="missions-list"></div></div>
-    <div id="tab-aprender" style="display:none;"><div id="learn-list"></div></div>
-    <button class="btn-next" id="btn-next" onclick="nextMonth()">⚔️ Avanzar al mes 2</button>
-    <div class="disc">StockQuest RPG es un simulador educativo con datos ficticios. No constituye asesoramiento financiero. · stockmarketbro.app</div>
-  </div>
-</div>
+/* ================= FIREBASE ================= */
 
-<div class="modal-bg" id="emerg-modal">
-  <div class="modal-box">
-    <div style="font-size:32px;text-align:center;margin-bottom:10px;" id="emerg-icon">🚨</div>
-    <div style="font-size:16px;font-weight:500;color:#fff;text-align:center;margin-bottom:6px;" id="emerg-title"></div>
-    <div style="font-size:13px;color:var(--tx2);text-align:center;margin-bottom:18px;line-height:1.5;" id="emerg-desc"></div>
-    <div id="emerg-opts"></div>
-  </div>
-</div>
-<div class="toast" id="toast"></div>
+const firebaseConfig = {
+  apiKey: "YOUR_KEY",
+  authDomain: "YOUR_APP.firebaseapp.com",
+  projectId: "YOUR_ID",
+};
 
-<script>
-const HEROES=[
-  {id:'zeus',n:'Zeus',cls:'Dios del Olimpo',rar:'L',lore:'El padre de los dioses sacude Wall Street con rayos. Sus apuestas en tecnología son tan audaces como sus truenos.',col:'#EF9F27',col2:'#633806',skill:'Rayo tech: +20% ganancia en zona tecnológica',bon:[{t:'Tech +20%',bg:'rgba(239,159,39,.15)',c:'#FAC775'},{t:'Dividendos x2',bg:'rgba(29,158,117,.15)',c:'#5DCAA5'},{t:'Volatilidad alta',bg:'rgba(226,75,74,.15)',c:'#F09595'}],at:{Ataque:95,Defensa:60,Suerte:80,Dividendos:85},
-   spr(w,h,c,c2){return`<circle cx="${w/2}" cy="${h*.22}" r="${w*.22}" fill="#FFD6A5" stroke="${c}" stroke-width="1.5"/><text x="${w/2}" y="${h*.3}" text-anchor="middle" font-size="${w*.28}" dominant-baseline="middle">⚡</text><rect x="${w*.15}" y="${h*.42}" width="${w*.7}" height="${h*.3}" rx="5" fill="${c}" stroke="${c2}" stroke-width="1"/><text x="${w/2}" y="${h*.59}" text-anchor="middle" font-size="${w*.14}" fill="#fff" font-weight="500">ZEUS</text><rect x="${w*.2}" y="${h*.72}" width="${w*.25}" height="${h*.25}" rx="4" fill="${c2}"/><rect x="${w*.55}" y="${h*.72}" width="${w*.25}" height="${h*.25}" rx="4" fill="${c2}"/><rect x="${w*.01}" y="${h*.45}" width="${w*.14}" height="${h*.25}" rx="3" fill="${c}" stroke="${c2}" stroke-width=".5"/><rect x="${w*.85}" y="${h*.45}" width="${w*.14}" height="${h*.25}" rx="3" fill="${c}" stroke="${c2}" stroke-width=".5"/>`;}},
-  {id:'atenea',n:'Atenea',cls:'Diosa de la Sabiduría',rar:'L',lore:'Estratega suprema del Olimpo. Analiza el mercado con precisión divina. Sus portafolios nunca colapsan.',col:'#85B7EB',col2:'#0C447C',skill:'Ojo de búho: reduce pérdidas un 15% cada mes',bon:[{t:'Pérdidas -15%',bg:'rgba(29,158,117,.15)',c:'#5DCAA5'},{t:'Análisis +30%',bg:'rgba(55,138,221,.15)',c:'#85B7EB'},{t:'XP doble',bg:'rgba(127,119,221,.15)',c:'#AFA9EC'}],at:{Ataque:65,Defensa:95,Suerte:70,Dividendos:75},
-   spr(w,h,c,c2){return`<circle cx="${w/2}" cy="${h*.22}" r="${w*.22}" fill="#F4C0D1" stroke="${c}" stroke-width="1.5"/><text x="${w/2}" y="${h*.3}" text-anchor="middle" font-size="${w*.28}" dominant-baseline="middle">🦉</text><rect x="${w*.15}" y="${h*.42}" width="${w*.7}" height="${h*.3}" rx="5" fill="${c}" stroke="${c2}" stroke-width="1"/><text x="${w/2}" y="${h*.58}" text-anchor="middle" font-size="${w*.12}" fill="#fff" font-weight="500">ATENEA</text><rect x="${w*.2}" y="${h*.72}" width="${w*.25}" height="${h*.25}" rx="4" fill="${c2}"/><rect x="${w*.55}" y="${h*.72}" width="${w*.25}" height="${h*.25}" rx="4" fill="${c2}"/><rect x="${w*.01}" y="${h*.45}" width="${w*.14}" height="${h*.25}" rx="3" fill="${c}" stroke="${c2}" stroke-width=".5"/><rect x="${w*.85}" y="${h*.45}" width="${w*.14}" height="${h*.25}" rx="3" fill="${c}" stroke="${c2}" stroke-width=".5"/><rect x="${w*.01}" y="${h*.38}" width="${w*.06}" height="${h*.38}" rx="2" fill="${c2}" stroke="${c}" stroke-width=".5"/>`;}},
-  {id:'hermes',n:'Hermes',cls:'Dios del Comercio',rar:'E',lore:'El veloz mensajero es el rey del trading. Opera antes de que el mercado parpadee.',col:'#5DCAA5',col2:'#085041',skill:'Velocidad divina: cripto +25%, nunca pierde oportunidades',bon:[{t:'Cripto +25%',bg:'rgba(59,109,17,.15)',c:'#97C459'},{t:'Sin comisión',bg:'rgba(239,159,39,.15)',c:'#FAC775'},{t:'Reacción rápida',bg:'rgba(29,158,117,.15)',c:'#5DCAA5'}],at:{Ataque:80,Defensa:50,Suerte:95,Dividendos:60},
-   spr(w,h,c,c2){return`<circle cx="${w/2}" cy="${h*.22}" r="${w*.22}" fill="#FFD6A5" stroke="${c}" stroke-width="1.5"/><text x="${w/2}" y="${h*.3}" text-anchor="middle" font-size="${w*.28}" dominant-baseline="middle">🪽</text><rect x="${w*.15}" y="${h*.42}" width="${w*.7}" height="${h*.3}" rx="5" fill="${c}" stroke="${c2}" stroke-width="1"/><text x="${w/2}" y="${h*.58}" text-anchor="middle" font-size="${w*.12}" fill="#fff" font-weight="500">HERMES</text><rect x="${w*.2}" y="${h*.72}" width="${w*.25}" height="${h*.25}" rx="4" fill="${c2}"/><rect x="${w*.55}" y="${h*.72}" width="${w*.25}" height="${h*.25}" rx="4" fill="${c2}"/><rect x="${w*.01}" y="${h*.45}" width="${w*.14}" height="${h*.25}" rx="3" fill="${c}" stroke="${c2}" stroke-width=".5"/><rect x="${w*.85}" y="${h*.45}" width="${w*.14}" height="${h*.25}" rx="3" fill="${c}" stroke="${c2}" stroke-width=".5"/><line x1="${w/2}" y1="${h*.42}" x2="${w/2}" y2="${h*.72}" stroke="${c2}" stroke-width="1.5"/><circle cx="${w/2}" cy="${h*.52}" r="${w*.07}" fill="none" stroke="${c2}" stroke-width="1"/><circle cx="${w/2}" cy="${h*.64}" r="${w*.07}" fill="none" stroke="${c2}" stroke-width="1"/>`;}},
-  {id:'ares',n:'Ares',cls:'Dios de la Batalla',rar:'E',lore:'Guerrero sin miedo. Solo conoce una estrategia: atacar. Alto riesgo, altísima recompensa. O todo o nada.',col:'#E24B4A',col2:'#791F1F',skill:'Furia de combate: ganancias x2 (y pérdidas también)',bon:[{t:'Ganancia x2',bg:'rgba(226,75,74,.15)',c:'#F09595'},{t:'HP máx +20',bg:'rgba(239,159,39,.15)',c:'#FAC775'},{t:'Riesgo máximo',bg:'rgba(226,75,74,.2)',c:'#E24B4A'}],at:{Ataque:100,Defensa:30,Suerte:65,Dividendos:40},
-   spr(w,h,c,c2){return`<circle cx="${w/2}" cy="${h*.22}" r="${w*.22}" fill="#FFD6A5" stroke="${c}" stroke-width="1.5"/><text x="${w/2}" y="${h*.3}" text-anchor="middle" font-size="${w*.28}" dominant-baseline="middle">⚔️</text><rect x="${w*.15}" y="${h*.42}" width="${w*.7}" height="${h*.3}" rx="5" fill="${c}" stroke="${c2}" stroke-width="1"/><text x="${w/2}" y="${h*.59}" text-anchor="middle" font-size="${w*.14}" fill="#fff" font-weight="500">ARES</text><rect x="${w*.2}" y="${h*.72}" width="${w*.25}" height="${h*.25}" rx="4" fill="${c2}"/><rect x="${w*.55}" y="${h*.72}" width="${w*.25}" height="${h*.25}" rx="4" fill="${c2}"/><rect x="${w*.01}" y="${h*.45}" width="${w*.14}" height="${h*.25}" rx="3" fill="${c}" stroke="${c2}" stroke-width=".5"/><rect x="${w*.85}" y="${h*.45}" width="${w*.14}" height="${h*.25}" rx="3" fill="${c}" stroke="${c2}" stroke-width=".5"/><line x1="${w*.9}" y1="${h*.12}" x2="${w*.9}" y2="${h*.72}" stroke="${c}" stroke-width="2.5" stroke-linecap="round"/><polygon points="${w*.9},${h*.06} ${w*.9+5},${h*.2} ${w*.9-5},${h*.2}" fill="${c2}"/>`;}},
-  {id:'hades',n:'Hades',cls:'Señor del Inframundo',rar:'R',lore:'Domina las caídas del mercado. Cuando todos pierden, Hades prospera. Maestro de la austeridad.',col:'#7F77DD',col2:'#26215C',skill:'Maldición bajista: gana cuando el mercado cae',bon:[{t:'Mercado bajista',bg:'rgba(127,119,221,.15)',c:'#AFA9EC'},{t:'Escudo x1.5',bg:'rgba(55,138,221,.15)',c:'#85B7EB'},{t:'Deuda -20%',bg:'rgba(29,158,117,.15)',c:'#5DCAA5'}],at:{Ataque:70,Defensa:90,Suerte:40,Dividendos:80},
-   spr(w,h,c,c2){return`<circle cx="${w/2}" cy="${h*.22}" r="${w*.22}" fill="#B4B2A9" stroke="${c}" stroke-width="1.5"/><text x="${w/2}" y="${h*.3}" text-anchor="middle" font-size="${w*.28}" dominant-baseline="middle">💀</text><rect x="${w*.15}" y="${h*.42}" width="${w*.7}" height="${h*.3}" rx="5" fill="${c}" stroke="${c2}" stroke-width="1"/><text x="${w/2}" y="${h*.58}" text-anchor="middle" font-size="${w*.12}" fill="#fff" font-weight="500">HADES</text><rect x="${w*.2}" y="${h*.72}" width="${w*.25}" height="${h*.25}" rx="4" fill="${c2}"/><rect x="${w*.55}" y="${h*.72}" width="${w*.25}" height="${h*.25}" rx="4" fill="${c2}"/><rect x="${w*.01}" y="${h*.45}" width="${w*.14}" height="${h*.25}" rx="3" fill="${c}" stroke="${c2}" stroke-width=".5"/><rect x="${w*.85}" y="${h*.45}" width="${w*.14}" height="${h*.25}" rx="3" fill="${c}" stroke="${c2}" stroke-width=".5"/><line x1="${w*.9}" y1="${h*.2}" x2="${w*.9}" y2="${h*.72}" stroke="${c}" stroke-width="2" stroke-linecap="round"/><path d="M ${w*.83},${h*.2} Q ${w*.9},${h*.08} ${w*.97},${h*.2}" fill="none" stroke="${c}" stroke-width="1.5"/><path d="M ${w*.85},${h*.2} Q ${w*.9},${h*.13} ${w*.95},${h*.2}" fill="${c2}"/>`;}},
-  {id:'fortuna',n:'Fortuna',cls:'Diosa de la Suerte',rar:'R',lore:'La señora del azar y la abundancia. Sus inversiones parecen caóticas — pero siempre terminan bien.',col:'#D4537E',col2:'#4B1528',skill:'Rueda del destino: bonus aleatorio de +5 a +25% cada mes',bon:[{t:'Bonus aleatorio',bg:'rgba(212,83,126,.15)',c:'#ED93B1'},{t:'Dividendos +30%',bg:'rgba(29,158,117,.15)',c:'#5DCAA5'},{t:'Suerte máxima',bg:'rgba(239,159,39,.15)',c:'#FAC775'}],at:{Ataque:55,Defensa:65,Suerte:100,Dividendos:90},
-   spr(w,h,c,c2){return`<circle cx="${w/2}" cy="${h*.22}" r="${w*.22}" fill="#F4C0D1" stroke="${c}" stroke-width="1.5"/><text x="${w/2}" y="${h*.3}" text-anchor="middle" font-size="${w*.28}" dominant-baseline="middle">🎲</text><rect x="${w*.15}" y="${h*.42}" width="${w*.7}" height="${h*.3}" rx="5" fill="${c}" stroke="${c2}" stroke-width="1"/><text x="${w/2}" y="${h*.57}" text-anchor="middle" font-size="${w*.11}" fill="#fff" font-weight="500">FORTUNA</text><rect x="${w*.2}" y="${h*.72}" width="${w*.25}" height="${h*.25}" rx="4" fill="${c2}"/><rect x="${w*.55}" y="${h*.72}" width="${w*.25}" height="${h*.25}" rx="4" fill="${c2}"/><rect x="${w*.01}" y="${h*.45}" width="${w*.14}" height="${h*.25}" rx="3" fill="${c}" stroke="${c2}" stroke-width=".5"/><rect x="${w*.85}" y="${h*.45}" width="${w*.14}" height="${h*.25}" rx="3" fill="${c}" stroke="${c2}" stroke-width=".5"/><circle cx="${w*.9}" cy="${h*.44}" r="${w*.13}" fill="none" stroke="${c}" stroke-width="1.5"/><line x1="${w*.9}" y1="${h*.31}" x2="${w*.9}" y2="${h*.57}" stroke="${c}" stroke-width="1"/><line x1="${w*.77}" y1="${h*.44}" x2="${w*1.03}" y2="${h*.44}" stroke="${c}" stroke-width="1"/><circle cx="${w*.9}" cy="${h*.44}" r="${w*.03}" fill="${c}"/>`;}},
-];
-const RLBL={L:'Legendario',E:'Épico',R:'Raro'};
-const ACOL={Ataque:'#E24B4A',Defensa:'#85B7EB',Suerte:'#FAC775',Dividendos:'#5DCAA5'};
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
 
-const STOCKS=[
-  {id:'BVN',n:'Buenaventura',zone:'mineria',flag:'🇵🇪',icon:'⛏️',col:'#854F0B',base:28,div:0},
-  {id:'SIDE',n:'Siderperú',zone:'mineria',flag:'🇵🇪',icon:'🔩',col:'#633806',base:15,div:0},
-  {id:'CPAC',n:'Pacasmayo',zone:'mineria',flag:'🇵🇪',icon:'🏗️',col:'#854F0B',base:12,div:0.8},
-  {id:'XOM',n:'ExxonMobil',zone:'mineria',flag:'🇺🇸',icon:'🛢️',col:'#3B6D11',base:115,div:3.4},
-  {id:'BAP',n:'Credicorp',zone:'finanzas',flag:'🇵🇪',icon:'🏦',col:'#185FA5',base:180,div:2.5},
-  {id:'JPM',n:'JPMorgan',zone:'finanzas',flag:'🇺🇸',icon:'💳',col:'#0C447C',base:200,div:4.2},
-  {id:'JNJ',n:'Johnson & J.',zone:'finanzas',flag:'🇺🇸',icon:'💊',col:'#378ADD',base:155,div:3.1},
-  {id:'TELE',n:'Entel Perú',zone:'finanzas',flag:'🇵🇪',icon:'📡',col:'#0C447C',base:20,div:0.5},
-  {id:'AAPL',n:'Apple',zone:'tech',flag:'🇺🇸',icon:'🍎',col:'#534AB7',base:190,div:1.0},
-  {id:'NVDA',n:'NVIDIA',zone:'tech',flag:'🇺🇸',icon:'⚡',col:'#3C3489',base:880,div:0.2},
-  {id:'SPY',n:'S&P 500',zone:'tech',flag:'🌐',icon:'📊',col:'#185FA5',base:520,div:1.6},
-  {id:'BTC',n:'Bitcoin ETF',zone:'cripto',flag:'🌐',icon:'₿',col:'#3B6D11',base:680,div:0},
-  {id:'GOLD',n:'Oro (ETF)',zone:'cripto',flag:'🌐',icon:'🏅',col:'#854F0B',base:220,div:0},
-];
-const ZONE_COLORS={mineria:'#854F0B',finanzas:'#185FA5',tech:'#534AB7',cripto:'#3B6D11'};
-const ZONE_NAMES={mineria:'Zona Minas',finanzas:'Zona Banco',tech:'Zona Tech',cripto:'Zona Cripto'};
-const LIFE_EXP=[{month:1,total:2200,label:'Vida básica'},{month:7,total:2900,label:'Vida cómoda'},{month:13,total:3800,label:'Vida premium'}];
-const EMERG=[
-  {icon:'🏥',title:'Emergencia médica',desc:'Un accidente requiere S/ 3,000 en gastos hospitalarios.',cost:3000},
-  {icon:'🚗',title:'Tu carro se averió',desc:'La reparación urgente cuesta S/ 1,800.',cost:1800},
-  {icon:'💻',title:'Laptop rota',desc:'Necesitas una laptop nueva: S/ 2,500.',cost:2500},
-  {icon:'🏠',title:'Daño en tu hogar',desc:'Una tubería reventó. Arreglo: S/ 2,000.',cost:2000},
-];
-const EVENTS=[
-  {title:'⛏️ Cobre sube a US$4.80/lb',tag:'up',effect:{BVN:+22,SIDE:+12,XOM:+5,CPAC:+8},icon:'⛏️',lesson:'Los commodities impactan directamente a las empresas extractoras.'},
-  {title:'🏦 Credicorp reporta utilidades récord',tag:'up',effect:{BAP:+15,JPM:+5},icon:'🏦',lesson:'Los buenos resultados trimestrales impulsan los precios.'},
-  {title:'⚡ NVIDIA: ventas de IA explosivas',tag:'up',effect:{NVDA:+38,AAPL:+8,SPY:+6},icon:'⚡',lesson:'Las megatendencias tecnológicas generan retornos extraordinarios.'},
-  {title:'⚠️ FED sube tasas 0.25%',tag:'dn',effect:{BTC:-18,SPY:-7,NVDA:-10,AAPL:-6},icon:'⚠️',lesson:'Las tasas de la FED afectan a todos los mercados del mundo.'},
-  {title:'₿ Bitcoin supera US$80,000',tag:'up',effect:{BTC:+32},icon:'₿',lesson:'Alta volatilidad: grandes ganancias o grandes pérdidas.'},
-  {title:'🌩️ Corrección global de mercados',tag:'dn',effect:{SPY:-9,AAPL:-8,NVDA:-13,BTC:-12,BAP:-7},icon:'🌩️',lesson:'Las correcciones son normales. El inversor paciente las aprovecha.'},
-  {title:'🏅 Oro alcanza máximos históricos',tag:'up',effect:{GOLD:+16,BVN:+8},icon:'🏅',lesson:'El oro es el escudo en tiempos de incertidumbre global.'},
-  {title:'📜 FMI mejora proyección de Perú a 3.2%',tag:'up',effect:{BAP:+10,BVN:+8,CPAC:+12,TELE:+9},icon:'📜',lesson:'Los buenos fundamentos macro elevan todo el mercado nacional.'},
-  {title:'🛢️ Petróleo sube por conflicto geopolítico',tag:'up',effect:{XOM:+20,GOLD:+10},icon:'🛢️',lesson:'Los eventos geopolíticos crean oportunidades en energía.'},
-  {title:'📡 Entel Perú gana licitación del Estado',tag:'up',effect:{TELE:+22},icon:'📡',lesson:'Los contratos estratégicos crean valor de largo plazo.'},
-  {title:'💊 Johnson & J. eleva dividendo',tag:'up',effect:{JNJ:+14},icon:'💊',lesson:'Los dividendos crecientes señalan una empresa financieramente sólida.'},
-  {title:'😴 Semana tranquila en el reino',tag:'neu',effect:{},icon:'😴',lesson:'No siempre hay acción. La paciencia es también una estrategia.'},
-];
-const LEARN=[
-  {t:'¿Qué es una acción?',b:'Representa propiedad en una empresa. Cuando crece y gana más, tu acción vale más. Como dueño participas en las ganancias.'},
-  {t:'Fondo de emergencia (Escudo)',b:'Antes de invertir guarda 3-6 meses de gastos. Sin escudo y en emergencia tendrás que vender en el peor momento.'},
-  {t:'Dividendos: oro pasivo',b:'Empresas como BAP y JPM pagan dividendos cada 3 meses. Son ingresos sin hacer nada — la base de la riqueza pasiva.'},
-  {t:'Préstamos y la maldición',b:'Un préstamo al 1.8% mensual es 21.6% anual. El interés compuesto trabaja en tu contra cuando debes — y a tu favor cuando inviertes.'},
-  {t:'Diversificación entre zonas',b:'Mezcla Minas, Banco, Tech y Cripto. Una caída en una zona se compensa con ganancias en otra.'},
-  {t:'La FED mueve todo el reino',b:'Cuando la FED sube tasas el dinero huye de acciones a bonos. Las acciones de crecimiento como NVDA y BTC caen más.'},
-  {t:'Dollar-cost averaging',b:'Invierte una cantidad fija cada mes. Compras más cuando baja y menos cuando sube. Supera al 80% de los traders.'},
-];
-const MISSIONS=[
-  {id:'first',gem:'💎',text:'Primera conquista: captura tu primer activo',pts:40,done:false},
-  {id:'shield',gem:'🛡️',text:'Forja tu escudo: S/ 3,000 en fondo de emergencia',pts:100,done:false},
-  {id:'fullshield',gem:'⚔️',text:'Escudo completo: S/ 6,000 en fondo',pts:150,done:false},
-  {id:'div',gem:'💰',text:'Tesoro pasivo: recibe dividendos por 1ª vez',pts:80,done:false},
-  {id:'3zones',gem:'🗺️',text:'Explorador: activos en 3 zonas del reino',pts:120,done:false},
-  {id:'etf',gem:'📊',text:'Sabio: compra el S&P 500 (SPY)',pts:70,done:false},
-  {id:'profit15',gem:'🏆',text:'Héroe: alcanza +15% de rendimiento total',pts:150,done:false},
-  {id:'nodebtat12',gem:'✨',text:'Pureza: mes 12 sin deuda activa',pts:120,done:false},
-  {id:'surv_emrg',gem:'🧿',text:'Superviviente: supera una emergencia con escudo',pts:200,done:false},
-  {id:'survive',gem:'👑',text:'Leyenda: completa los 24 meses',pts:250,done:false},
-];
-const LEVELS=['Ahorrista','Inversionista','Trader','Portfolio Mgr','Libre Financiero'];
+window.login = async () => {
+  const provider = new GoogleAuthProvider();
+  await signInWithPopup(auth, provider);
+};
 
-let hero=null,selHero=null;
-let G={cash:10000,month:1,xp:5,level:0,hp:100,prices:{},prev:{},portfolio:{},start:10000,ef:0,loan:0,loanRate:0.018,divTotal:0,missions:JSON.parse(JSON.stringify(MISSIONS)),learnRead:new Set(),filterZone:null,_wasNeg:false,_emergSurvived:false,_loanPaid:false};
-STOCKS.forEach(s=>{G.prices[s.id]=s.base;G.prev[s.id]=s.base;});
+/* ================= GAME ================= */
 
-const fmt=n=>'S/ '+Math.round(n).toLocaleString('es-PE');
-const fmtP=n=>(n>=0?'+':'')+n.toFixed(1)+'%';
-const pv=()=>Object.keys(G.portfolio).reduce((a,id)=>a+(G.portfolio[id].qty*G.prices[id]),0);
-const lifeExp=()=>(LIFE_EXP.slice().reverse().find(l=>G.month>=l.month)||LIFE_EXP[0]).total;
-const lifeLabel=()=>(LIFE_EXP.slice().reverse().find(l=>G.month>=l.month)||LIFE_EXP[0]).label;
-const mkSvg=(h,w,ht)=>`<svg viewBox="0 0 ${w} ${ht}" width="${w}" height="${ht}">${h.spr(w,ht,h.col,h.col2)}</svg>`;
+class GameScene extends Phaser.Scene {
 
-function buildHeroCard(h){
-  const d=document.createElement('div');
-  d.className='hcard';d.id='hc-'+h.id;d.style.borderTopColor=h.col;
-  const rc=h.rar==='L'?'rar-L':h.rar==='E'?'rar-E':'rar-R';
-  const bars=Object.entries(h.at).map(([k,v])=>`<div class="mbar"><div class="mbar-lbl">${k}</div><div class="mbar-bg"><div class="mbar-fg" style="width:${v}%;background:${ACOL[k]};"></div></div><div class="mbar-val">${v}</div></div>`).join('');
-  d.innerHTML=`<div class="hcard-topline" style="background:${h.col};"></div><div class="rar-badge ${rc}">${RLBL[h.rar]}</div><div style="margin:0 auto 10px;">${mkSvg(h,64,80)}</div><div style="font-size:13px;font-weight:500;color:#fff;margin-bottom:2px;">${h.n}</div><div style="font-size:10px;color:${h.col};margin-bottom:7px;">${h.cls}</div><div style="font-size:10px;color:var(--tx2);line-height:1.45;margin-bottom:9px;min-height:28px;">${h.skill}</div><div class="mini-bars">${bars}</div>`;
-  d.onclick=()=>selectHero(h);
-  document.getElementById('hero-grid').appendChild(d);
+  preload() {
+    this.load.spritesheet("player","assets/player.png",{frameWidth:64,frameHeight:64});
+    this.load.spritesheet("enemy","assets/enemy.png",{frameWidth:64,frameHeight:64});
+
+    this.load.image("particle","assets/particle.png");
+    this.load.image("fire","assets/fire.png");
+    this.load.image("spark","assets/spark.png");
+    this.load.image("portrait","assets/portrait.png");
+
+    this.load.audio("bgm","assets/music_base.mp3");
+    this.load.audio("bgm_ult","assets/music_ult.mp3");
+    this.load.audio("hit","assets/hit.mp3");
+    this.load.audio("voice","assets/voice_ult.mp3");
+  }
+
+  create() {
+    this.state = { enemyHP:120, mana:0 };
+
+    this.createAnimations();
+    this.createCharacters();
+    this.createUI();
+    this.createVFX();
+
+    this.bgm = this.sound.add("bgm",{loop:true,volume:0.5});
+    this.bgm.play();
+  }
+
+  /* ========= ANIMATIONS ========= */
+
+  createAnimations(){
+    this.anims.create({ key:"idle", frames:this.anims.generateFrameNumbers("player",{start:0,end:3}), frameRate:6, repeat:-1 });
+    this.anims.create({ key:"attack", frames:this.anims.generateFrameNumbers("player",{start:4,end:7}), frameRate:10 });
+
+    this.anims.create({ key:"enemy_idle", frames:this.anims.generateFrameNumbers("enemy",{start:0,end:3}), frameRate:6, repeat:-1 });
+    this.anims.create({ key:"enemy_hit", frames:this.anims.generateFrameNumbers("enemy",{start:4,end:6}), frameRate:10 });
+  }
+
+  createCharacters(){
+    this.player = this.add.sprite(200,300,"player").setScale(2).play("idle");
+    this.enemy = this.add.sprite(600,300,"enemy").setScale(2).play("enemy_idle");
+  }
+
+  /* ========= UI ========= */
+
+  createUI(){
+    this.enemyBar = this.add.rectangle(450,80,200,10,0xff4444);
+
+    this.createBtn(650,500,"ATTACK",()=>this.attack());
+    this.createBtn(780,500,"ULT",()=>this.ult());
+  }
+
+  createBtn(x,y,t,cb){
+    const b=this.add.text(x,y,t,{backgroundColor:"#222",padding:10}).setInteractive();
+    b.on("pointerdown",()=>{b.setScale(0.9);cb();});
+    b.on("pointerup",()=>b.setScale(1));
+  }
+
+  /* ========= COMBAT ========= */
+
+  attack(){
+    this.player.play("attack");
+    this.enemy.play("enemy_hit");
+
+    this.hit(15);
+    this.animeImpact(this.enemy.x,this.enemy.y);
+  }
+
+  ult(){
+    if(this.state.mana<100) return;
+
+    this.ultimateCutscene();
+    this.hit(80);
+  }
+
+  hit(dmg){
+    this.state.enemyHP -= dmg;
+    this.state.mana += 20;
+
+    this.sound.play("hit");
+
+    if(this.state.enemyHP<=0){
+      this.state.enemyHP=120;
+    }
+
+    this.enemyBar.width = 200*(this.state.enemyHP/120);
+  }
+
+  /* ========= VFX ========= */
+
+  createVFX(){
+    this.vfx = this.add.particles(0,0,"particle",{ speed:{min:-300,max:300}, scale:{start:0.6,end:0}, lifespan:400, blendMode:'ADD' });
+  }
+
+  animeImpact(x,y){
+    this.vfx.explode(30,x,y);
+
+    const flash = this.add.circle(x,y,40,0xffffff,1);
+    this.tweens.add({targets:flash,scale:3,alpha:0,duration:200,onComplete:()=>flash.destroy()});
+  }
+
+  /* ========= CINEMATIC ========= */
+
+  ultimateCutscene(){
+
+    this.sound.play("voice");
+    this.bgm.stop();
+
+    this.bgmUlt = this.sound.add("bgm_ult",{loop:true});
+    this.bgmUlt.play();
+
+    // barras negras
+    const w=this.scale.width;
+    this.topBar=this.add.rectangle(0,-100,w,100,0x000).setOrigin(0);
+    this.botBar=this.add.rectangle(0,this.scale.height,w,100,0x000).setOrigin(0);
+
+    this.tweens.add({targets:this.topBar,y:0,duration:200});
+    this.tweens.add({targets:this.botBar,y:this.scale.height-100,duration:200});
+
+    // portrait
+    const p=this.add.image(-200,300,"portrait").setScale(0.5);
+    this.tweens.add({targets:p,x:200,duration:300});
+
+    // zoom
+    this.cameras.main.zoomTo(1.5,300);
+
+    this.time.delayedCall(600,()=>{
+
+      this.cameras.main.shake(300,0.05);
+      this.animeImpact(this.enemy.x,this.enemy.y);
+
+      const flash=this.add.rectangle(400,300,2000,2000,0xffffff,1);
+      this.tweens.add({targets:flash,alpha:0,duration:200,onComplete:()=>flash.destroy()});
+
+    });
+
+    this.time.delayedCall(1400,()=>{
+
+      this.cameras.main.zoomTo(1,300);
+      this.bgmUlt.stop();
+      this.bgm.play();
+
+      this.topBar.destroy();
+      this.botBar.destroy();
+      p.destroy();
+
+    });
+  }
+
 }
 
-function selectHero(h){
-  selHero=h;
-  document.querySelectorAll('.hcard').forEach(c=>{c.classList.remove('sel');c.style.borderColor='var(--br)';c.style.borderWidth='1px';});
-  const c=document.getElementById('hc-'+h.id);c.classList.add('sel');c.style.borderColor=h.col;c.style.borderWidth='1.5px';
-  const panel=document.getElementById('det-panel');
-  const attrs=Object.entries(h.at).map(([k,v])=>`<div class="dattr"><div class="dattr-l">${k}</div><div class="dattr-v" style="color:${ACOL[k]};">${v}</div><div class="dattr-bar"><div class="dattr-fill" style="width:${v}%;background:${ACOL[k]};"></div></div></div>`).join('');
-  const bons=h.bon.map(b=>`<span class="bon" style="background:${b.bg};color:${b.c};">${b.t}</span>`).join('');
-  panel.innerHTML=`<div class="det-head"><div>${mkSvg(h,80,100)}</div><div style="flex:1;"><div style="font-size:18px;font-weight:500;color:${h.col};margin-bottom:4px;">${h.n}</div><div style="margin-bottom:8px;"><span style="background:${h.col}22;color:${h.col};padding:2px 9px;border-radius:999px;font-size:10px;font-weight:500;">${h.cls}</span> <span style="background:rgba(255,255,255,.06);color:var(--tx2);padding:2px 9px;border-radius:999px;font-size:10px;">${RLBL[h.rar]}</span></div><div class="det-lore">${h.lore}</div></div></div><div class="det-attrs">${attrs}</div><div class="bonuses">${bons}</div><button class="btn-start" style="background:${h.col};" onclick="startGame()">Comenzar aventura con ${h.n} ↗</button>`;
-  panel.style.borderColor=h.col;panel.classList.add('show');
-  panel.scrollIntoView({behavior:'smooth',block:'nearest'});
-}
+/* ========= INIT ========= */
 
-function startGame(){
-  if(!selHero)return;
-  hero=selHero;
-  document.getElementById('screen-select').style.display='none';
-  document.getElementById('screen-game').style.display='block';
-  document.getElementById('hero-svg').innerHTML=hero.spr(48,60,hero.col,hero.col2);
-  updateHUD();renderStocks();renderMissions();
-}
-
-function updateHUD(){
-  const v=pv(),total=G.cash+v+G.ef,ret=(total-G.start)/G.start*100;
-  document.getElementById('hud-cash').textContent=fmt(G.cash);
-  document.getElementById('hud-port').textContent=fmt(v);
-  document.getElementById('hud-ef').textContent=fmt(G.ef);
-  const rv=document.getElementById('hud-ret');rv.textContent=fmtP(ret);rv.className='hc-v '+(ret>=0?'g':'r');
-  document.getElementById('p-inv').textContent=fmt(v);
-  document.getElementById('p-cash').textContent=fmt(G.cash);
-  const pr=document.getElementById('p-ret');pr.textContent=fmtP(ret);pr.style.color=ret>=0?'#5DCAA5':'#E24B4A';
-  document.getElementById('evt-month').textContent='Mes '+G.month+' de 24 · Año '+Math.ceil(G.month/12);
-  document.getElementById('xp-bar').style.width=Math.min(100,G.xp)+'%';
-  document.getElementById('xp-lbl').textContent=Math.min(100,G.xp)+' XP';
-  document.getElementById('lvl-badge').textContent='Nivel '+(G.level+1)+' — '+LEVELS[G.level];
-  document.getElementById('hp-fill').style.width=G.hp+'%';
-  document.getElementById('hp-txt').textContent=G.hp;
-  if(ret<0)G._wasNeg=true;
-  checkMissions(total,ret);
-}
-
-function renderStocks(){
-  const list=G.filterZone?STOCKS.filter(s=>s.zone===G.filterZone):STOCKS;
-  document.getElementById('mkt-grid').innerHTML=list.map(s=>{
-    const p=G.prices[s.id],pp=G.prev[s.id],chg=(p-pp)/pp*100,pos=G.portfolio[s.id];
-    const pnl=pos?((p-pos.avgCost)/pos.avgCost*100):0;
-    return`<div class="mkt-card" id="mc-${s.id}"><div style="font-size:9px;color:var(--tx2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:${ZONE_COLORS[s.zone]};margin-right:4px;vertical-align:middle;"></span>${ZONE_NAMES[s.zone]} ${s.flag}${s.div>0?' · div '+s.div+'%':''}</div><div class="mkt-row"><span style="font-size:18px;">${s.icon}</span><span style="font-size:13px;font-weight:500;color:#fff;">${s.id}</span><span style="flex:1;"></span><span style="font-size:13px;font-weight:500;color:#fff;">${fmt(p)}</span></div><div style="font-size:11px;color:var(--tx2);margin-bottom:3px;">${s.n}</div><div style="font-size:10px;color:${chg>=0?'#5DCAA5':'#E24B4A'};">${fmtP(chg)} este mes</div>${pos&&pos.qty>0?`<div style="font-size:10px;color:var(--tx2);margin-top:2px;">${pos.qty} en cartera · P&L: <span style="color:${pnl>=0?'#5DCAA5':'#E24B4A'};">${fmtP(pnl)}</span></div>`:''}<div class="mkt-btns"><button class="btn-buy" ${G.cash>=p?'':'disabled'} onclick="buy('${s.id}')">Capturar</button><button class="btn-sell" ${pos&&pos.qty>0?'':'disabled'} onclick="sell('${s.id}')">Liberar</button></div></div>`;
-  }).join('');
-}
-
-function renderPortfolio(){
-  const ids=Object.keys(G.portfolio).filter(id=>G.portfolio[id].qty>0);
-  if(!ids.length){document.getElementById('port-items').innerHTML='<div style="text-align:center;padding:24px;font-size:12px;color:var(--tx2);">Tu mochila está vacía. Ve al mercado.</div>';return;}
-  document.getElementById('port-items').innerHTML=ids.map(id=>{
-    const s=STOCKS.find(x=>x.id===id),pos=G.portfolio[id];
-    const val=pos.qty*G.prices[id],pnl=(G.prices[id]-pos.avgCost)*pos.qty,pnlP=(G.prices[id]-pos.avgCost)/pos.avgCost*100;
-    return`<div class="port-item"><div class="port-icon" style="background:${s.col}22;font-size:18px;">${s.icon}</div><div style="flex:1;"><div style="font-size:12px;font-weight:500;color:#fff;">${s.id} ${s.flag}</div><div style="font-size:11px;color:var(--tx2);">${pos.qty} acc · costo: ${fmt(pos.avgCost)}</div></div><div style="text-align:right;"><div style="font-size:12px;font-weight:500;color:#fff;">${fmt(val)}</div><div style="font-size:11px;color:${pnl>=0?'#5DCAA5':'#E24B4A'};">${pnl>=0?'+':''}${fmt(pnl)} (${fmtP(pnlP)})</div></div></div>`;
-  }).join('');
-}
-
-function renderKingdom(){
-  const exp=lifeExp(),efPct=Math.min(100,G.ef/6000*100);
-  document.getElementById('tab-reino').innerHTML=`<div class="kgd-section"><div class="kgd-title"><span>🛡️</span><div>Escudo de vida (Fondo emergencia)</div></div><div class="bar-row2"><div style="font-size:12px;color:var(--tx2);">${fmt(G.ef)} / S/ 6,000</div><div style="font-size:11px;background:${efPct>=100?'rgba(29,158,117,.15)':efPct>=50?'rgba(239,159,39,.15)':'rgba(226,75,74,.15)'};color:${efPct>=100?'#5DCAA5':efPct>=50?'#FAC775':'#F09595'};padding:1px 8px;border-radius:999px;">${efPct>=100?'Completo':Math.round(efPct)+'%'}</div></div><div class="bar-bg2" style="margin-bottom:10px;"><div class="bar-fg2" style="width:${efPct}%;background:${efPct>=100?'#1D9E75':efPct>=50?'#EF9F27':'#E24B4A'};"></div></div><div style="font-size:11px;color:var(--tx2);margin-bottom:10px;">Objetivo: 3 meses de gastos (S/ 6,000). Rinde 5.5% anual.</div><div class="kgd-btns"><button class="btn-kgd" onclick="addEF(500)" ${G.cash>500?'':'disabled'}>+S/ 500</button><button class="btn-kgd" onclick="addEF(2000)" ${G.cash>2000?'':'disabled'}>+S/ 2,000</button><button class="btn-kgd btn-danger" onclick="rmEF(500)" ${G.ef>=500?'':'disabled'}>−S/ 500</button></div></div><div class="kgd-section"><div class="kgd-title"><span>💀</span><div>Maldición de deuda</div></div><div style="font-size:11px;color:var(--tx2);margin-bottom:8px;">${G.loan>0?'Maldición activa: '+fmt(G.loan)+' · Interés: '+fmt(+(G.loan*G.loanRate).toFixed(0))+'/mes':'Sin deuda activa — el reino está en paz.'}</div><div class="kgd-btns">${G.loan===0?`<button class="btn-kgd" style="border-color:rgba(133,79,11,.4);background:rgba(133,79,11,.1);color:#FAC775;" onclick="takeLoan(3000)">Invocar S/ 3,000</button><button class="btn-kgd" style="border-color:rgba(133,79,11,.4);background:rgba(133,79,11,.1);color:#FAC775;" onclick="takeLoan(5000)">Invocar S/ 5,000</button>`:`<button class="btn-kgd btn-danger" onclick="payLoan(${+(G.loan*G.loanRate+500).toFixed(0)})" ${G.cash>=(G.loan*G.loanRate+500)?'':'disabled'}>Cuota mínima (${fmt(+(G.loan*G.loanRate+500).toFixed(0))})</button><button class="btn-kgd btn-danger" onclick="payLoan(${G.loan})" ${G.cash>=G.loan?'':'disabled'}>Romper maldición (${fmt(G.loan)})</button>`}</div></div><div class="kgd-section"><div class="kgd-title"><span>🏰</span><div>Gastos del reino — ${lifeLabel()}</div></div><div class="expense-row">🏠 Vivienda <span>−${fmt(exp*.5)}</span></div><div class="expense-row">🍽️ Sustento <span>−${fmt(exp*.25)}</span></div><div class="expense-row">⚡ Servicios <span>−${fmt(exp*.25)}</span></div><div class="expense-row" style="border-top:1px solid var(--br);margin-top:5px;padding-top:5px;font-weight:500;color:var(--tx);">Total mensual <span>−${fmt(exp)}</span></div></div>`;
-}
-
-function renderMissions(){
-  const done=G.missions.filter(m=>m.done).length;
-  document.getElementById('missions-list').innerHTML=`<div style="font-size:11px;color:var(--tx2);margin-bottom:12px;">${done}/${G.missions.length} misiones completadas</div>`+G.missions.map(m=>`<div class="mission"><div class="mis-gem ${m.done?'mis-done':'mis-todo'}">${m.done?'✓':'·'}</div><div style="flex:1;font-size:12px;color:${m.done?'var(--tx2)':'var(--tx)'};${m.done?'text-decoration:line-through;':''}">${m.gem} ${m.text}</div><div style="font-size:10px;color:var(--tx2);">${m.pts} XP</div></div>`).join('');
-}
-
-function renderLearn(){
-  document.getElementById('learn-list').innerHTML=LEARN.map((c,i)=>`<div class="learn-item"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px;"><div style="font-size:13px;font-weight:500;color:#fff;">${c.t}</div>${G.learnRead.has(i)?'<span style="font-size:10px;background:rgba(29,158,117,.15);color:#5DCAA5;padding:2px 8px;border-radius:999px;">Leído</span>':''}</div><div style="font-size:12px;color:var(--tx2);line-height:1.65;margin-bottom:7px;">${c.b}</div>${!G.learnRead.has(i)?`<button class="btn-read" onclick="markRead(${i})">Marcar como leído +10 XP</button>`:''}</div>`).join('');
-}
-function markRead(i){if(G.learnRead.has(i))return;G.learnRead.add(i);G.xp=Math.min(100,G.xp+10);updateHUD();renderLearn();showToast('📖 +10 XP — Conocimiento adquirido');}
-
-function checkMissions(total,ret){
-  const ids=Object.keys(G.portfolio).filter(id=>G.portfolio[id].qty>0);
-  const zones=[...new Set(ids.map(id=>STOCKS.find(s=>s.id===id)?.zone))];
-  let gained=0;
-  G.missions.forEach(m=>{
-    if(m.done)return;let done=false;
-    if(m.id==='first'&&ids.length>=1)done=true;
-    if(m.id==='shield'&&G.ef>=3000)done=true;
-    if(m.id==='fullshield'&&G.ef>=6000)done=true;
-    if(m.id==='div'&&G.divTotal>0)done=true;
-    if(m.id==='3zones'&&zones.length>=3)done=true;
-    if(m.id==='etf'&&G.portfolio['SPY']?.qty>0)done=true;
-    if(m.id==='profit15'&&ret>=15)done=true;
-    if(m.id==='nodebtat12'&&G.month>=12&&G.loan===0)done=true;
-    if(m.id==='surv_emrg'&&G._emergSurvived)done=true;
-    if(m.id==='survive'&&G.month>=24)done=true;
-    if(done){m.done=true;gained+=m.pts;showToast(m.gem+' Misión: '+m.text+' +'+m.pts+' XP');}
-  });
-  if(gained>0){G.xp=Math.min(100,G.xp+gained);if(G.xp>=100&&G.level<4){G.level++;G.xp=0;showToast('⬆️ Nivel '+(G.level+1)+': '+LEVELS[G.level]);const svg=document.getElementById('hero-svg');if(svg)svg.innerHTML=hero.spr(48,60,hero.col,hero.col2);}}
-  renderMissions();
-}
-
-function floatText(id,text,color){
-  const card=document.getElementById('mc-'+id);if(!card)return;
-  const fl=document.createElement('div');fl.className='float-txt';fl.textContent=text;fl.style.color=color;fl.style.top='40%';fl.style.left='50%';fl.style.transform='translateX(-50%)';card.style.position='relative';card.appendChild(fl);setTimeout(()=>fl.remove(),1400);
-}
-
-function buy(id){
-  const s=STOCKS.find(x=>x.id===id),p=G.prices[id];
-  if(G.cash<p){showToast('Sin suficiente oro');return;}
-  G.cash=+(G.cash-p).toFixed(2);if(!G.portfolio[id])G.portfolio[id]={qty:0,avgCost:p};
-  const pos=G.portfolio[id];pos.avgCost=+((pos.avgCost*pos.qty+p)/(pos.qty+1)).toFixed(2);pos.qty++;
-  G.xp=Math.min(100,G.xp+5);
-  const mc=document.getElementById('mc-'+id);if(mc){mc.classList.remove('fu','fd');void mc.offsetWidth;mc.classList.add('fu');}
-  floatText(id,'+ capturado','#5DCAA5');showToast(s.icon+' Capturaste '+id+' por '+fmt(p));updateHUD();renderStocks();
-}
-function sell(id){
-  const s=STOCKS.find(x=>x.id===id),pos=G.portfolio[id];
-  if(!pos||pos.qty<1){showToast('Sin acciones de '+id);return;}
-  const pnl=G.prices[id]-pos.avgCost;G.cash=+(G.cash+G.prices[id]).toFixed(2);pos.qty--;if(pos.qty===0)delete G.portfolio[id];
-  G.xp=Math.min(100,G.xp+3);
-  const mc=document.getElementById('mc-'+id);if(mc){mc.classList.remove('fu','fd');void mc.offsetWidth;mc.classList.add(pnl>=0?'fu':'fd');}
-  floatText(id,(pnl>=0?'+':'')+fmt(pnl),pnl>=0?'#5DCAA5':'#E24B4A');showToast((pnl>=0?'⚔️ Victoria: +':'💀 Derrota: −')+fmt(Math.abs(pnl))+' en '+id);updateHUD();renderStocks();
-}
-function addEF(amt){if(G.cash<amt){showToast('Sin suficiente oro');return;}G.cash-=amt;G.ef+=amt;showToast('🛡️ Escudo reforzado: +'+fmt(amt));updateHUD();renderKingdom();}
-function rmEF(amt){if(G.ef<amt){showToast('Escudo insuficiente');return;}G.ef-=amt;G.cash+=amt;showToast('Retiraste '+fmt(amt)+' del escudo');updateHUD();renderKingdom();}
-function takeLoan(amt){if(G.loan>0){showToast('Ya tienes una maldición activa');return;}G.loan=amt;G.cash+=amt;showToast('💀 Maldición invocada: '+fmt(amt));updateHUD();renderKingdom();}
-function payLoan(amt){
-  const pay=Math.min(amt,G.cash);if(pay<5){showToast('Sin oro');return;}
-  G.cash-=pay;G.loan=Math.max(0,+(G.loan-(pay-(+(G.loan*G.loanRate).toFixed(2)))).toFixed(2));
-  if(G.loan<=0){G.loan=0;G._loanPaid=true;showToast('✨ Maldición rota. +50 XP');G.xp=Math.min(100,G.xp+50);}
-  else showToast('Cuota pagada. Deuda: '+fmt(G.loan));
-  updateHUD();renderKingdom();
-}
-function filterZone(zone){
-  G.filterZone=zone;document.getElementById('zone-lbl').textContent=ZONE_NAMES[zone]+' — Activos de esta zona';
-  showTab('mercado',document.querySelector('.tab.active'));renderStocks();showToast('Visitando '+ZONE_NAMES[zone]);
-}
-function triggerEmergency(){
-  const e=EMERG[Math.floor(Math.random()*EMERG.length)];
-  document.getElementById('emerg-icon').textContent=e.icon;document.getElementById('emerg-title').textContent=e.title;document.getElementById('emerg-desc').textContent=e.desc;
-  const canEF=G.ef>=e.cost,canCash=G.cash>=e.cost;
-  document.getElementById('emerg-opts').innerHTML=`<button class="btn-modal" style="background:${canEF?'#185FA5':'#444'};color:#fff;" ${canEF?'':'disabled'} onclick="resolveEmerg('ef',${e.cost})">${canEF?'🛡️ Usar escudo ('+fmt(e.cost)+')':'Escudo insuficiente (tienes '+fmt(G.ef)+')'}</button><button class="btn-modal" style="background:${canCash?'#1D9E75':'#444'};color:#fff;" ${canCash?'':'disabled'} onclick="resolveEmerg('cash',${e.cost})">Pagar con efectivo (${fmt(e.cost)})</button><button class="btn-modal" style="background:#854F0B;color:#fff;" onclick="resolveEmerg('loan',${e.cost})">💀 Invocar préstamo (1.8%/mes)</button>`;
-  document.getElementById('emerg-modal').classList.add('open');
-}
-function resolveEmerg(method,cost){
-  document.getElementById('emerg-modal').classList.remove('open');
-  if(method==='ef'){G.ef-=cost;if(!G._emergSurvived){G._emergSurvived=true;showToast('🛡️ Escudo absorbió la emergencia. ¡Misión!');}else showToast('🛡️ Escudo absorbió la emergencia.');}
-  else if(method==='cash'){G.cash=Math.max(0,G.cash-cost);showToast('Emergencia pagada con efectivo.');}
-  else takeLoan(cost);
-  G.hp=Math.max(10,G.hp-5);updateHUD();
-}
-function applyDividends(){
-  let total=0;
-  STOCKS.forEach(s=>{if(s.div>0&&G.portfolio[s.id]?.qty>0){let d=+(G.prices[s.id]*G.portfolio[s.id].qty*(s.div/100)/4).toFixed(2);if(hero&&hero.id==='fortuna')d=+(d*1.3).toFixed(2);G.cash+=d;total+=d;}});
-  if(total>0){G.divTotal+=total;setTimeout(()=>showToast('💰 Dividendos del reino: +'+fmt(total)),700);}
-}
-function showTab(name,btn){
-  ['mercado','portafolio','reino','misiones','aprender'].forEach(t=>{const el=document.getElementById('tab-'+t);if(el)el.style.display=t===name?'block':'none';});
-  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));if(btn)btn.classList.add('active');
-  if(name==='portafolio')renderPortfolio();if(name==='reino')renderKingdom();if(name==='misiones')renderMissions();if(name==='aprender')renderLearn();
-}
-function nextMonth(){
-  if(G.month>=24){endGame();return;}
-  const exp=lifeExp();
-  if(G.cash>=exp){G.cash=+(G.cash-exp).toFixed(2);}
-  else{const gap=exp-G.cash;G.cash=0;if(G.ef>=gap){G.ef-=gap;showToast('⚠️ Usaste el escudo para gastos');}else{G.loan+=gap;showToast('💀 Deuda automática: '+fmt(gap));}}
-  if(G.loan>0){const int=+(G.loan*G.loanRate).toFixed(2);G.loan+=int;G.hp=Math.max(10,G.hp-4);}
-  if(G.ef>=1000)G.ef=+(G.ef*(1+0.055/12)).toFixed(2);
-  if(G.month%3===0)applyDividends();
-  if(hero&&hero.id==='fortuna'){const b=5+Math.floor(Math.random()*20),ba=+(G.cash*(b/100)).toFixed(2);G.cash+=ba;showToast('🎲 Rueda del destino: +'+b+'% ('+fmt(ba)+')');}
-  const trigE=G.month>3&&Math.random()<0.14;
-  STOCKS.forEach(s=>G.prev[s.id]=G.prices[s.id]);
-  const evt=EVENTS[Math.floor(Math.random()*EVENTS.length)];
-  STOCKS.forEach(s=>{
-    let d=evt.effect[s.id]||0;
-    if(hero&&hero.id==='zeus'&&s.zone==='tech')d=+(d*1.2).toFixed(1);
-    if(hero&&hero.id==='hermes'&&s.zone==='cripto')d=+(d*1.25).toFixed(1);
-    const noise=(Math.random()-.47)*7;
-    G.prices[s.id]=Math.max(1,+(G.prices[s.id]*(1+(d+noise)/100)).toFixed(2));
-    const mc=document.getElementById('mc-'+s.id);if(mc){mc.classList.remove('fu','fd');void mc.offsetWidth;mc.classList.add(G.prices[s.id]>=G.prev[s.id]?'fu':'fd');}
-  });
-  if(hero&&hero.id==='atenea'){const v=pv(),total=G.cash+v+G.ef,ret=(total-G.start)/G.start*100;if(ret<-5){const r=+(G.start*.015).toFixed(2);G.cash+=r;showToast('🦉 Atenea absorbe pérdidas: +'+fmt(r));}}
-  const v=pv(),total=G.cash+v+G.ef,ret=(total-G.start)/G.start*100;
-  if(ret<0)G.hp=Math.max(10,G.hp-2);else if(G.loan===0)G.hp=Math.min(100,G.hp+2);
-  G.month++;G.xp=Math.min(100,G.xp+6);
-  const TC={up:'rgba(29,158,117,.15)',dn:'rgba(226,75,74,.1)',neu:'rgba(255,255,255,.04)'};
-  const FC={up:'#5DCAA5',dn:'#F09595',neu:'var(--tx2)'};
-  document.getElementById('evt-hdr').style.background=TC[evt.tag]||TC.neu;
-  document.getElementById('evt-icon').textContent=evt.icon;
-  document.getElementById('evt-title').textContent=evt.title;
-  document.getElementById('evt-title').style.color=FC[evt.tag]||FC.neu;
-  document.getElementById('evt-lesson').innerHTML=evt.title.split(evt.icon)[1]||evt.title+' — <b>'+evt.lesson+'</b>';
-  document.getElementById('evt-lesson').innerHTML='<b>'+evt.lesson+'</b>';
-  document.getElementById('btn-next').textContent=G.month<=24?'⚔️ Avanzar al mes '+(G.month+1):'🏆 Ver resultado final';
-  updateHUD();renderStocks();
-  const at=document.querySelector('.tab.active')?.textContent||'';
-  if(at.includes('Mochila'))renderPortfolio();if(at.includes('Reino'))renderKingdom();
-  if(trigE)setTimeout(triggerEmergency,600);
-}
-function endGame(){
-  const total=G.cash+pv()+G.ef,ret=(total-G.start)/G.start*100,done=G.missions.filter(m=>m.done).length;
-  alert('¡Aventura completada!\n\nHéroe: '+hero.n+' ('+hero.cls+')\nNivel: '+LEVELS[G.level]+'\nPortafolio: '+fmt(total)+' ('+fmtP(ret)+')\nDividendos: '+fmt(G.divTotal)+'\nHP: '+G.hp+'/100\nMisiones: '+done+'/'+G.missions.length+'\n\n¡Gracias por jugar StockQuest RPG!\nstockmarketbro.app');
-}
-function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
-HEROES.forEach(buildHeroCard);
+new Phaser.Game({
+  type: Phaser.AUTO,
+  width: window.innerWidth,
+  height: window.innerHeight,
+  scene: GameScene
+});
 </script>
+
 </body>
 </html>
